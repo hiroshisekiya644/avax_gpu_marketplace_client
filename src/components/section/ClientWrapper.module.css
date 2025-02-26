@@ -1,0 +1,12 @@
+.main {
+  width: calc(100% - 18rem);
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+@media screen and (max-width: 768px) {
+  .main {
+    width: 100%;
+    margin-top: 40px;
+  }
+}

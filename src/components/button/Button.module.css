@@ -1,0 +1,43 @@
+.button {
+  color: var(--white-color);
+  height: 53px;
+  text-align: center;
+  font-size: 14px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 700;
+
+  &.fullWidth {
+    width: 100%;
+  }
+
+  &.line {
+    background-color: #02b738;
+  }
+
+  &.white {
+    background-color: var(--white-color);
+    color: var(--text-black-color);
+    border: 1px solid var(--text-black-color);
+    box-sizing: border-box;
+  }
+
+  &.black {
+    background-color: var(--text-black-color);
+    color: var(--white-color);
+  }
+
+  &.orange {
+    background-color: var(--secondary-color);
+    color: var(--white-color);
+  }
+
+  &:disabled {
+    background-color: var(--button-disabled-color);
+    cursor: default;
+  }
+}

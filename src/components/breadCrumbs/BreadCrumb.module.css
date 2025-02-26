@@ -1,0 +1,26 @@
+.breadcrumb {
+  font-size: 12px;
+
+  & a,
+  & span {
+    color: var(--text-gray-color-dark);
+  }
+}
+
+.arrowIcon {
+  transform: rotate(270deg);
+
+  & path {
+    fill: var(--text-gray-color-dark);
+  }
+}
+
+.breadCrumbPrev {
+  font-size: 20px;
+  color: var(--textSoft);
+}
+
+.breadCrumbNext {
+  font-size: 24px;
+  color: var(--text);
+}

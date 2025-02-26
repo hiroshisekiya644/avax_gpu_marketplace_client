@@ -1,0 +1,67 @@
+/* page.module.css */
+.bg {
+  background-color: var(--bg);
+  height: 100%;
+  min-height: 100vh; 
+  display: flex; 
+  justify-content: center !important;
+  align-items: center; 
+  background-image: url('/assets/background.png');
+  background-position: center;
+  background-size: cover;
+  margin: 0; 
+  padding: 0; 
+  overflow-y: auto;
+}
+
+.card {
+  width: 400px;
+  padding: 40px;
+  background-color: var(--bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  border: 2px solid #9945FC;
+  border-radius: 8px;
+}
+
+@media screen and (max-width: 768px) {
+  .card {
+    width: 350px;
+  }
+}
+
+.title {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--text);
+}
+
+.text {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: bold;
+}
+
+.subText {
+  font-size: 14px;
+  color: var(--textSoftDark);
+}
+
+.submitButton {
+  cursor: pointer !important;
+  background-color: var(--border) !important;
+  width: 100% !important;
+  height: 45px !important;
+}
+
+.submitButton:hover {
+  background-color: var(--button) !important;
+}
+
+.subTextButton {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text);
+  cursor: pointer;
+}

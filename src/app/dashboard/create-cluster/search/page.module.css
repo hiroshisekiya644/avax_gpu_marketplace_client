@@ -1,0 +1,222 @@
+.bg {
+  background-color: var(--bg);
+  height: 100%;
+  min-height: 100vh;
+  color: var(--text)
+}
+
+.header {
+  height: 90px;
+  border-bottom: 1px solid rgb(61 61 61);
+  width: 100%;
+}
+
+.headerTitle {
+  color: var(--text);
+  font-size: 1.5rem;
+  margin-top: 10px;
+}
+
+.subTitle {
+  color: var(--textSoft);
+  font-size: 12px;
+}
+
+.progressRoot {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.1); 
+  border-radius: 9999px;
+  width: 100%;
+  height: 10px;
+  margin-top: 10px;
+}
+
+.progressIndicator {
+  background: linear-gradient(to right, #8e2de2, #4a00e0); 
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 3000ms ease; 
+}
+
+.contentTitle {
+  color: var(--text);
+  font-size: 1.5rem;
+}
+
+.contentText {
+  color: var(--textSoft);
+  font-size: 12px;
+}
+
+/* search textfield */
+.searchPad {
+  height: 38px;
+  background-color: var(--bgSoft);
+  color: var(--text);
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.iconSlot {
+  color: var(--textSoft);
+}
+
+.searchPad input::placeholder {
+  color: var(--textSoft);
+}
+
+.searchPad:focus-within {
+  outline: 2px solid var(--border);
+}
+
+.selectBox {
+  width: 100%;
+}
+
+/* GPU cards */
+.gpuCard {
+  background-color: var(--bg) !important;
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+}
+
+.selectValueBox {
+  width: 60px;
+  height: 30px;
+}
+
+.nvidiaTitle {
+  background-color: var(--bgSoftDark);
+  align-items: center;
+  padding-right: 10px;
+}
+
+.gpuStatus {
+  background-color: var(--bgSoftDark);
+}
+
+.contentTextWhite {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.checkOptionButton {
+  background-color: var(--bg);
+  cursor: pointer;
+  border: 1px solid var(--textSoft);
+  font-size: 10px;
+  text-align: center; 
+  flex: 1;
+  max-width: 100%; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
+
+.checkOptionButton:hover {
+  background-color: var(--bgSoft);
+}
+
+.selectGPUButton {
+  background-color: var(--bg);
+  cursor: pointer;
+  border: 2px solid var(--border);
+  font-size: 10px;
+  text-align: center; 
+  flex: 1;
+  max-width: 100%; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
+
+.selectGPUButton:hover {
+  background-color: var(--button);
+}
+
+.defaultButton {
+  background-color: var(--bg);
+  cursor: pointer;
+  border: 2px solid var(--border);
+  font-size: 10px;
+  text-align: center; 
+  flex: 1;
+  max-width: 100%; 
+  min-width: 100px;
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  font-size: 14px;
+}
+
+.defaultButton:hover {
+  background-color: var(--button);
+}
+
+/* cluster card */
+.clusterCard {
+  background-color: var(--bg) !important;
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--bgSoft);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.pathText {
+  font-size: 12px;
+  color: var(--textSoft)
+}
+
+/* summary section */
+.summary {
+  background-color: var(--bgSoftDark);
+  border-radius: 8px;
+}
+
+.instanceArea {
+  background-color: var(--bgSoft);
+  border-radius: 4px;
+}
+
+.priceTitle {
+  font-weight: bold;
+}
+
+.switchRoot {
+  width: 32px; 
+  height: 18px; 
+  background-color: var(--black-a9);
+  border-radius: 9999px;
+  position: relative;
+  box-shadow: 0 2px 10px var(--black-a7);
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+  &:focus {
+    box-shadow: 0 0 0 2px black;
+  }
+
+  &[data-state="checked"] {
+    background-color: black;
+  }
+}
+
+.switchThumb {
+  display: block;
+  width: 14px; 
+  height: 14px; 
+  background-color: white;
+  border-radius: 9999px;
+  box-shadow: 0 2px 2px var(--black-a7);
+  transition: transform 100ms;
+  transform: translateX(2px); 
+  will-change: transform;
+  cursor: pointer;
+
+  &[data-state="checked"] {
+    transform: translateX(16px); 
+  }
+}

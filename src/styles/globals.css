@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --bg: #0a0a0a;
+  --bgSoft: rgb(39 39 39);
+  --bgSoftDark: rgb(23 23 23);
+  --text: #fff;
+  --textSoft: #b7bac1;
+  --textSoftDark: rgb(113 113 113);
+  --soft: rgb(23 23 23);
+  --button: rgb(81 8 167);
+  --border: rgb(100 9 208);
+  --cardDarkPurple: rgb(8 29 87);
+  --buttonDarkPurple: rgb(47 6 98);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+  background: var(--bg);
+}
+
+main {
+  height: 100%;
+  width: 100%;
+  flex: 1;
+}
+
+button {
+  padding: 0px;
+  padding-inline: 0px;
+  padding-block: 0px;
+  border: none;
+  margin: 0px;
+  background: none;
+  all: unset;
+}
+
+a {
+  text-decoration: none;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+.snackbar {
+  width: 300px;
+  left: auto !important;
+}
+
+dl {
+  margin: 0;
+  padding: 0;
+}
+

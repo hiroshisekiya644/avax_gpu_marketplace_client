@@ -1,0 +1,225 @@
+.sidebar {
+  width: 18rem;
+  background-color: var(--bg);
+  border-right: 1px solid var(--border-gray-color);
+  height: 100vh;
+  overflow: auto;
+  border-right: 1px solid rgb(61 61 61);
+  & a {
+    color: var(--text);
+  }
+}
+
+.miniSidebar {
+  max-width: 90px;
+  width: 90px;
+  background-color: var(--bg);
+  border-right: 1px solid var(--border-gray-color);
+  height: 100vh;
+  overflow: auto;
+  border-right: 1px solid rgb(61 61 61);
+  & a {
+    color: var(--text);
+  }
+  overflow-x: hidden;
+}
+
+.menu {
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+
+  &:hover {
+    background-color: var(--soft);
+  }
+
+  &.current {
+    background-color: var(--soft);
+    color: var(--text);
+  }
+
+  &.child {
+    display: block;
+    margin-left: 16px;
+  }
+}
+
+.walletButton {
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--text);
+  background-color: var(--soft);
+  cursor: pointer;
+  width: 100%;
+  align-items: center;
+  text-align: center;
+  &:hover {
+    background-color: var(--border);
+  }
+}
+
+.trigger[data-state='open'] {
+  & svg {
+    transform: rotate(180deg);
+  }
+}
+
+.content {
+  overflow: hidden;
+}
+.content[data-state='open'] {
+  animation: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
+}
+.content[data-state='closed'] {
+  animation: slideUp 300ms cubic-bezier(0.87, 0, 0.13, 1);
+}
+@keyframes slideDown {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+@keyframes slideUp {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .miniSidebar {
+    display: none;
+  }
+}
+
+.imageButton {
+  cursor: pointer;
+}
+
+.linkButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.miniLinkButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.textButton {
+  color: rgb(71 85 105) !important;
+  font-size: 10px;
+  margin-top: 20px;
+}
+
+.userLinkGroup {
+  color: var(--text);
+  cursor: pointer;
+  align-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: var(--soft);
+}
+
+.userLinkButton {
+  color: var(--text);
+  cursor: pointer;
+}
+
+.popoverContent {
+  background-color: var(--soft);
+  color: var(--text);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid black;
+  padding: 5px;
+  width: 16rem;
+  z-index: 1000;
+  margin-bottom: 10px;
+}
+
+.popoverInner {
+  padding: 8px;
+}
+
+.popoverTitle {
+  color: rgb(113 113 113);
+  font-size: 14px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.popoverMenu {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.popoverMenu li {
+  padding: 8px;
+  color: rgb(50 50 50);
+  cursor: pointer;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.popoverMenu li:hover {
+  background-color: rgb(50 50 50);
+}
+
+.popoverContent[data-state='open'] {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.logoutButton {
+  border-top: 1px solid white;
+}
+
+.createClusterButton {
+  background-color: var(--button);
+}
+
+.createClusterButtonDefault {
+  border: 1px solid var(--border);
+}
+
+.createClusterButtonDefault:hover {
+  background-color: var(--button);
+}
+
+.logoText {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text)
+}
+
+.sidebarText {
+  color: var(--textSoftDark);
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+.logoutIconButton {
+  cursor: pointer;
+}
+
+
+

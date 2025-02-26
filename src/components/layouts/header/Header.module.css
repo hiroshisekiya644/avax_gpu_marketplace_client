@@ -1,0 +1,191 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 18rem;
+  z-index: 10;
+  width: calc(100% - 18rem);
+  background-color: var(--bg);
+  box-shadow: 0 0 4px rgba(3, 3, 3, 0.08);
+  border-bottom: 1px solid rgb(61 61 61);
+  display: none;
+  & a {
+    color: var(--text-black-color);
+  }
+}
+
+.headerTitle {
+  color: var(--text);
+  font-size: 1rem;
+  margin-top: 10px;
+  display: none;
+}
+
+.avatar {
+  cursor: pointer;
+}
+
+.menu[data-highlighted] {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.hamburger {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .header{
+    width: 100%;
+    left: 0;
+    height: 60px;
+    background-color: rgb(50 50 50);
+    display: flex;
+  }
+
+  .headerTitle {
+    margin-left: 20px;
+  }
+
+  .hamburger {
+    display: block;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    color: var(--text);
+    margin-top: 10px;
+
+
+    & span {
+      display: block;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      transform-origin: 0% 50%;
+      width: 20px;
+      height: 1.5px;
+
+      &:nth-child(1) {
+        top: 7px;
+        background-color: var(--text);
+      }
+
+      &:nth-child(2) {
+        top: 14px;
+        background-color: var(--text);
+      }
+      &:nth-child(3) {
+        top: 21px;
+        background-color: var(--text);
+      }
+    }
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 15;
+    background-color: var(--bg);
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .overlay[data-state='open'] {
+    animation: fadeIn 200ms ease-in-out;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .headerTitle {
+    display: flex;
+  }
+}
+
+.popoverContent {
+  background-color: var(--soft);
+  color: var(--text);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid black;
+  padding: 5px;
+  width: 16rem;
+  z-index: 1000;
+  margin-bottom: 10px;
+}
+
+.popoverInner {
+  padding: 8px;
+}
+
+.popoverTitle {
+  color: rgb(113 113 113);
+  font-size: 14px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.popoverMenu {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.popoverMenu li {
+  padding: 8px;
+  color: rgb(50 50 50);
+  cursor: pointer;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.popoverMenu li:hover {
+  background-color: rgb(50 50 50);
+}
+
+.popoverContent[data-state='open'] {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.logoutButton {
+  border-top: 1px solid white;
+}
+
+.createClusterButton {
+  background-color: var(--button);
+}
+
+.createClusterButtonDefault {
+  border: 1px solid var(--border);
+}
+
+.userLinkGroup {
+  color: var(--text);
+  cursor: pointer;
+  align-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.userLinkButton {
+  color: var(--text);
+  cursor: pointer;
+}
+
+
+
+
+

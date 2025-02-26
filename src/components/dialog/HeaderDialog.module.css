@@ -1,0 +1,82 @@
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 20;
+  background-color: var(--white-color);
+  overflow-y: auto;
+
+  & a {
+    color: var(--text-black-color);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+}
+
+.heading {
+  font-size: 24px;
+  font-weight: 600;
+  font-family: system-ui, sans-serif;
+}
+
+.menuList {
+  flex-direction: column;
+  font-family: 'Noto Sans JP', sans-serif;
+  padding: 8px;
+}
+
+.menu {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+
+  &.current {
+    background-color: var(--gray-a3);
+    color: var(--indigo-9);
+  }
+
+  &.child {
+    display: block;
+    margin-left: 16px;
+  }
+}
+
+.walletButton {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: var(--bgSoft);
+  color: var(--text);
+  width: 200px;
+  justify-content: center;
+  margin-bottom: 20px;
+  text-align: center;
+  cursor: pointer;
+  &:hover {
+    background-color: var(--border);
+  }
+}
+
+.trigger[data-state='open'] {
+  & svg {
+    transform: rotate(180deg);
+  }
+}
+
+.content {
+  overflow: hidden;
+}
+.content[data-state='open'] {
+  animation: slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
+}
+.content[data-state='closed'] {
+  animation: slideUp 300ms cubic-bezier(0.87, 0, 0.13, 1);
+}
+

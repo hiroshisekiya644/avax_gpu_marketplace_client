@@ -1,0 +1,32 @@
+.toast {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 400;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.toastLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.text {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.link {
+  color: var(--white-color);
+  text-decoration: underline;
+}
+
+.close {
+  cursor: pointer;
+}

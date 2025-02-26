@@ -1,0 +1,165 @@
+.bg {
+  background-color: var(--bg);
+  height: 100%;
+  min-height: 100vh;
+  color: var(--text)
+}
+
+.header {
+  height: 110px;
+  border-bottom: 1px solid rgb(61 61 61);
+  width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .header {
+    height: 110px;
+  }
+}
+
+.headerTitle {
+  color: var(--text);
+  font-size: 1.5rem;
+}
+
+.subTitle {
+  color: var(--textSoft);
+  font-size: 12px;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  border: 2px solid var(--text);
+  border-radius: 4px;
+  padding: 6px;
+  max-width: 300px;
+  width: 300px;
+  background-color: var(--bgSoft);
+}
+
+.label:hover {
+  background-color: var(--textSoftDark);
+}
+
+.labelChecked {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  border: 2px solid var(--text);
+  border-radius: 4px;
+  padding: 6px;
+  max-width: 250px;
+}
+
+.checkboxRoot {
+  all: unset;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.checkboxRootSelected {
+  background-color: black;
+}
+
+.checkboxRootUnselected {
+  background-color: white;
+}
+
+.checkboxInput {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid gray;
+  flex: 1;
+  color: var(--bg);
+  max-width: 150px;
+  width: 150px;
+  height: 25px;
+}
+
+.optionId {
+  padding: 4px 10px;
+  border: 1px solid var(--textSoft);
+  border-radius: 5px;
+  width: 30px;
+} 
+
+.optionIdChecked {
+  padding: 4px 10px;
+  border: 1px solid var(--textSoft);
+  border-radius: 5px;
+  background-color: var(--text);
+  color: var(--bg);
+  width: 30px;
+}
+
+.submitButton {
+  background-color: var(--button);
+  width: 100%;
+  cursor: pointer;
+  width: 100px;
+}
+
+.submitButton:hover {
+  background-color: var(--border);
+}
+
+.progressRoot {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.1); 
+  border-radius: 9999px;
+  width: 100%;
+  height: 10px;
+  margin-top: 10px;
+}
+
+.progressIndicator {
+  background: linear-gradient(to right, #8e2de2, #4a00e0); 
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 3000ms ease; 
+}
+
+.textFieldContainer {
+  width: 100%;
+}
+
+.textField {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 24px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #1a1a1a;
+  color: white;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.textField::placeholder {
+  color: #777; 
+}
+
+.textField:focus {
+  border-color: #6200ee; 
+}
+
+.iconButton {
+  background-color: var(--button);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  background-color: var(--border);
+}
