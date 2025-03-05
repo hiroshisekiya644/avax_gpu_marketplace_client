@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import * as Switch from '@radix-ui/react-switch'
@@ -10,6 +10,9 @@ import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormSelect, SelectItem } from '@/components/select/FormSelect'
 import { useResize } from '@/utils/Helper'
 import styles from './page.module.css'
+
+import { getGPUAction } from '@/api/GpuProvider'
+import { getImageAction } from '@/api/ImageProvider'
 
 export type GPUCard = {
   name: string
@@ -69,31 +72,6 @@ const selectImages: SelectItem[] = [
   { label: 'Axolotl', name: 'axolotl', image: <NvidiaLogo /> }
 ]
 
-const gpuCards: GPUCard[] = [
-  { name: 'H100', value: 3, vRam: '80 GB', socket: 'PCIe, SXM5', community: '$1.52', secure: '$1.90', available: true },
-  {
-    name: 'H101',
-    value: 1,
-    vRam: '180 GB',
-    socket: 'PCIe, SXM5',
-    community: '$1.52',
-    secure: '$1.90',
-    available: true
-  },
-  { name: 'H102', value: 1, vRam: '16 GB', socket: 'PCIe, SXM5', community: '', secure: '$1.90', available: false },
-  { name: 'H103', value: 3, vRam: '80 GB', socket: 'PCIe, SXM5', community: '$1.52', secure: '', available: true },
-  {
-    name: 'H104',
-    value: 1,
-    vRam: '180 GB',
-    socket: 'PCIe, SXM5',
-    community: '$1.52',
-    secure: '$1.90',
-    available: true
-  },
-  { name: 'H107', value: 1, vRam: '8 GB', socket: 'PCIe, SXM5', community: '', secure: '$1.90', available: false }
-]
-
 const selectValue: SelectItem[] = [
   { label: '1', name: '1' },
   { label: '2', name: '2' },
@@ -132,6 +110,27 @@ const clusterBaseImages: ClusterBaseImage[] = [
 const CreateCluster = () => {
   const { isResponsive } = useResize()
   const [modalopen, setModalopen] = useState(false)
+  const [gpuCards, setGpuCards] = useState<any[]>([])
+  const [selectedFlavors, setSelectedFlavors] = useState<{ [key: string]: string }>({})
+
+  useEffect(() => {
+    const getGPUList = async () => {
+      const gpuList = await getGPUAction()
+      const imageList = await getImageAction()
+      setGpuCards(gpuList.data.data)
+      console.log('This is GPU list ==================>', gpuList)
+      console.log('This is Image list ==================>', imageList)
+    }
+    getGPUList()
+  }, [])
+
+  const handleFlavorChange = (gpuKey: string, selectedFlavorId: string) => {
+    console.log(gpuKey)
+    setSelectedFlavors((prev) => ({
+      ...prev,
+      [gpuKey]: selectedFlavorId
+    }))
+  }
 
   const router = useRouter()
   return (
@@ -195,56 +194,104 @@ const CreateCluster = () => {
           <Flex mt="4" gap="2" direction={isResponsive ? 'column' : 'row'}>
             <Grid columns={{ initial: '1', sm: '1', md: '2', lg: '3' }} gap={{ initial: '2', sm: '4' }} width="100%">
               {/* card details */}
-              {gpuCards.map((gpuCard) => (
-                <Flex className={styles.gpuCard} key={gpuCard.name} direction="column" gap="2">
-                  <Flex width="100%" justify="between">
-                    <Flex gap="2" className={styles.nvidiaTitle}>
-                      <NvidiaLogo />
-                      <div>{gpuCard.name}</div>
-                    </Flex>
-                    <FormSelect
-                      id="valueNumber"
-                      name="valueNumber"
-                      items={selectValue}
-                      defaultValue="1"
-                      className={styles.selectValueBox}
-                    />
-                  </Flex>
-                  <Flex width="100%" direction="column" p="1" className={styles.gpuStatus} gap="2">
-                    <Flex align="center" gap="2">
-                      <VramLogo />
-                      <div className={styles.contentText}>VRAM:</div>
-                      <div className={styles.contentTextWhite}>{gpuCard.vRam}</div>
-                    </Flex>
-                  </Flex>
-                  <Flex width="100%" direction="column" p="1" className={styles.gpuStatus} gap="2">
-                    <Flex align="center" gap="2">
-                      <SocketLogo />
-                      <div className={styles.contentText}>Socket:</div>
-                      <div className={styles.contentTextWhite}>{gpuCard.socket}</div>
-                    </Flex>
-                  </Flex>
-                  <Flex gap="2" justify="between">
-                    <Button className={styles.checkOptionButton}>
-                      <Flex gap="1">
-                        <CommunityCloudIcon />
-                        <div>Community</div>
-                        <div>{gpuCard.community}</div>
+              {gpuCards.map((gpuCard, index) => {
+                const gpuKey = `${gpuCard.gpu || 'cpu'}-${index}` // Unique key
+                const flavorOptions: SelectItem[] = gpuCard.flavors.map((flavor: { name: any; id: any }) => ({
+                  label: flavor.name, // Use flavor name as label
+                  name: String(flavor.id) // Use flavor ID as value
+                }))
+
+                // Get selected flavor's CPU count
+                const selectedFlavor = gpuCard.flavors.find(
+                  (flavor: { id: any }) => String(flavor.id) === selectedFlavors[gpuKey]
+                )
+                const cpuCount = selectedFlavor ? selectedFlavor.cpu : gpuCard.flavors[0].cpu
+                const ram = selectedFlavor ? selectedFlavor.ram : gpuCard.flavors[0].ram
+                const disk = selectedFlavor ? selectedFlavor.disk : gpuCard.flavors[0].disk
+                const ephemeral = selectedFlavor ? selectedFlavor.ephemeral : gpuCard.flavors[0].ephemeral
+                const stock_available: boolean = selectedFlavor
+                  ? selectedFlavor.stock_available
+                  : gpuCard.flavors[0].stock_available
+
+                return (
+                  <Flex
+                    className={styles.gpuCard}
+                    key={`${gpuCard.gpu || 'cpu'}-${index}`}
+                    direction="column"
+                    gap="2"
+                    justify="between"
+                  >
+                    <Flex className={styles.gpuCardContent} direction="column" gap="2">
+                      <Flex width="100%" justify="between">
+                        <Flex gap="2" className={styles.nvidiaTitle}>
+                          <NvidiaLogo />
+                          <div>{gpuCard.gpu || 'CPU only'}</div>
+                        </Flex>
                       </Flex>
-                    </Button>
-                    <Button className={styles.checkOptionButton}>
-                      <Flex gap="1">
-                        <SecureCloudIcon />
-                        <div>Secure</div>
-                        <div>{gpuCard.secure}</div>
+
+                      {/* FormSelect for flavors */}
+                      <FormSelect
+                        id={`flavor-${gpuCard.gpu || 'cpu'}-${index}`}
+                        name="flavor"
+                        items={flavorOptions}
+                        defaultValue={`${flavorOptions[0].name}`}
+                        onChange={(selectedValue) => handleFlavorChange(gpuKey, selectedValue)}
+                        className={styles.selectValueBox}
+                      />
+
+                      <Flex width="100%" direction="column" p="1" className={styles.gpuStatus} gap="2">
+                        <Flex align="center" gap="2">
+                          <VramLogo />
+                          <div className={styles.contentText}>CPUs:</div>
+                          <div className={styles.contentTextWhite}>{cpuCount}</div>
+                        </Flex>
                       </Flex>
-                    </Button>
+
+                      <Flex width="100%" direction="column" p="1" className={styles.gpuStatus} gap="2">
+                        <Flex align="center" gap="2">
+                          <SocketLogo />
+                          <div className={styles.contentText}>RAM:</div>
+                          <div className={styles.contentTextWhite}>{ram} GB</div>
+                        </Flex>
+                      </Flex>
+
+                      <Flex width="100%" direction="column" p="1" className={styles.gpuStatus} gap="2">
+                        <Flex align="center" gap="2">
+                          <SocketLogo />
+                          <div className={styles.contentText}>Disk:</div>
+                          <div className={styles.contentTextWhite}>{disk} GB</div>
+                        </Flex>
+                      </Flex>
+
+                      {ephemeral > 0 && (
+                        <Flex width="100%" direction="column" p="1" className={styles.gpuStatus} gap="2">
+                          <Flex align="center" gap="2">
+                            <SocketLogo />
+                            <div className={styles.contentText}>Ephemeral:</div>
+                            <div className={styles.contentTextWhite}>{ephemeral} GB</div>
+                          </Flex>
+                        </Flex>
+                      )}
+                    </Flex>
+
+                    <Flex>
+                      {stock_available ? (
+                        <Button className={styles.selectGPUButton}>Select GPU</Button>
+                      ) : (
+                        <Flex width="100%" direction="column" p="1" className={styles.invalidGPUButton}>
+                          <b className={styles.contentText}>Out of Stock.</b>
+                          <p className={styles.contentText}>
+                            Please try a lower number of GPUs. Or reserve future stock{' '}
+                            <a href="/dashboard/quotes" className={styles.link}>
+                              here
+                            </a>
+                          </p>
+                        </Flex>
+                      )}
+                    </Flex>
                   </Flex>
-                  <Flex>
-                    <Button className={styles.selectGPUButton}>Select GPU</Button>
-                  </Flex>
-                </Flex>
-              ))}
+                )
+              })}
             </Grid>
           </Flex>
         </Flex>
