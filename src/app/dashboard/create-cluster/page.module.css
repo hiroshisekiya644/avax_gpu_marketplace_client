@@ -70,16 +70,19 @@
   padding: 12px;
   border-radius: 10px;
   border: 2px solid var(--textSoftDark);
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 
 .gpuCard:hover {
   border: 2px solid var(--border);
 }
 
+.gpuCardContent {
+  
+}
+
 .selectValueBox {
-  width: 60px;
-  height: 30px;
+  background-color: var(--bgSoftDark);
 }
 
 .nvidiaTitle {
@@ -129,6 +132,15 @@
 
 .selectGPUButton:hover {
   background-color: var(--button);
+}
+
+.invalidGPUButton {
+  background-color: var(--bgSoft);
+  border-radius: 4px;
+}
+
+.link {
+  text-decoration: underline;
 }
 
 .defaultButton {

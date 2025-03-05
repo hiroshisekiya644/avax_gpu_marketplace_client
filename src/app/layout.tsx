@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { IBM_Plex_Sans } from 'next/font/google'
-import './../styles/globals.css'
+import '../styles/globals.css'
 import { Toaster } from 'react-hot-toast'
 import { WalletProvider } from '@/context/Web3Context'
 import type { Metadata } from 'next'
