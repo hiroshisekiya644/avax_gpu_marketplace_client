@@ -1,3 +1,4 @@
+/* Base styles */
 .bg {
   background-color: var(--bg);
   height: 100%;
@@ -5,18 +6,7 @@
   color: var(--text);
 }
 
-.header {
-  height: 90px;
-  border-bottom: 1px solid rgb(61 61 61);
-  width: 100%;
-}
-
-@media screen and (max-width: 768px) {
-  .header {
-    height: 110px;
-  }
-}
-
+/* Typography */
 .headerTitle {
   color: var(--text);
   font-size: 1.5rem;
@@ -38,7 +28,38 @@
   font-size: 12px;
 }
 
-/* search textfield */
+.contentTextWhite {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.pathText {
+  font-size: 12px;
+  color: var(--textSoft);
+}
+
+.priceTitle {
+  font-weight: bold;
+}
+
+/* Layout components */
+.header {
+  height: 90px;
+  border-bottom: 1px solid rgb(61 61 61);
+  width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .header {
+    height: 110px;
+  }
+
+  .dialogContent {
+    max-width: 300px;
+  }
+}
+
+/* Form elements */
 .searchPad {
   height: 38px;
   background-color: var(--bgSoft);
@@ -63,28 +84,45 @@
   width: 100%;
 }
 
-/* GPU cards */
-.gpuCard {
+.selectValueBox {
+  background-color: var(--bgSoftDark);
+}
+
+/* Card styles - consolidated */
+.cardBase {
   background-color: var(--bg) !important;
   width: 100%;
   padding: 12px;
   border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.gpuCard {
+  composes: cardBase;
   border: 2px solid var(--textSoftDark);
-  /* cursor: pointer; */
 }
 
 .gpuCard:hover {
   border: 2px solid var(--border);
 }
 
-.gpuCardContent {
-  
+.clusterCard {
+  composes: cardBase;
+  border: 2px solid var(--bgSoft);
+  cursor: pointer;
+  position: relative;
 }
 
-.selectValueBox {
-  background-color: var(--bgSoftDark);
+.clusterCard:hover {
+  border: 2px solid var(--border);
 }
 
+.selectedClusterCard {
+  border: 2px solid var(--border);
+  background-color: var(--bgSoft) !important;
+}
+
+/* Card components */
 .nvidiaTitle {
   background-color: var(--bgSoftDark);
   align-items: center;
@@ -95,43 +133,82 @@
   background-color: var(--bgSoftDark);
 }
 
-.contentTextWhite {
-  color: var(--text);
-  font-size: 12px;
+.selectionIndicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
 }
 
-.checkOptionButton {
-  background-color: var(--bg);
+.selectionIndicator {
+  background-image: url('/path-to-your-unchecked-icon.svg');
+}
+
+.selectedIndicator {
+  background-image: url('/path-to-your-checked-icon.svg');
+}
+
+/* Button styles - consolidated */
+.buttonBase {
   cursor: pointer;
-  border: 1px solid var(--textSoft);
-  font-size: 10px;
-  text-align: center; 
+  text-align: center;
   flex: 1;
-  max-width: 100%; 
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-}
-
-.checkOptionButton:hover {
-  background-color: var(--bgSoft);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.2s ease;
 }
 
 .selectGPUButton {
+  composes: buttonBase;
   background-color: var(--bg);
-  cursor: pointer;
   border: 2px solid var(--border);
   font-size: 10px;
-  text-align: center; 
-  flex: 1;
-  max-width: 100%; 
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
 }
 
 .selectGPUButton:hover {
   background-color: var(--button);
+}
+
+.selectedGPUButton {
+  background-color: var(--border);
+}
+
+.selectedGPUButton:hover {
+  background-color: var(--border);
+  opacity: 0.9;
+}
+
+.defaultButton {
+  composes: buttonBase;
+  background-color: var(--bg);
+  border: 2px solid var(--border);
+  min-width: 100px;
+  font-size: 14px;
+}
+
+.defaultButton:hover {
+  background-color: var(--button);
+}
+
+.headerButton {
+  composes: buttonBase;
+  background-color: var(--button);
+  border: 2px solid var(--border);
+  min-width: 100px;
+  font-size: 14px;
+  border-radius: 7px;
+  height: 40px;
+}
+
+.headerButton:hover {
+  background-color: var(--border);
 }
 
 .invalidGPUButton {
@@ -143,118 +220,100 @@
   text-decoration: underline;
 }
 
-.defaultButton {
-  background-color: var(--bg);
-  cursor: pointer;
-  border: 2px solid var(--border);
-  text-align: center; 
-  flex: 1;
-  max-width: 100%; 
-  min-width: 100px;
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-  font-size: 14px;
-}
-
-.defaultButton:hover {
-  background-color: var(--button);
-}
-
-.headerButton {
-  background-color: var(--button);
-  cursor: pointer;
-  border: 2px solid var(--border);
-  font-size: 10px;
-  text-align: center; 
-  flex: 1;
-  max-width: 100%; 
-  min-width: 100px;
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-  font-size: 14px;
-  border-radius: 7px;
-  height: 40px;
-}
-
-.headerButton:hover {
-  background-color: var(--border);
-}
-
-/* cluster card */
-.clusterCard {
-  background-color: var(--bg) !important;
-  width: 100%;
-  padding: 12px;
-  border: 2px solid var(--bgSoft);
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.clusterCard:hover {
-  border: 2px solid var(--border);
-}
-
-.pathText {
-  font-size: 12px;
-  color: var(--textSoft)
-}
-
-/* summary section */
+/* Summary section */
 .summary {
   background-color: var(--bgSoftDark);
   border-radius: 8px;
 }
 
-
-/* switch button */
-.switchRoot {
-  width: 32px; 
-  height: 18px; 
-  background-color: var(--black-a9);
-  border-radius: 9999px;
-  position: relative;
-  box-shadow: 0 2px 10px var(--black-a7);
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-
-  &:focus {
-    box-shadow: 0 0 0 2px black;
-  }
-
-  &[data-state="checked"] {
-    background-color: black;
-  }
+.summaryTitle {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--text);
+  margin-top: 16px;
+  margin-bottom: 8px;
 }
 
-.switchThumb {
-  display: block;
-  width: 14px; 
-  height: 14px; 
-  background-color: white;
-  border-radius: 9999px;
-  box-shadow: 0 2px 2px var(--black-a7);
-  transition: transform 100ms;
-  transform: translateX(2px); 
-  will-change: transform;
-  cursor: pointer;
-
-  &[data-state="checked"] {
-    transform: translateX(16px); 
-  }
+.summaryGpuName {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text);
 }
 
+.summarySelect {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.summarySpecs {
+  font-size: 12px;
+  color: var(--textSoft);
+}
+
+.summaryNoSelection {
+  font-size: 14px;
+  color: var(--textSoft);
+  font-style: italic;
+}
+
+.summaryImageName {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text);
+}
+
+.summaryImageDetails {
+  font-size: 12px;
+  color: var(--textSoft);
+}
+
+.summaryImageRegion {
+  font-size: 12px;
+  color: var(--textSoft);
+}
 
 .instanceArea {
   background-color: var(--bgSoft);
   border-radius: 4px;
 }
 
-.priceTitle {
-  font-weight: bold;
+/* Switch button */
+.switchRoot {
+  width: 32px;
+  height: 18px;
+  background-color: var(--black-a9);
+  border-radius: 9999px;
+  position: relative;
+  box-shadow: 0 2px 10px var(--black-a7);
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-/* dialog */
+.switchRoot:focus {
+  box-shadow: 0 0 0 2px black;
+}
+
+.switchRoot[data-state="checked"] {
+  background-color: black;
+}
+
+.switchThumb {
+  display: block;
+  width: 14px;
+  height: 14px;
+  background-color: white;
+  border-radius: 9999px;
+  box-shadow: 0 2px 2px var(--black-a7);
+  transition: transform 100ms;
+  transform: translateX(2px);
+  will-change: transform;
+  cursor: pointer;
+}
+
+.switchThumb[data-state="checked"] {
+  transform: translateX(16px);
+}
+
+/* Dialog */
 .dialogOverlay {
   background-color: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(4px);
@@ -266,9 +325,7 @@
 .dialogContent {
   background-color: var(--bg);
   border-radius: 6px;
-  box-shadow:
-    hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
-    hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px, hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -276,18 +333,105 @@
   width: 90vw;
   max-width: 768px;
   max-height: 85vh;
-  padding: 0px;
-  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
   padding: 20px;
+  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
   overflow: auto;
-}
-
-@media (max-width: 768px) {
-  .dialogContent {
-    max-width: 300px;
-  }
 }
 
 .dialogContent:focus {
   outline: none;
 }
+
+/* Status containers */
+.statusContainer {
+  width: 100%;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  border: 1px dashed var(--textSoftDark);
+  border-radius: 8px;
+  grid-column: 1 / -1;
+  background-color: var(--bgSoft);
+  margin: 1rem 0;
+}
+
+.noResultsContainer {
+  composes: statusContainer;
+}
+
+.noResultsContainer .contentText {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.loadingContainer {
+  composes: statusContainer;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.loadingContainer .contentText {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.loadingSpinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--textSoftDark);
+  border-radius: 50%;
+  border-top-color: var(--text);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Add a style for the green energy badge */
+.greenEnergyBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: rgba(0, 128, 0, 0.1);
+  color: #4caf50;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* Add a style for the image logo */
+.imageLogo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
