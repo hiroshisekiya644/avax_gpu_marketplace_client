@@ -1,7 +1,4 @@
 import axios, { AxiosResponse } from 'axios'
-import { headers } from 'next/headers'
-import { redirect } from 'next/navigation'
-import { config } from 'process'
 
 export const getRegionAction = async (): Promise<any> => {
   try {

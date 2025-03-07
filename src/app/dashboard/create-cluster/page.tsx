@@ -1,8 +1,6 @@
 'use client'
 
-import React from 'react'
-
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import * as Switch from '@radix-ui/react-switch'
@@ -16,7 +14,9 @@ import styles from './page.module.css'
 import { getGPUAction } from '@/api/GpuProvider'
 import { getImageAction } from '@/api/ImageProvider'
 import { getRegionAction } from '@/api/RegionProvider'
+import { getPriceBook } from '@/api/PriceBook'
 
+// Optimize interfaces by grouping related properties
 interface Flavor {
   id: number | string
   name: string
@@ -59,6 +59,19 @@ interface RegionImages {
   logo?: string
 }
 
+interface PriceItem {
+  id: number
+  name: string
+  value: string
+  original_value: string
+  discount_applied: boolean
+  start_time: string | null
+  end_time: string | null
+}
+
+// Define multiplier constants to improve readability
+const FLAVOR_MULTIPLIERS = [1, 2, 4, 8]
+
 // Icon components consolidated into a single object for better organization
 const Icons = {
   Any: () => <DynamicSvgIcon height={22} className="rounded-none" iconName="any" />,
@@ -77,29 +90,6 @@ const Icons = {
   Uncheck: () => <DynamicSvgIcon height={30} width={30} className="rounded-none" iconName="unchecked" />
 }
 
-// Static data consolidated
-const STATIC_DATA = {
-  securityStandards: [
-    { label: 'Any', name: 'any', image: <Icons.Any /> },
-    { label: 'Secure Cloud', name: 'secureCloud', image: <Icons.SecureCloud /> },
-    { label: 'Community Cloud', name: 'communityCloud', image: <Icons.CommunityCloud /> }
-  ],
-  availability: [
-    { label: 'Show All', name: 'showAll', image: <Icons.ShowAll /> },
-    { label: 'Show Only Available', name: 'showOnlyAvailable', image: <Icons.ShowAvailable /> }
-  ],
-  cpuNodes: [
-    { label: 'CPU Node', name: 'cpuNode', image: <Icons.Socket /> },
-    { label: 'V100 (16GB)', name: 'v100', image: <Icons.Nvidia /> },
-    { label: 'RTX5000 ADA (20GB)', name: 'rtx5000ada', image: <Icons.Nvidia /> }
-  ],
-  selectImages: [
-    { label: 'Bittensor', name: 'bittensor', image: <Icons.Nvidia /> },
-    { label: 'Axolotl', name: 'axolotl', image: <Icons.Nvidia /> }
-  ],
-  selectValue: Array.from({ length: 5 }, (_, i) => ({ label: String(i + 1), name: String(i + 1) }))
-}
-
 const CreateCluster = () => {
   const { isResponsive } = useResize()
   const router = useRouter()
@@ -116,34 +106,42 @@ const CreateCluster = () => {
   const [isImagesLoading, setIsImagesLoading] = useState(true)
   const [selectedGpu, setSelectedGpu] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
+  const [priceBook, setPriceBook] = useState<PriceItem[]>([])
+  const [showSpotInstances, setShowSpotInstances] = useState(false)
 
-  // Fetch data on component mount
+  // Fetch data on component mount - optimized to handle errors better
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true)
         setIsImagesLoading(true)
-        const [gpuData, imageData, regionData] = await Promise.all([
-          getGPUAction(),
-          getImageAction(),
-          getRegionAction()
+
+        const [gpuData, imageData, regionData, priceBookData] = await Promise.all([
+          getGPUAction().catch((err) => {
+            console.error('Error fetching GPU data:', err)
+            return { data: { data: [] } }
+          }),
+          getImageAction().catch((err) => {
+            console.error('Error fetching image data:', err)
+            return { data: { images: [] } }
+          }),
+          getRegionAction().catch((err) => {
+            console.error('Error fetching region data:', err)
+            return { data: { regions: [] } }
+          }),
+          getPriceBook().catch((err) => {
+            console.error('Error fetching price book data:', err)
+            return { data: [] }
+          })
         ])
 
-        // Add type validation and fallbacks
-        if (gpuData?.data?.data) {
-          setGpuCards(gpuData.data.data)
-        }
-
-        if (imageData?.data?.images) {
-          setImageList(imageData.data.images)
-        }
-
-        if (regionData?.data?.regions) {
-          setLocations(regionData.data.regions)
-        }
+        // Set data with null checks
+        setGpuCards(gpuData?.data?.data || [])
+        setImageList(imageData?.data?.images || [])
+        setLocations(regionData?.data?.regions || [])
+        setPriceBook(priceBookData?.data || [])
       } catch (error) {
-        console.error('Error fetching data:', error)
-        // Could add proper error state handling here
+        console.error('Error in data fetching:', error)
       } finally {
         setIsLoading(false)
         setIsImagesLoading(false)
@@ -154,51 +152,49 @@ const CreateCluster = () => {
   }, [])
 
   // Memoized derived state
-  const regionList = useMemo(
-    () => [
+  const regionList = useMemo(() => {
+    const getRegionIcon = (name: string) => {
+      const lowerName = name.toLowerCase()
+      if (lowerName.includes('africa')) return <Icons.Africa />
+      if (lowerName.includes('asia')) return <Icons.SouthAsia />
+      if (lowerName.includes('canada')) return <Icons.Canada />
+      return <Icons.Any />
+    }
+
+    return [
       { label: 'Any', name: 'any', image: <Icons.Any /> },
       ...locations.map((location) => ({
         label: location.name,
         name: location.name,
-        // Dynamically assign an icon if available, or use Any icon as fallback
-        image: location.name.toLowerCase().includes('africa') ? (
-          <Icons.Africa />
-        ) : location.name.toLowerCase().includes('asia') ? (
-          <Icons.SouthAsia />
-        ) : location.name.toLowerCase().includes('canada') ? (
-          <Icons.Canada />
-        ) : (
-          <Icons.Any />
-        )
+        image: getRegionIcon(location.name)
       }))
-    ],
-    [locations]
-  )
+    ]
+  }, [locations])
 
   // Filter GPU cards based on selected region and search term
   const filteredGpuCards = useMemo(() => {
+    if (!gpuCards.length) return []
+
     return gpuCards.filter((gpuCard) => {
       // First filter by region
       const matchesRegion = selectedRegion === 'any' || gpuCard.region_name === selectedRegion
+      if (!matchesRegion) return false
 
       // Then filter by search term if one exists
-      if (!searchTerm.trim()) return matchesRegion
+      if (!searchTerm.trim()) return true
 
       const searchLower = searchTerm.toLowerCase()
 
       // Search in GPU name
       const gpuName = (gpuCard.gpu || 'CPU only').toLowerCase()
-      if (gpuName.includes(searchLower)) return matchesRegion
+      if (gpuName.includes(searchLower)) return true
 
       // Search in flavor names
-      const hasMatchingFlavor = gpuCard.flavors.some((flavor: Flavor) =>
-        flavor.name.toLowerCase().includes(searchLower)
-      )
-      if (hasMatchingFlavor) return matchesRegion
+      if (gpuCard.flavors.some((flavor) => flavor.name.toLowerCase().includes(searchLower))) return true
 
       // Search in region name
       const regionName = (gpuCard.region_name || '').toLowerCase()
-      if (regionName.includes(searchLower)) return matchesRegion
+      if (regionName.includes(searchLower)) return true
 
       return false
     })
@@ -209,30 +205,76 @@ const CreateCluster = () => {
     return filteredGpuCards.filter((gpuCard) => gpuCard.flavors.some((flavor) => flavor.stock_available))
   }, [filteredGpuCards])
 
-  // Filtered images based on selected region
+  // Filtered images based on selected region - optimized to reduce calculations
   const filteredImages = useMemo(() => {
-    return imageList.flatMap((regionImages) =>
-      // Filter images by selected region if a specific region is selected
-      selectedRegion === 'any' || regionImages.region_name === selectedRegion
-        ? regionImages.images.slice(0, 4).map((image: Image) => ({
-            ...image,
-            green_status: regionImages.green_status,
-            logo: regionImages.logo
-          }))
-        : []
-    )
+    if (!imageList.length) return []
+
+    return imageList
+      .filter((regionImages) => selectedRegion === 'any' || regionImages.region_name === selectedRegion)
+      .flatMap((regionImages) =>
+        regionImages.images.slice(0, 4).map((image) => ({
+          ...image,
+          green_status: regionImages.green_status,
+          logo: regionImages.logo
+        }))
+      )
   }, [imageList, selectedRegion])
 
   // All images for modal
   const allImages = useMemo(() => {
+    if (!imageList.length) return []
+
     return imageList.flatMap((regionImages) =>
-      regionImages.images.map((image: Image) => ({
+      regionImages.images.map((image) => ({
         ...image,
         green_status: regionImages.green_status,
         logo: regionImages.logo
       }))
     )
   }, [imageList])
+
+  // Optimize price calculation functions
+  const calculateGpuPrice = useCallback(
+    (gpuName: string, flavorIndex = 0) => {
+      const priceItem = priceBook.find((item) => item.name === gpuName)
+      if (!priceItem) return 0
+
+      const basePrice = Number.parseFloat(priceItem.value)
+      const multiplier = FLAVOR_MULTIPLIERS[flavorIndex] || 1
+
+      return basePrice * multiplier
+    },
+    [priceBook]
+  )
+
+  // Get the lowest GPU price from the price book - optimized to reduce calculations
+  const lowestGpuPrice = useMemo(() => {
+    if (!priceBook.length) return 0
+
+    const gpuPrices = priceBook
+      .filter((item) => !item.name.includes('vCPU') && !item.name.includes('RAM') && !item.name.includes('storage'))
+      .map((item) => Number.parseFloat(item.value))
+      .filter((price) => price > 0)
+
+    return gpuPrices.length ? Math.min(...gpuPrices) : 0
+  }, [priceBook])
+
+  // Calculate daily price from hourly price - simple function, no need for useCallback
+  const calculateDailyPrice = (hourlyPrice: number) => hourlyPrice * 24
+
+  // Get the price for the selected GPU - optimized to reduce calculations
+  const selectedGpuPrice = useMemo(() => {
+    if (!selectedGpu || !gpuCards.length) return 0
+
+    const [gpuName, index] = selectedGpu.split('-')
+    const gpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
+    if (!gpuCard) return 0
+
+    const selectedFlavorId = selectedFlavors[selectedGpu]
+    const flavorIndex = gpuCard.flavors.findIndex((flavor) => String(flavor.id) === selectedFlavorId)
+
+    return calculateGpuPrice(gpuName, flavorIndex)
+  }, [selectedGpu, gpuCards, selectedFlavors, calculateGpuPrice])
 
   // Event handlers - memoized to prevent unnecessary re-renders
   const handleChangeRegion = useCallback((selectedValue: string) => {
@@ -250,30 +292,95 @@ const CreateCluster = () => {
     setSearchTerm(e.target.value)
   }, [])
 
-  const toggleGpuSelection = useCallback((gpuKey: string) => {
-    setSelectedGpu((prev) => (prev === gpuKey ? null : gpuKey))
-  }, [])
-
   const toggleImageSelection = useCallback((imageId: number) => {
     setSelectedImage((prev) => (prev === imageId ? null : imageId))
+    setModalOpen(false) // Close the modal when an image is selected
   }, [])
 
   const handleModalOpen = useCallback(() => {
     setModalOpen(true)
   }, [])
 
-  const navigateToContinue = useCallback(() => {
-    router.push('/dashboard/create-cluster/search')
-  }, [router])
-
-  // Modify the handleSummaryGpuSelection function
-  const handleSummaryGpuSelection = useCallback((selectedGpuKey: string) => {
-    setSelectedGpu(selectedGpuKey === 'none' ? null : selectedGpuKey)
+  const toggleSpotInstances = useCallback(() => {
+    setShowSpotInstances((prev) => !prev)
   }, [])
 
-  // Modify the handleSummaryImageSelection function
+  // Update the navigateToContinue function to check if both GPU and image are selected
+  const navigateToContinue = useCallback(() => {
+    if (selectedGpu && selectedImage) {
+      router.push('/dashboard/create-cluster/search')
+    }
+  }, [router, selectedGpu, selectedImage])
+
+  // Modify the toggleGpuSelection function
+  const toggleGpuSelection = useCallback((gpuKey: string, flavorId: string) => {
+    setSelectedGpu(gpuKey)
+    setSelectedFlavors((prev) => ({
+      ...prev,
+      [gpuKey]: flavorId
+    }))
+  }, [])
+
+  // Optimize the handleSummaryGpuSelection function
+  const handleSummaryGpuSelection = useCallback(
+    (selectedGpuKey: string) => {
+      if (selectedGpuKey === 'none') {
+        setSelectedGpu(null)
+        setSelectedFlavors({})
+        return
+      }
+
+      setSelectedGpu(selectedGpuKey)
+
+      // Set the default flavor for the selected GPU
+      const [gpuName, index] = selectedGpuKey.split('-')
+      const selectedGpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
+
+      if (!selectedGpuCard) return
+
+      const defaultFlavor = selectedGpuCard.flavors.find((flavor) => flavor.stock_available)
+      if (defaultFlavor) {
+        setSelectedFlavors({
+          [selectedGpuKey]: String(defaultFlavor.id)
+        })
+      }
+    },
+    [gpuCards]
+  )
+
+  // Modify the handleSummaryFlavorChange function
+  const handleSummaryFlavorChange = useCallback((gpuKey: string, flavorId: string) => {
+    setSelectedFlavors((prev) => ({
+      ...prev,
+      [gpuKey]: flavorId
+    }))
+  }, [])
+
+  // Optimize the handleSummaryImageSelection function
   const handleSummaryImageSelection = useCallback((selectedImageId: string) => {
-    setSelectedImage(selectedImageId === 'none' ? null : Number(selectedImageId))
+    const newSelectedImage = selectedImageId === 'none' ? null : Number(selectedImageId)
+    setSelectedImage(newSelectedImage)
+
+    // Scroll to the selected image in the image card section
+    if (newSelectedImage) {
+      requestAnimationFrame(() => {
+        const selectedImageElement = document.getElementById(`image-${newSelectedImage}`)
+        if (selectedImageElement) {
+          selectedImageElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        }
+      })
+    }
+  }, [])
+
+  // Add a reset function for the form
+  const handleReset = useCallback(() => {
+    setSelectedRegion('any')
+    setSearchTerm('')
+    setSelectedGpu(null)
+    setSelectedImage(null)
+    setSelectedFlavors({})
+    setModalOpen(false)
+    setShowSpotInstances(false)
   }, [])
 
   // Extract the GpuCard component for better code organization
@@ -292,8 +399,14 @@ const CreateCluster = () => {
       const selectedFlavor =
         gpuCard.flavors.find((flavor) => String(flavor.id) === selectedFlavorId) || gpuCard.flavors[0]
 
+      // Find the index of the selected flavor
+      const flavorIndex = gpuCard.flavors.findIndex((flavor) => String(flavor.id) === selectedFlavorId)
+
       // Extract flavor details
       const { cpu, ram, disk, ephemeral, stock_available } = selectedFlavor || {}
+
+      // Get the price for this GPU with the appropriate multiplier
+      const gpuPrice = calculateGpuPrice(gpuCard.gpu, flavorIndex)
 
       return (
         <Flex
@@ -309,14 +422,17 @@ const CreateCluster = () => {
                 <Icons.Nvidia />
                 <div>{gpuCard.gpu || 'CPU only'}</div>
               </Flex>
+              {gpuPrice > 0 && <div className={styles.gpuPrice}>${gpuPrice.toFixed(2)}/hr</div>}
             </Flex>
 
             <FormSelect
               id={`flavor-${gpuKey}`}
               name="flavor"
               items={flavorOptions}
-              defaultValue={String(flavorOptions[0]?.name)}
-              onChange={(selectedValue) => handleFlavorChange(gpuKey, selectedValue)}
+              value={selectedFlavorId}
+              onChange={(selectedValue) => {
+                handleFlavorChange(gpuKey, selectedValue)
+              }}
               className={styles.selectValueBox}
             />
 
@@ -341,7 +457,7 @@ const CreateCluster = () => {
             {stock_available ? (
               <Button
                 className={`${styles.selectGPUButton} ${isSelected ? styles.selectedGPUButton : ''}`}
-                onClick={() => toggleGpuSelection(gpuKey)}
+                onClick={() => toggleGpuSelection(gpuKey, selectedFlavorId)}
               >
                 {isSelected ? 'Selected' : 'Select GPU'}
               </Button>
@@ -360,7 +476,7 @@ const CreateCluster = () => {
         </Flex>
       )
     },
-    [selectedGpu, selectedFlavors, handleFlavorChange, toggleGpuSelection]
+    [selectedGpu, selectedFlavors, handleFlavorChange, toggleGpuSelection, calculateGpuPrice]
   )
 
   // Extract the ImageCard component
@@ -370,30 +486,18 @@ const CreateCluster = () => {
 
       return (
         <Flex
-          className={`${styles.clusterCard} ${isSelected ? styles.selectedClusterCard : ''}`}
+          className={`${styles.clusterCard} ${isSelected ? styles.selectedClusterCard : ''} ${styles.imageCard}`}
           key={image.id}
           direction="column"
-          gap="2"
           onClick={() => toggleImageSelection(image.id)}
         >
           <div className={styles.selectionIndicator}>{isSelected ? <Icons.Check /> : <Icons.Uncheck />}</div>
-          <Flex width="100%" justify="between">
-            <Flex gap="2" className={styles.nvidiaTitle}>
-              <Icons.Nvidia />
-              <div>{image.name}</div>
-            </Flex>
-          </Flex>
-          <Flex width="100%" direction="column" p="1" className={styles.gpuStatus} gap="2">
-            <Flex align="center" gap="2">
-              <div className={styles.contentTextWhite}>
-                {image.description || `${image.type} ${image.version} - ${image.display_size}`}
-              </div>
-            </Flex>
-          </Flex>
-          <Flex width="100%" direction="column" p="1" className={styles.gpuStatus} gap="2">
-            <Flex align="center" gap="2">
-              <div className={styles.pathText}>Region: {image.region_name}</div>
-            </Flex>
+          <Flex className={styles.imageCardContent} direction="column">
+            <div className={styles.imageName}>{image.name}</div>
+            <div className={styles.imageDescription}>
+              {image.description || `${image.type} ${image.version} - ${image.display_size}`}
+            </div>
+            <div className={styles.imageRegion}>Region: {image.region_name}</div>
           </Flex>
         </Flex>
       )
@@ -421,22 +525,15 @@ const CreateCluster = () => {
     []
   )
 
-  // Add a reset function for the form
-  const handleReset = useCallback(() => {
-    setSelectedRegion('any')
-    setSearchTerm('')
-    setSelectedGpu(null)
-    setSelectedImage(null)
-    setSelectedFlavors({})
-  }, [])
-
-  // New function to handle flavor change in summary
-  const handleSummaryFlavorChange = useCallback((gpuKey: string, flavorId: string) => {
-    setSelectedFlavors((prev) => ({
-      ...prev,
-      [gpuKey]: flavorId
-    }))
-  }, [])
+  // Scroll to selected image when it changes
+  useEffect(() => {
+    if (selectedImage) {
+      const selectedImageElement = document.getElementById(`image-${selectedImage}`)
+      if (selectedImageElement) {
+        selectedImageElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
+    }
+  }, [selectedImage])
 
   return (
     <Flex className={styles.bg} direction="column">
@@ -519,7 +616,11 @@ const CreateCluster = () => {
               ) : filteredImages.length === 0 ? (
                 <NoResultsState message="No images available. Please adjust your filters or try again later." />
               ) : (
-                filteredImages.map((image) => <ImageCard key={image.id} image={image} />)
+                filteredImages.map((image) => (
+                  <div key={image.id} id={`image-${image.id}`} style={{ height: '200px' }}>
+                    <ImageCard image={image} />
+                  </div>
+                ))
               )}
             </Grid>
           </Flex>
@@ -531,7 +632,7 @@ const CreateCluster = () => {
         </Flex>
       </Flex>
 
-      {/* Updated Summary Section */}
+      {/* Summary Section */}
       <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2">
         <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '25%' }} gap="2">
           <div className={styles.contentTitle}>Summary</div>
@@ -546,10 +647,13 @@ const CreateCluster = () => {
               label="Select GPU"
               items={[
                 { label: 'None', name: 'none' },
-                ...availableGpuCards.map((gpuCard, index) => ({
-                  label: gpuCard.gpu || 'CPU only',
-                  name: `${gpuCard.gpu || 'cpu'}-${index}`
-                }))
+                ...filteredGpuCards.map((gpuCard, index) => {
+                  const gpuKey = `${gpuCard.gpu || 'cpu'}-${index}`
+                  return {
+                    label: gpuCard.gpu || 'CPU only',
+                    name: gpuKey
+                  }
+                })
               ]}
               value={selectedGpu || 'none'}
               onChange={handleSummaryGpuSelection}
@@ -557,35 +661,52 @@ const CreateCluster = () => {
             />
             {selectedGpu && (
               <Flex direction="column" gap="2">
-                {availableGpuCards.map((gpuCard, index) => {
+                {filteredGpuCards.map((gpuCard, index) => {
                   const gpuKey = `${gpuCard.gpu || 'cpu'}-${index}`
-                  if (gpuKey === selectedGpu) {
-                    const availableFlavors = gpuCard.flavors.filter((flavor) => flavor.stock_available)
-                    const selectedFlavorId = selectedFlavors[gpuKey] || String(availableFlavors[0]?.id)
-                    const selectedFlavor =
-                      availableFlavors.find((flavor) => String(flavor.id) === selectedFlavorId) || availableFlavors[0]
+                  if (gpuKey !== selectedGpu) return null
 
-                    return (
-                      <React.Fragment key={gpuKey}>
-                        <FormSelect
-                          id={`summary-flavor-${gpuKey}`}
-                          name={`summary-flavor-${gpuKey}`}
-                          label="Select Flavor"
-                          items={availableFlavors.map((flavor) => ({ label: flavor.name, name: String(flavor.id) }))}
-                          value={selectedFlavorId}
-                          onChange={(value) => handleSummaryFlavorChange(gpuKey, value)}
-                          className={styles.summarySelect}
-                        />
+                  const availableFlavors = gpuCard.flavors.filter((flavor) => flavor.stock_available === true)
+                  const selectedFlavorId =
+                    selectedFlavors[gpuKey] || (availableFlavors.length > 0 ? String(availableFlavors[0].id) : '')
+
+                  const selectedFlavor =
+                    availableFlavors.find((flavor) => String(flavor.id) === selectedFlavorId) ||
+                    (availableFlavors.length > 0 ? availableFlavors[0] : null)
+
+                  // Find the index of the selected flavor in the original flavors array
+                  const flavorIndex = gpuCard.flavors.findIndex((flavor) => String(flavor.id) === selectedFlavorId)
+
+                  // Get the price for this GPU with the appropriate multiplier
+                  const gpuPrice = calculateGpuPrice(gpuCard.gpu, flavorIndex)
+
+                  return (
+                    <React.Fragment key={gpuKey}>
+                      <FormSelect
+                        id={`summary-flavor-${gpuKey}`}
+                        name={`summary-flavor-${gpuKey}`}
+                        label="Select Flavor"
+                        items={gpuCard.flavors
+                          .filter((flavor) => flavor.stock_available === true)
+                          .map((flavor) => ({ label: flavor.name, name: String(flavor.id) }))}
+                        value={selectedFlavorId}
+                        onChange={(value) => handleSummaryFlavorChange(gpuKey, value)}
+                        className={styles.summarySelect}
+                      />
+                      {selectedFlavor && (
                         <Flex direction="column" className={styles.summarySpecs}>
                           <div>CPUs: {selectedFlavor.cpu}</div>
                           <div>RAM: {selectedFlavor.ram} GB</div>
                           <div>Disk: {selectedFlavor.disk} GB</div>
                           {selectedFlavor.ephemeral > 0 && <div>Ephemeral: {selectedFlavor.ephemeral} GB</div>}
+                          {gpuPrice > 0 && (
+                            <div className={styles.summaryPrice}>
+                              Price: ${gpuPrice.toFixed(2)}/hr (${calculateDailyPrice(gpuPrice).toFixed(2)}/day)
+                            </div>
+                          )}
                         </Flex>
-                      </React.Fragment>
-                    )
-                  }
-                  return null
+                      )}
+                    </React.Fragment>
+                  )
                 })}
               </Flex>
             )}
@@ -610,28 +731,32 @@ const CreateCluster = () => {
             {selectedImage && (
               <Flex direction="column" gap="2">
                 {filteredImages.map((image) => {
-                  if (image.id === selectedImage) {
-                    return (
-                      <React.Fragment key={image.id}>
-                        <div className={styles.summaryImageDetails}>
-                          {image.description || `${image.type} ${image.version} - ${image.display_size}`}
-                        </div>
-                        <div className={styles.summaryImageRegion}>Region: {image.region_name}</div>
-                      </React.Fragment>
-                    )
-                  }
-                  return null
+                  if (image.id !== selectedImage) return null
+
+                  return (
+                    <React.Fragment key={image.id}>
+                      <div className={styles.summaryImageDetails}>
+                        {image.description || `${image.type} ${image.version} - ${image.display_size}`}
+                      </div>
+                      <div className={styles.summaryImageRegion}>Region: {image.region_name}</div>
+                    </React.Fragment>
+                  )
                 })}
               </Flex>
             )}
 
-            {/* Existing summary items */}
+            {/* Compute Types */}
             <Flex>
               <div className={styles.contentText}>Compute Types</div>
             </Flex>
             <Flex justify="between" className={styles.instanceArea} p="4">
               <div className={styles.contentTextWhite}>Show Spot Instances</div>
-              <Switch.Root className={styles.switchRoot} id="spotInstance">
+              <Switch.Root
+                className={styles.switchRoot}
+                id="spotInstance"
+                checked={showSpotInstances}
+                onCheckedChange={toggleSpotInstances}
+              >
                 <Switch.Thumb className={styles.switchThumb} />
               </Switch.Root>
             </Flex>
@@ -642,16 +767,34 @@ const CreateCluster = () => {
                 <div className={styles.priceTitle}>Lowest GPU Price</div>
               </Flex>
               <Flex direction="column">
-                <div className={styles.priceTitle}>$0.24/hr</div>
-                <div className={styles.contentText}>$5.81 per day</div>
+                <div className={styles.priceTitle}>${lowestGpuPrice.toFixed(2)}/hr</div>
+                <div className={styles.contentText}>${calculateDailyPrice(lowestGpuPrice).toFixed(2)} per day</div>
               </Flex>
             </Flex>
+
+            {selectedGpu && (
+              <Flex justify="between" align="center" className={styles.instanceArea} p="4">
+                <Flex gap="2">
+                  <Icons.Nvidia />
+                  <div className={styles.priceTitle}>Selected GPU Price</div>
+                </Flex>
+                <Flex direction="column">
+                  <div className={styles.priceTitle}>${selectedGpuPrice.toFixed(2)}/hr</div>
+                  <div className={styles.contentText}>${calculateDailyPrice(selectedGpuPrice).toFixed(2)} per day</div>
+                </Flex>
+              </Flex>
+            )}
           </Flex>
           <Flex ml="auto" mt="4" gap="4">
             <Button className={styles.defaultButton} onClick={handleReset}>
               Reset
             </Button>
-            <Button className={styles.defaultButton} onClick={navigateToContinue}>
+            {/* Update the Continue button to be disabled when either GPU or image is not selected */}
+            <Button
+              className={`${styles.defaultButton} ${!selectedGpu || !selectedImage ? styles.disabledButton : ''}`}
+              onClick={navigateToContinue}
+              disabled={!selectedGpu || !selectedImage}
+            >
               Continue
             </Button>
           </Flex>
