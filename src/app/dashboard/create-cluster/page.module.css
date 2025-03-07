@@ -106,20 +106,74 @@
   border: 2px solid var(--border);
 }
 
+.selectedGpuCard {
+  border: 2px solid var(--border);
+}
+
+.gpuCardContent {
+  flex-grow: 1;
+}
+
+/* Updated clusterCard styles */
 .clusterCard {
   composes: cardBase;
   border: 2px solid var(--bgSoft);
   cursor: pointer;
   position: relative;
+  height: 100%; /* Ensure full height */
 }
 
 .clusterCard:hover {
   border: 2px solid var(--border);
 }
 
+/* Updated selectedClusterCard styles */
 .selectedClusterCard {
   border: 2px solid var(--border);
   background-color: var(--bgSoft) !important;
+}
+
+/* Updated and new styles for image cards */
+.imageCard {
+  height: 200px; /* Set a fixed height for all image cards */
+  display: flex;
+  flex-direction: column;
+  padding: 16px; /* Add padding to the card */
+}
+
+.imageCardContent {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.imageName {
+  font-weight: bold;
+  color: var(--text);
+  font-size: 14px;
+  margin-bottom: 8px; /* Add space below the image name */
+}
+
+.imageDescription {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
+  color: var(--textSoft);
+  font-size: 12px;
+  margin-bottom: 8px; /* Add space below the description */
+  background-color: var(--bgSoftDark);
+  padding: 2px;
+}
+
+.imageRegion {
+  font-size: 12px;
+  color: var(--textSoft);
+  margin-top: auto; /* Push the region to the bottom */
+  background-color: var(--bgSoftDark);
+  padding: 2px;
 }
 
 /* Card components */
@@ -135,8 +189,8 @@
 
 .selectionIndicator {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
   width: 20px;
   height: 20px;
   display: flex;
@@ -146,11 +200,11 @@
 }
 
 .selectionIndicator {
-  background-image: url('/path-to-your-unchecked-icon.svg');
+  background-image: url("/path-to-your-unchecked-icon.svg");
 }
 
 .selectedIndicator {
-  background-image: url('/path-to-your-checked-icon.svg');
+  background-image: url("/path-to-your-checked-icon.svg");
 }
 
 /* Button styles - consolidated */
@@ -216,6 +270,19 @@
   border-radius: 4px;
 }
 
+/* Add a style for the disabled button */
+.disabledButton {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--bgSoft) !important;
+  border: 2px solid var(--textSoftDark) !important;
+  color: white;
+}
+
+.disabledButton:hover {
+  opacity: 0.8;
+}
+
 .link {
   text-decoration: underline;
 }
@@ -234,6 +301,10 @@
   margin-bottom: 8px;
 }
 
+.summaryTitle:first-child {
+  margin-top: 0;
+}
+
 .summaryGpuName {
   font-size: 14px;
   font-weight: bold;
@@ -248,6 +319,18 @@
 .summarySpecs {
   font-size: 12px;
   color: var(--textSoft);
+  background-color: var(--bgSoft);
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.summarySpecs div {
+  margin-bottom: 4px;
+}
+
+.summarySpecs div:last-child {
+  margin-bottom: 0;
 }
 
 .summaryNoSelection {
@@ -265,16 +348,24 @@
 .summaryImageDetails {
   font-size: 12px;
   color: var(--textSoft);
+  background-color: var(--bgSoft);
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
 }
 
 .summaryImageRegion {
   font-size: 12px;
   color: var(--textSoft);
+  background-color: var(--bgSoft);
+  padding: 8px;
+  border-radius: 4px;
 }
 
 .instanceArea {
   background-color: var(--bgSoft);
   border-radius: 4px;
+  margin-bottom: 8px;
 }
 
 /* Switch button */
@@ -433,5 +524,24 @@
   width: 20px;
   height: 20px;
   object-fit: contain;
+}
+
+/* Add styles for the GPU price display */
+.gpuPrice {
+  font-weight: bold;
+  color: var(--text);
+  font-size: 14px;
+  background-color: var(--bgSoftDark);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.summaryPrice {
+  font-weight: bold;
+  color: var(--text);
+  margin-top: 8px;
+  padding: 4px;
+  background-color: var(--bgSoft);
+  border-radius: 4px;
 }
 
