@@ -4,10 +4,12 @@ export const getRegionAction = async (): Promise<any> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/getRegion`
 
+    const token = sessionStorage.getItem('authToken')
+
     const result: AxiosResponse<any> = await axios.get(url, {
-        headers: {
-            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImlhdCI6MTc0MTAzODQ4OSwiZXhwIjoxNzQxMTI0ODg5fQ.0MfjQGNkPuC9BlK8DT0J8acadSU1s-hT5qlTaNGvQZQ'
-        }
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     })
     return result.data
   } catch (error: unknown) {

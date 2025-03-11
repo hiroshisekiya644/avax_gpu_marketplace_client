@@ -1,20 +1,20 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import * as Dialog from '@radix-ui/react-dialog'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import * as Switch from '@radix-ui/react-switch'
-import { Flex, TextField, Grid, Button } from '@radix-ui/themes'
-import { useRouter } from 'next/navigation'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
 import { useResize } from '@/utils/Helper'
+import * as Dialog from '@radix-ui/react-dialog'
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import * as Switch from '@radix-ui/react-switch'
+import { Button, Flex, Grid, TextField } from '@radix-ui/themes'
+import { useRouter } from 'next/navigation'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import styles from './page.module.css'
 
 import { getGPUAction } from '@/api/GpuProvider'
 import { getImageAction } from '@/api/ImageProvider'
-import { getRegionAction } from '@/api/RegionProvider'
 import { getPriceBook } from '@/api/PriceBook'
+import { getRegionAction } from '@/api/RegionProvider'
 
 // Optimize interfaces by grouping related properties
 interface Flavor {
@@ -71,6 +71,7 @@ interface PriceItem {
 
 // Define multiplier constants to improve readability
 const FLAVOR_MULTIPLIERS = [1, 2, 4, 8]
+const DEFAULT_REGION = 'any'
 
 // Icon components consolidated into a single object for better organization
 const Icons = {
@@ -94,20 +95,26 @@ const CreateCluster = () => {
   const { isResponsive } = useResize()
   const router = useRouter()
 
-  // State management
+  // State management - grouped related states
   const [modalOpen, setModalOpen] = useState(false)
-  const [gpuCards, setGpuCards] = useState<GpuCard[]>([])
-  const [selectedFlavors, setSelectedFlavors] = useState<{ [key: string]: string }>({})
-  const [locations, setLocations] = useState<Region[]>([])
-  const [selectedRegion, setSelectedRegion] = useState<string>('any')
-  const [isLoading, setIsLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState<string>('')
-  const [imageList, setImageList] = useState<RegionImages[]>([])
-  const [isImagesLoading, setIsImagesLoading] = useState(true)
+  const [showSpotInstances, setShowSpotInstances] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedRegion, setSelectedRegion] = useState(DEFAULT_REGION)
+
+  // Selection states
   const [selectedGpu, setSelectedGpu] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
+  const [selectedFlavors, setSelectedFlavors] = useState<Record<string, string>>({})
+
+  // Data states with loading indicators
+  const [gpuCards, setGpuCards] = useState<GpuCard[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  const [imageList, setImageList] = useState<RegionImages[]>([])
+  const [isImagesLoading, setIsImagesLoading] = useState(true)
+
+  const [locations, setLocations] = useState<Region[]>([])
   const [priceBook, setPriceBook] = useState<PriceItem[]>([])
-  const [showSpotInstances, setShowSpotInstances] = useState(false)
 
   // Fetch data on component mount - optimized to handle errors better
   useEffect(() => {
@@ -116,30 +123,33 @@ const CreateCluster = () => {
         setIsLoading(true)
         setIsImagesLoading(true)
 
-        const [gpuData, imageData, regionData, priceBookData] = await Promise.all([
-          getGPUAction().catch((err) => {
-            console.error('Error fetching GPU data:', err)
-            return { data: { data: [] } }
-          }),
-          getImageAction().catch((err) => {
-            console.error('Error fetching image data:', err)
-            return { data: { images: [] } }
-          }),
-          getRegionAction().catch((err) => {
-            console.error('Error fetching region data:', err)
-            return { data: { regions: [] } }
-          }),
-          getPriceBook().catch((err) => {
-            console.error('Error fetching price book data:', err)
-            return { data: [] }
-          })
-        ])
+        // Use Promise.allSettled to ensure all promises complete regardless of success/failure
+        const results = await Promise.allSettled([getGPUAction(), getImageAction(), getRegionAction(), getPriceBook()])
 
-        // Set data with null checks
-        setGpuCards(gpuData?.data?.data || [])
-        setImageList(imageData?.data?.images || [])
-        setLocations(regionData?.data?.regions || [])
-        setPriceBook(priceBookData?.data || [])
+        // Process results safely
+        if (results[0].status === 'fulfilled') {
+          setGpuCards(results[0].value?.data?.data || [])
+        } else {
+          console.error('Error fetching GPU data:', results[0].reason)
+        }
+
+        if (results[1].status === 'fulfilled') {
+          setImageList(results[1].value?.data?.images || [])
+        } else {
+          console.error('Error fetching image data:', results[1].reason)
+        }
+
+        if (results[2].status === 'fulfilled') {
+          setLocations(results[2].value?.data?.regions || [])
+        } else {
+          console.error('Error fetching region data:', results[2].reason)
+        }
+
+        if (results[3].status === 'fulfilled') {
+          setPriceBook(results[3].value?.data || [])
+        } else {
+          console.error('Error fetching price book data:', results[3].reason)
+        }
       } catch (error) {
         console.error('Error in data fetching:', error)
       } finally {
@@ -162,7 +172,7 @@ const CreateCluster = () => {
     }
 
     return [
-      { label: 'Any', name: 'any', image: <Icons.Any /> },
+      { label: 'Any', name: DEFAULT_REGION, image: <Icons.Any /> },
       ...locations.map((location) => ({
         label: location.name,
         name: location.name,
@@ -177,7 +187,7 @@ const CreateCluster = () => {
 
     return gpuCards.filter((gpuCard) => {
       // First filter by region
-      const matchesRegion = selectedRegion === 'any' || gpuCard.region_name === selectedRegion
+      const matchesRegion = selectedRegion === DEFAULT_REGION || gpuCard.region_name === selectedRegion
       if (!matchesRegion) return false
 
       // Then filter by search term if one exists
@@ -210,7 +220,7 @@ const CreateCluster = () => {
     if (!imageList.length) return []
 
     return imageList
-      .filter((regionImages) => selectedRegion === 'any' || regionImages.region_name === selectedRegion)
+      .filter((regionImages) => selectedRegion === DEFAULT_REGION || regionImages.region_name === selectedRegion)
       .flatMap((regionImages) =>
         regionImages.images.slice(0, 4).map((image) => ({
           ...image,
@@ -239,7 +249,7 @@ const CreateCluster = () => {
       const priceItem = priceBook.find((item) => item.name === gpuName)
       if (!priceItem) return 0
 
-      const basePrice = Number.parseFloat(priceItem.value)
+      const basePrice = Number.parseFloat(priceItem.value) || 0
       const multiplier = FLAVOR_MULTIPLIERS[flavorIndex] || 1
 
       return basePrice * multiplier
@@ -253,7 +263,7 @@ const CreateCluster = () => {
 
     const gpuPrices = priceBook
       .filter((item) => !item.name.includes('vCPU') && !item.name.includes('RAM') && !item.name.includes('storage'))
-      .map((item) => Number.parseFloat(item.value))
+      .map((item) => Number.parseFloat(item.value) || 0)
       .filter((price) => price > 0)
 
     return gpuPrices.length ? Math.min(...gpuPrices) : 0
@@ -272,6 +282,7 @@ const CreateCluster = () => {
 
     const selectedFlavorId = selectedFlavors[selectedGpu]
     const flavorIndex = gpuCard.flavors.findIndex((flavor) => String(flavor.id) === selectedFlavorId)
+    if (flavorIndex === -1) return 0
 
     return calculateGpuPrice(gpuName, flavorIndex)
   }, [selectedGpu, gpuCards, selectedFlavors, calculateGpuPrice])
@@ -305,12 +316,16 @@ const CreateCluster = () => {
     setShowSpotInstances((prev) => !prev)
   }, [])
 
-  // Update the navigateToContinue function to check if both GPU and image are selected
-  const navigateToContinue = useCallback(() => {
-    if (selectedGpu && selectedImage) {
-      router.push('/dashboard/create-cluster/search')
+  // Handle payment confirmation on the same page
+  const handleRentConfirmation = useCallback(() => {
+    if (!selectedGpu || !selectedImage) return
+
+    if (window.confirm(`Confirm payment for renting GPU with rloop token? Price: $${selectedGpuPrice.toFixed(2)}/hr`)) {
+      // Here you would typically call an API to process the payment
+      alert(`Payment successful! Your GPU cluster is now being provisioned.`)
+      // You can update UI state here to show the provisioning status
     }
-  }, [router, selectedGpu, selectedImage])
+  }, [selectedGpu, selectedImage, selectedGpuPrice])
 
   // Modify the toggleGpuSelection function
   const toggleGpuSelection = useCallback((gpuKey: string, flavorId: string) => {
@@ -374,7 +389,7 @@ const CreateCluster = () => {
 
   // Add a reset function for the form
   const handleReset = useCallback(() => {
-    setSelectedRegion('any')
+    setSelectedRegion(DEFAULT_REGION)
     setSearchTerm('')
     setSelectedGpu(null)
     setSelectedImage(null)
@@ -395,7 +410,7 @@ const CreateCluster = () => {
       }))
 
       // Get selected flavor or default to first flavor
-      const selectedFlavorId = selectedFlavors[gpuKey] || String(gpuCard.flavors[0]?.id)
+      const selectedFlavorId = selectedFlavors[gpuKey] || String(gpuCard.flavors[0]?.id || '')
       const selectedFlavor =
         gpuCard.flavors.find((flavor) => String(flavor.id) === selectedFlavorId) || gpuCard.flavors[0]
 
@@ -403,7 +418,7 @@ const CreateCluster = () => {
       const flavorIndex = gpuCard.flavors.findIndex((flavor) => String(flavor.id) === selectedFlavorId)
 
       // Extract flavor details
-      const { cpu, ram, disk, ephemeral, stock_available } = selectedFlavor || {}
+      const { cpu = 0, ram = 0, disk = 0, ephemeral = 0, stock_available = false } = selectedFlavor || {}
 
       // Get the price for this GPU with the appropriate multiplier
       const gpuPrice = calculateGpuPrice(gpuCard.gpu, flavorIndex)
@@ -535,6 +550,9 @@ const CreateCluster = () => {
     }
   }, [selectedImage])
 
+  // Check if rent button should be disabled
+  const isRentDisabled = !selectedGpu || !selectedImage
+
   return (
     <Flex className={styles.bg} direction="column">
       {/* Header Section */}
@@ -576,7 +594,7 @@ const CreateCluster = () => {
               name="location"
               items={regionList}
               label="Location"
-              defaultValue="any"
+              defaultValue={DEFAULT_REGION}
               className={styles.selectBox}
               onChange={handleChangeRegion}
             />
@@ -789,13 +807,13 @@ const CreateCluster = () => {
             <Button className={styles.defaultButton} onClick={handleReset}>
               Reset
             </Button>
-            {/* Update the Continue button to be disabled when either GPU or image is not selected */}
+            {/* Updated Rent button */}
             <Button
-              className={`${styles.defaultButton} ${!selectedGpu || !selectedImage ? styles.disabledButton : ''}`}
-              onClick={navigateToContinue}
-              disabled={!selectedGpu || !selectedImage}
+              className={`${styles.defaultButton} ${isRentDisabled ? styles.disabledButton : ''}`}
+              onClick={handleRentConfirmation}
+              disabled={isRentDisabled}
             >
-              Continue
+              Rent
             </Button>
           </Flex>
         </Flex>
