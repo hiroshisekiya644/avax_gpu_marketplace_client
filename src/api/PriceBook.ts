@@ -1,12 +1,24 @@
 import axios, { AxiosResponse } from 'axios'
 
-export const getPriceBook = async (): Promise<any> => {
+interface PriceBookResponse {
+  data: Array<{
+    id: number
+    name: string
+    value: string
+    original_value: string
+    discount_applied: boolean
+    start_time: string | null
+    end_time: string | null
+  }>
+}
+
+export const getPriceBook = async (): Promise<PriceBookResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/getPriceBook`
 
     const token = sessionStorage.getItem('authToken')
 
-    const result: AxiosResponse<any> = await axios.get(url, {
+    const result: AxiosResponse<PriceBookResponse> = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${token}`
       }

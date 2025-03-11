@@ -1,12 +1,21 @@
 import axios, { AxiosResponse } from 'axios'
 
-export const getRegionAction = async (): Promise<any> => {
+interface RegionResponse {
+  data: {
+    regions: Array<{
+      name: string
+      id: string
+    }>
+  }
+}
+
+export const getRegionAction = async (): Promise<RegionResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/getRegion`
 
     const token = sessionStorage.getItem('authToken')
 
-    const result: AxiosResponse<any> = await axios.get(url, {
+    const result: AxiosResponse<RegionResponse> = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${token}`
       }

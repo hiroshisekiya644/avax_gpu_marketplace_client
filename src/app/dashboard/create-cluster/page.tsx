@@ -1,20 +1,18 @@
 'use client'
 
-import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
-import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
-import { useResize } from '@/utils/Helper'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import * as Switch from '@radix-ui/react-switch'
 import { Button, Flex, Grid, TextField } from '@radix-ui/themes'
-import { useRouter } from 'next/navigation'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import styles from './page.module.css'
-
 import { getGPUAction } from '@/api/GpuProvider'
 import { getImageAction } from '@/api/ImageProvider'
 import { getPriceBook } from '@/api/PriceBook'
 import { getRegionAction } from '@/api/RegionProvider'
+import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
+import { useResize } from '@/utils/Helper'
+import styles from './page.module.css'
 
 // Optimize interfaces by grouping related properties
 interface Flavor {
@@ -93,7 +91,6 @@ const Icons = {
 
 const CreateCluster = () => {
   const { isResponsive } = useResize()
-  const router = useRouter()
 
   // State management - grouped related states
   const [modalOpen, setModalOpen] = useState(false)
@@ -134,7 +131,17 @@ const CreateCluster = () => {
         }
 
         if (results[1].status === 'fulfilled') {
-          setImageList(results[1].value?.data?.images || [])
+          const images = results[1].value?.data?.images || []
+          const groupedImages = images.reduce((acc: RegionImages[], image) => {
+            const regionIndex = acc.findIndex(r => r.region_name === image.region_name)
+            if (regionIndex === -1) {
+              acc.push({ region_name: image.region_name, images: [image] })
+            } else {
+              acc[regionIndex].images.push(image)
+            }
+            return acc
+          }, [])
+          setImageList(groupedImages)
         } else {
           console.error('Error fetching image data:', results[1].reason)
         }
@@ -209,11 +216,6 @@ const CreateCluster = () => {
       return false
     })
   }, [gpuCards, selectedRegion, searchTerm])
-
-  // Filter GPUs with available stock
-  const availableGpuCards = useMemo(() => {
-    return filteredGpuCards.filter((gpuCard) => gpuCard.flavors.some((flavor) => flavor.stock_available))
-  }, [filteredGpuCards])
 
   // Filtered images based on selected region - optimized to reduce calculations
   const filteredImages = useMemo(() => {
