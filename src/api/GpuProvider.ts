@@ -1,12 +1,30 @@
 import axios, { AxiosResponse } from 'axios'
 
-export const getGPUAction = async (): Promise<any> => {
+interface GpuResponse {
+  data: {
+    data: Array<{
+      gpu: string
+      region_name: string
+      flavors: Array<{
+        id: number | string
+        name: string
+        cpu: number
+        ram: number
+        disk: number
+        ephemeral: number
+        stock_available: boolean
+      }>
+    }>
+  }
+}
+
+export const getGPUAction = async (): Promise<GpuResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/getGPUAvailability`
 
     const token = sessionStorage.getItem('authToken')
 
-    const result: AxiosResponse<any> = await axios.get(url, {
+    const result: AxiosResponse<GpuResponse> = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${token}`
       }
