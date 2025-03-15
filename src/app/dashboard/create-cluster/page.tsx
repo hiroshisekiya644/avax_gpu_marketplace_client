@@ -1,18 +1,20 @@
-'use client'
+"use client"
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import * as Dialog from '@radix-ui/react-dialog'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import * as Switch from '@radix-ui/react-switch'
-import { Button, Flex, Grid, TextField } from '@radix-ui/themes'
-import { getGPUAction } from '@/api/GpuProvider'
-import { getImageAction } from '@/api/ImageProvider'
-import { getPriceBook } from '@/api/PriceBook'
-import { getRegionAction } from '@/api/RegionProvider'
-import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
-import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
-import { useResize } from '@/utils/Helper'
-import styles from './page.module.css'
+import DynamicSvgIcon from "@/components/icons/DynamicSvgIcon"
+import { FormSelect, type SelectItem } from "@/components/select/FormSelect"
+import { useResize } from "@/utils/Helper"
+import * as Dialog from "@radix-ui/react-dialog"
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons"
+import * as Switch from "@radix-ui/react-switch"
+import { Button, Flex, Grid, TextField } from "@radix-ui/themes"
+import { useRouter } from "next/navigation"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
+import styles from "./page.module.css"
+
+import { getGPUAction } from "@/api/GpuProvider"
+import { getImageAction } from "@/api/ImageProvider"
+import { getPriceBook } from "@/api/PriceBook"
+import { getRegionAction } from "@/api/RegionProvider"
 
 // Optimize interfaces by grouping related properties
 interface Flavor {
@@ -69,7 +71,7 @@ interface PriceItem {
 
 // Define multiplier constants to improve readability
 const FLAVOR_MULTIPLIERS = [1, 2, 4, 8]
-const DEFAULT_REGION = 'any'
+const DEFAULT_REGION = "any"
 
 // Icon components consolidated into a single object for better organization
 const Icons = {
@@ -86,16 +88,17 @@ const Icons = {
   Socket: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="socket" />,
   RightArrow: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="rightArrow" />,
   Check: () => <DynamicSvgIcon height={30} width={30} className="rounded-none" iconName="checked" />,
-  Uncheck: () => <DynamicSvgIcon height={30} width={30} className="rounded-none" iconName="unchecked" />
+  Uncheck: () => <DynamicSvgIcon height={30} width={30} className="rounded-none" iconName="unchecked" />,
 }
 
 const CreateCluster = () => {
   const { isResponsive } = useResize()
+  const router = useRouter()
 
   // State management - grouped related states
   const [modalOpen, setModalOpen] = useState(false)
   const [showSpotInstances, setShowSpotInstances] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState("")
   const [selectedRegion, setSelectedRegion] = useState(DEFAULT_REGION)
 
   // Selection states
@@ -124,41 +127,31 @@ const CreateCluster = () => {
         const results = await Promise.allSettled([getGPUAction(), getImageAction(), getRegionAction(), getPriceBook()])
 
         // Process results safely
-        if (results[0].status === 'fulfilled') {
+        if (results[0].status === "fulfilled") {
           setGpuCards(results[0].value?.data?.data || [])
         } else {
-          console.error('Error fetching GPU data:', results[0].reason)
+          console.error("Error fetching GPU data:", results[0].reason)
         }
 
-        if (results[1].status === 'fulfilled') {
-          const images = results[1].value?.data?.images || []
-          const groupedImages = images.reduce((acc: RegionImages[], image) => {
-            const regionIndex = acc.findIndex(r => r.region_name === image.region_name)
-            if (regionIndex === -1) {
-              acc.push({ region_name: image.region_name, images: [image] })
-            } else {
-              acc[regionIndex].images.push(image)
-            }
-            return acc
-          }, [])
-          setImageList(groupedImages)
+        if (results[1].status === "fulfilled") {
+          setImageList(results[1].value?.data?.images || [])
         } else {
-          console.error('Error fetching image data:', results[1].reason)
+          console.error("Error fetching image data:", results[1].reason)
         }
 
-        if (results[2].status === 'fulfilled') {
+        if (results[2].status === "fulfilled") {
           setLocations(results[2].value?.data?.regions || [])
         } else {
-          console.error('Error fetching region data:', results[2].reason)
+          console.error("Error fetching region data:", results[2].reason)
         }
 
-        if (results[3].status === 'fulfilled') {
+        if (results[3].status === "fulfilled") {
           setPriceBook(results[3].value?.data || [])
         } else {
-          console.error('Error fetching price book data:', results[3].reason)
+          console.error("Error fetching price book data:", results[3].reason)
         }
       } catch (error) {
-        console.error('Error in data fetching:', error)
+        console.error("Error in data fetching:", error)
       } finally {
         setIsLoading(false)
         setIsImagesLoading(false)
@@ -172,19 +165,19 @@ const CreateCluster = () => {
   const regionList = useMemo(() => {
     const getRegionIcon = (name: string) => {
       const lowerName = name.toLowerCase()
-      if (lowerName.includes('africa')) return <Icons.Africa />
-      if (lowerName.includes('asia')) return <Icons.SouthAsia />
-      if (lowerName.includes('canada')) return <Icons.Canada />
+      if (lowerName.includes("africa")) return <Icons.Africa />
+      if (lowerName.includes("asia")) return <Icons.SouthAsia />
+      if (lowerName.includes("canada")) return <Icons.Canada />
       return <Icons.Any />
     }
 
     return [
-      { label: 'Any', name: DEFAULT_REGION, image: <Icons.Any /> },
+      { label: "Any", name: DEFAULT_REGION, image: <Icons.Any /> },
       ...locations.map((location) => ({
         label: location.name,
         name: location.name,
-        image: getRegionIcon(location.name)
-      }))
+        image: getRegionIcon(location.name),
+      })),
     ]
   }, [locations])
 
@@ -203,19 +196,24 @@ const CreateCluster = () => {
       const searchLower = searchTerm.toLowerCase()
 
       // Search in GPU name
-      const gpuName = (gpuCard.gpu || 'CPU only').toLowerCase()
+      const gpuName = (gpuCard.gpu || "CPU only").toLowerCase()
       if (gpuName.includes(searchLower)) return true
 
       // Search in flavor names
       if (gpuCard.flavors.some((flavor) => flavor.name.toLowerCase().includes(searchLower))) return true
 
       // Search in region name
-      const regionName = (gpuCard.region_name || '').toLowerCase()
+      const regionName = (gpuCard.region_name || "").toLowerCase()
       if (regionName.includes(searchLower)) return true
 
       return false
     })
   }, [gpuCards, selectedRegion, searchTerm])
+
+  // Filter GPUs with available stock
+  const availableGpuCards = useMemo(() => {
+    return filteredGpuCards.filter((gpuCard) => gpuCard.flavors.some((flavor) => flavor.stock_available))
+  }, [filteredGpuCards])
 
   // Filtered images based on selected region - optimized to reduce calculations
   const filteredImages = useMemo(() => {
@@ -227,8 +225,8 @@ const CreateCluster = () => {
         regionImages.images.slice(0, 4).map((image) => ({
           ...image,
           green_status: regionImages.green_status,
-          logo: regionImages.logo
-        }))
+          logo: regionImages.logo,
+        })),
       )
   }, [imageList, selectedRegion])
 
@@ -240,8 +238,8 @@ const CreateCluster = () => {
       regionImages.images.map((image) => ({
         ...image,
         green_status: regionImages.green_status,
-        logo: regionImages.logo
-      }))
+        logo: regionImages.logo,
+      })),
     )
   }, [imageList])
 
@@ -256,7 +254,7 @@ const CreateCluster = () => {
 
       return basePrice * multiplier
     },
-    [priceBook]
+    [priceBook],
   )
 
   // Get the lowest GPU price from the price book - optimized to reduce calculations
@@ -264,7 +262,7 @@ const CreateCluster = () => {
     if (!priceBook.length) return 0
 
     const gpuPrices = priceBook
-      .filter((item) => !item.name.includes('vCPU') && !item.name.includes('RAM') && !item.name.includes('storage'))
+      .filter((item) => !item.name.includes("vCPU") && !item.name.includes("RAM") && !item.name.includes("storage"))
       .map((item) => Number.parseFloat(item.value) || 0)
       .filter((price) => price > 0)
 
@@ -278,7 +276,7 @@ const CreateCluster = () => {
   const selectedGpuPrice = useMemo(() => {
     if (!selectedGpu || !gpuCards.length) return 0
 
-    const [gpuName, index] = selectedGpu.split('-')
+    const [gpuName, index] = selectedGpu.split("-")
     const gpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
     if (!gpuCard) return 0
 
@@ -297,7 +295,7 @@ const CreateCluster = () => {
   const handleFlavorChange = useCallback((gpuKey: string, selectedFlavorId: string) => {
     setSelectedFlavors((prev) => ({
       ...prev,
-      [gpuKey]: selectedFlavorId
+      [gpuKey]: selectedFlavorId,
     }))
   }, [])
 
@@ -334,14 +332,14 @@ const CreateCluster = () => {
     setSelectedGpu(gpuKey)
     setSelectedFlavors((prev) => ({
       ...prev,
-      [gpuKey]: flavorId
+      [gpuKey]: flavorId,
     }))
   }, [])
 
   // Optimize the handleSummaryGpuSelection function
   const handleSummaryGpuSelection = useCallback(
     (selectedGpuKey: string) => {
-      if (selectedGpuKey === 'none') {
+      if (selectedGpuKey === "none") {
         setSelectedGpu(null)
         setSelectedFlavors({})
         return
@@ -350,7 +348,7 @@ const CreateCluster = () => {
       setSelectedGpu(selectedGpuKey)
 
       // Set the default flavor for the selected GPU
-      const [gpuName, index] = selectedGpuKey.split('-')
+      const [gpuName, index] = selectedGpuKey.split("-")
       const selectedGpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
 
       if (!selectedGpuCard) return
@@ -358,24 +356,24 @@ const CreateCluster = () => {
       const defaultFlavor = selectedGpuCard.flavors.find((flavor) => flavor.stock_available)
       if (defaultFlavor) {
         setSelectedFlavors({
-          [selectedGpuKey]: String(defaultFlavor.id)
+          [selectedGpuKey]: String(defaultFlavor.id),
         })
       }
     },
-    [gpuCards]
+    [gpuCards],
   )
 
   // Modify the handleSummaryFlavorChange function
   const handleSummaryFlavorChange = useCallback((gpuKey: string, flavorId: string) => {
     setSelectedFlavors((prev) => ({
       ...prev,
-      [gpuKey]: flavorId
+      [gpuKey]: flavorId,
     }))
   }, [])
 
   // Optimize the handleSummaryImageSelection function
   const handleSummaryImageSelection = useCallback((selectedImageId: string) => {
-    const newSelectedImage = selectedImageId === 'none' ? null : Number(selectedImageId)
+    const newSelectedImage = selectedImageId === "none" ? null : Number(selectedImageId)
     setSelectedImage(newSelectedImage)
 
     // Scroll to the selected image in the image card section
@@ -383,7 +381,7 @@ const CreateCluster = () => {
       requestAnimationFrame(() => {
         const selectedImageElement = document.getElementById(`image-${newSelectedImage}`)
         if (selectedImageElement) {
-          selectedImageElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+          selectedImageElement.scrollIntoView({ behavior: "smooth", block: "nearest" })
         }
       })
     }
@@ -392,7 +390,7 @@ const CreateCluster = () => {
   // Add a reset function for the form
   const handleReset = useCallback(() => {
     setSelectedRegion(DEFAULT_REGION)
-    setSearchTerm('')
+    setSearchTerm("")
     setSelectedGpu(null)
     setSelectedImage(null)
     setSelectedFlavors({})
@@ -403,16 +401,16 @@ const CreateCluster = () => {
   // Extract the GpuCard component for better code organization
   const GpuCard = useCallback(
     ({ gpuCard, index }: { gpuCard: GpuCard; index: number }) => {
-      const gpuKey = `${gpuCard.gpu || 'cpu'}-${index}`
+      const gpuKey = `${gpuCard.gpu || "cpu"}-${index}`
       const isSelected = selectedGpu === gpuKey
 
       const flavorOptions: SelectItem[] = gpuCard.flavors.map((flavor) => ({
         label: flavor.name,
-        name: String(flavor.id)
+        name: String(flavor.id),
       }))
 
       // Get selected flavor or default to first flavor
-      const selectedFlavorId = selectedFlavors[gpuKey] || String(gpuCard.flavors[0]?.id || '')
+      const selectedFlavorId = selectedFlavors[gpuKey] || String(gpuCard.flavors[0]?.id || "")
       const selectedFlavor =
         gpuCard.flavors.find((flavor) => String(flavor.id) === selectedFlavorId) || gpuCard.flavors[0]
 
@@ -427,7 +425,7 @@ const CreateCluster = () => {
 
       return (
         <Flex
-          className={`${styles.gpuCard} ${isSelected ? styles.selectedGpuCard : ''}`}
+          className={`${styles.gpuCard} ${isSelected ? styles.selectedGpuCard : ""}`}
           key={gpuKey}
           direction="column"
           gap="2"
@@ -437,7 +435,7 @@ const CreateCluster = () => {
             <Flex width="100%" justify="between">
               <Flex gap="2" className={styles.nvidiaTitle}>
                 <Icons.Nvidia />
-                <div>{gpuCard.gpu || 'CPU only'}</div>
+                <div>{gpuCard.gpu || "CPU only"}</div>
               </Flex>
               {gpuPrice > 0 && <div className={styles.gpuPrice}>${gpuPrice.toFixed(2)}/hr</div>}
             </Flex>
@@ -455,10 +453,10 @@ const CreateCluster = () => {
 
             {/* Specs display */}
             {[
-              { icon: <Icons.Vram />, label: 'CPUs:', value: cpu },
-              { icon: <Icons.Socket />, label: 'RAM:', value: `${ram} GB` },
-              { icon: <Icons.Socket />, label: 'Disk:', value: `${disk} GB` },
-              ...(ephemeral > 0 ? [{ icon: <Icons.Socket />, label: 'Ephemeral:', value: `${ephemeral} GB` }] : [])
+              { icon: <Icons.Vram />, label: "CPUs:", value: cpu },
+              { icon: <Icons.Socket />, label: "RAM:", value: `${ram} GB` },
+              { icon: <Icons.Socket />, label: "Disk:", value: `${disk} GB` },
+              ...(ephemeral > 0 ? [{ icon: <Icons.Socket />, label: "Ephemeral:", value: `${ephemeral} GB` }] : []),
             ].map((spec, i) => (
               <Flex key={i} width="100%" direction="column" p="1" className={styles.gpuStatus} gap="2">
                 <Flex align="center" gap="2">
@@ -473,16 +471,16 @@ const CreateCluster = () => {
           <Flex>
             {stock_available ? (
               <Button
-                className={`${styles.selectGPUButton} ${isSelected ? styles.selectedGPUButton : ''}`}
+                className={`${styles.selectGPUButton} ${isSelected ? styles.selectedGPUButton : ""}`}
                 onClick={() => toggleGpuSelection(gpuKey, selectedFlavorId)}
               >
-                {isSelected ? 'Selected' : 'Select GPU'}
+                {isSelected ? "Selected" : "Select GPU"}
               </Button>
             ) : (
               <Flex width="100%" direction="column" p="1" className={styles.invalidGPUButton}>
                 <b className={styles.contentText}>Out of Stock.</b>
                 <p className={styles.contentText}>
-                  Please try a lower number of GPUs. Or reserve future stock{' '}
+                  Please try a lower number of GPUs. Or reserve future stock{" "}
                   <a href="/dashboard/quotes" className={styles.link}>
                     here
                   </a>
@@ -493,7 +491,7 @@ const CreateCluster = () => {
         </Flex>
       )
     },
-    [selectedGpu, selectedFlavors, handleFlavorChange, toggleGpuSelection, calculateGpuPrice]
+    [selectedGpu, selectedFlavors, handleFlavorChange, toggleGpuSelection, calculateGpuPrice],
   )
 
   // Extract the ImageCard component
@@ -503,7 +501,7 @@ const CreateCluster = () => {
 
       return (
         <Flex
-          className={`${styles.clusterCard} ${isSelected ? styles.selectedClusterCard : ''} ${styles.imageCard}`}
+          className={`${styles.clusterCard} ${isSelected ? styles.selectedClusterCard : ""} ${styles.imageCard}`}
           key={image.id}
           direction="column"
           onClick={() => toggleImageSelection(image.id)}
@@ -519,7 +517,7 @@ const CreateCluster = () => {
         </Flex>
       )
     },
-    [selectedImage, toggleImageSelection]
+    [selectedImage, toggleImageSelection],
   )
 
   // Loading and empty state components
@@ -530,7 +528,7 @@ const CreateCluster = () => {
         <div className={styles.contentText}>Loading...</div>
       </Flex>
     ),
-    []
+    [],
   )
 
   const NoResultsState = useCallback(
@@ -539,7 +537,7 @@ const CreateCluster = () => {
         <div className={styles.contentText}>{message}</div>
       </Flex>
     ),
-    []
+    [],
   )
 
   // Scroll to selected image when it changes
@@ -547,7 +545,7 @@ const CreateCluster = () => {
     if (selectedImage) {
       const selectedImageElement = document.getElementById(`image-${selectedImage}`)
       if (selectedImageElement) {
-        selectedImageElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        selectedImageElement.scrollIntoView({ behavior: "smooth", block: "nearest" })
       }
     }
   }, [selectedImage])
@@ -567,7 +565,7 @@ const CreateCluster = () => {
           {!isResponsive && (
             <Flex align="center">
               <Button className={styles.headerButton}>
-                <span>{'Select GPU First'}</span>
+                <span>{"Select GPU First"}</span>
                 <Icons.RightArrow />
               </Button>
             </Flex>
@@ -576,12 +574,12 @@ const CreateCluster = () => {
       </Flex>
 
       {/* GPU Selection Section */}
-      <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2">
-        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '25%' }} gap="2">
+      <Flex p="4" direction={isResponsive ? "column" : "row"} gap="2">
+        <Flex direction="column" mt="4" width={{ initial: "100%", sm: "100%", md: "25%" }} gap="2">
           <div className={styles.contentTitle}>Select Your GPU Type</div>
           <div className={styles.contentText}>Customize your cluster for optimal performance and scalability</div>
         </Flex>
-        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '75%' }}>
+        <Flex direction="column" mt="4" width={{ initial: "100%", sm: "100%", md: "75%" }}>
           {/* Search */}
           <TextField.Root placeholder="Search…" className={styles.searchPad} onChange={handleSearch} value={searchTerm}>
             <TextField.Slot className={styles.iconSlot}>
@@ -590,7 +588,7 @@ const CreateCluster = () => {
           </TextField.Root>
 
           {/* Filters */}
-          <Flex mt="4" gap="2" direction={isResponsive ? 'column' : 'row'}>
+          <Flex mt="4" gap="2" direction={isResponsive ? "column" : "row"}>
             <FormSelect
               id="location"
               name="location"
@@ -603,8 +601,8 @@ const CreateCluster = () => {
           </Flex>
 
           {/* GPU Cards Grid */}
-          <Flex mt="4" gap="2" direction={isResponsive ? 'column' : 'row'}>
-            <Grid columns={{ initial: '1', sm: '1', md: '2', lg: '3' }} gap={{ initial: '2', sm: '4' }} width="100%">
+          <Flex mt="4" gap="2" direction={isResponsive ? "column" : "row"}>
+            <Grid columns={{ initial: "1", sm: "1", md: "2", lg: "3" }} gap={{ initial: "2", sm: "4" }} width="100%">
               {isLoading ? (
                 <LoadingState />
               ) : filteredGpuCards.length === 0 ? (
@@ -620,24 +618,24 @@ const CreateCluster = () => {
       </Flex>
 
       {/* Cluster Base Image Section */}
-      <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2">
-        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '25%' }} gap="2">
+      <Flex p="4" direction={isResponsive ? "column" : "row"} gap="2">
+        <Flex direction="column" mt="4" width={{ initial: "100%", sm: "100%", md: "25%" }} gap="2">
           <div className={styles.contentTitle}>Cluster base image</div>
           <div className={styles.contentText}>
             Select a pre-configured cluster setup tailored to your specific needs, requiring no extra configurations and
             ready to integrate with your codebase immediately.
           </div>
         </Flex>
-        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '75%' }}>
-          <Flex gap="2" direction={isResponsive ? 'column' : 'row'}>
-            <Grid columns={{ initial: '1', sm: '1', md: '2', lg: '3' }} gap={{ initial: '2', sm: '4' }} width="100%">
+        <Flex direction="column" mt="4" width={{ initial: "100%", sm: "100%", md: "75%" }}>
+          <Flex gap="2" direction={isResponsive ? "column" : "row"}>
+            <Grid columns={{ initial: "1", sm: "1", md: "2", lg: "3" }} gap={{ initial: "2", sm: "4" }} width="100%">
               {isImagesLoading ? (
                 <LoadingState />
               ) : filteredImages.length === 0 ? (
                 <NoResultsState message="No images available. Please adjust your filters or try again later." />
               ) : (
                 filteredImages.map((image) => (
-                  <div key={image.id} id={`image-${image.id}`} style={{ height: '200px' }}>
+                  <div key={image.id} id={`image-${image.id}`} style={{ height: "200px" }}>
                     <ImageCard image={image} />
                   </div>
                 ))
@@ -653,12 +651,12 @@ const CreateCluster = () => {
       </Flex>
 
       {/* Summary Section */}
-      <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2">
-        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '25%' }} gap="2">
+      <Flex p="4" direction={isResponsive ? "column" : "row"} gap="2">
+        <Flex direction="column" mt="4" width={{ initial: "100%", sm: "100%", md: "25%" }} gap="2">
           <div className={styles.contentTitle}>Summary</div>
           <div className={styles.contentText}>Review and adjust your GPU and image selection.</div>
         </Flex>
-        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '75%' }}>
+        <Flex direction="column" mt="4" width={{ initial: "100%", sm: "100%", md: "75%" }}>
           <Flex className={styles.summary} p="4" gap="2" direction="column">
             <div className={styles.summaryTitle}>GPU Configuration</div>
             <FormSelect
@@ -666,28 +664,28 @@ const CreateCluster = () => {
               name="summary-gpu-select"
               label="Select GPU"
               items={[
-                { label: 'None', name: 'none' },
+                { label: "None", name: "none" },
                 ...filteredGpuCards.map((gpuCard, index) => {
-                  const gpuKey = `${gpuCard.gpu || 'cpu'}-${index}`
+                  const gpuKey = `${gpuCard.gpu || "cpu"}-${index}`
                   return {
-                    label: gpuCard.gpu || 'CPU only',
-                    name: gpuKey
+                    label: gpuCard.gpu || "CPU only",
+                    name: gpuKey,
                   }
-                })
+                }),
               ]}
-              value={selectedGpu || 'none'}
+              value={selectedGpu || "none"}
               onChange={handleSummaryGpuSelection}
               className={styles.summarySelect}
             />
             {selectedGpu && (
               <Flex direction="column" gap="2">
                 {filteredGpuCards.map((gpuCard, index) => {
-                  const gpuKey = `${gpuCard.gpu || 'cpu'}-${index}`
+                  const gpuKey = `${gpuCard.gpu || "cpu"}-${index}`
                   if (gpuKey !== selectedGpu) return null
 
                   const availableFlavors = gpuCard.flavors.filter((flavor) => flavor.stock_available === true)
                   const selectedFlavorId =
-                    selectedFlavors[gpuKey] || (availableFlavors.length > 0 ? String(availableFlavors[0].id) : '')
+                    selectedFlavors[gpuKey] || (availableFlavors.length > 0 ? String(availableFlavors[0].id) : "")
 
                   const selectedFlavor =
                     availableFlavors.find((flavor) => String(flavor.id) === selectedFlavorId) ||
@@ -738,13 +736,13 @@ const CreateCluster = () => {
               name="summary-image-select"
               label="Select Image"
               items={[
-                { label: 'None', name: 'none' },
+                { label: "None", name: "none" },
                 ...filteredImages.map((image) => ({
                   label: image.name,
-                  name: String(image.id)
-                }))
+                  name: String(image.id),
+                })),
               ]}
-              value={selectedImage ? String(selectedImage) : 'none'}
+              value={selectedImage ? String(selectedImage) : "none"}
               onChange={handleSummaryImageSelection}
               className={styles.summarySelect}
             />
@@ -811,7 +809,7 @@ const CreateCluster = () => {
             </Button>
             {/* Updated Rent button */}
             <Button
-              className={`${styles.defaultButton} ${isRentDisabled ? styles.disabledButton : ''}`}
+              className={`${styles.defaultButton} ${isRentDisabled ? styles.disabledButton : ""}`}
               onClick={handleRentConfirmation}
               disabled={isRentDisabled}
             >
@@ -834,11 +832,11 @@ const CreateCluster = () => {
                 and ready to integrate with your codebase immediately.
               </Flex>
               <TextField.Root placeholder="Find a template to deploy..." className={styles.searchPad}>
-                <TextField.Slot className={styles.iconSlot} style={{ paddingLeft: '10px' }}></TextField.Slot>
+                <TextField.Slot className={styles.iconSlot} style={{ paddingLeft: "10px" }}></TextField.Slot>
               </TextField.Root>
-              <Flex direction="column" mt="10px" width={{ initial: '100%', sm: '100%' }} gap="12px">
-                <Flex gap="6" direction={isResponsive ? 'column' : 'row'}>
-                  <Grid columns={{ initial: '1', sm: '1', md: '2' }} gap={{ initial: '20px', sm: '20px' }} width="100%">
+              <Flex direction="column" mt="10px" width={{ initial: "100%", sm: "100%" }} gap="12px">
+                <Flex gap="6" direction={isResponsive ? "column" : "row"}>
+                  <Grid columns={{ initial: "1", sm: "1", md: "2" }} gap={{ initial: "20px", sm: "20px" }} width="100%">
                     {isImagesLoading ? (
                       <LoadingState />
                     ) : allImages.length === 0 ? (
@@ -859,3 +857,4 @@ const CreateCluster = () => {
 }
 
 export default CreateCluster
+
