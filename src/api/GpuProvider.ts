@@ -20,7 +20,7 @@ interface GpuResponse {
 
 export const getGPUAction = async (): Promise<GpuResponse> => {
   try {
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/getGPUAvailability`
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/availability`
 
     const token = sessionStorage.getItem('authToken')
 
