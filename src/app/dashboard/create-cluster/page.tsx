@@ -116,6 +116,9 @@ const CreateCluster = () => {
   const [locations, setLocations] = useState<Region[]>([])
   const [priceBook, setPriceBook] = useState<PriceItem[]>([])
 
+  // Add a loading state for the rent button to prevent multiple submissions
+  const [isRenting, setIsRenting] = useState(false)
+
   // Fetch data on component mount - optimized to handle errors better
   useEffect(() => {
     const fetchData = async () => {
@@ -126,11 +129,13 @@ const CreateCluster = () => {
         // Use Promise.allSettled to ensure all promises complete regardless of success/failure
         const results = await Promise.allSettled([getGPUAction(), getImageAction(), getRegionAction(), getPriceBook()])
 
-        // Process results safely
+        // Process results safely with better error handling
         if (results[0].status === "fulfilled") {
           setGpuCards(results[0].value?.data?.data || [])
         } else {
           console.error("Error fetching GPU data:", results[0].reason)
+          // Show user-friendly error message
+          alert("Failed to load GPU data. Please refresh the page.")
         }
 
         if (results[1].status === "fulfilled") {
@@ -152,6 +157,7 @@ const CreateCluster = () => {
         }
       } catch (error) {
         console.error("Error in data fetching:", error)
+        alert("Failed to load data. Please check your connection and try again.")
       } finally {
         setIsLoading(false)
         setIsImagesLoading(false)
@@ -245,7 +251,24 @@ const CreateCluster = () => {
 
   // Optimize price calculation functions
   const calculateGpuPrice = useCallback(
-    (gpuName: string, flavorIndex = 0) => {
+    (gpuName: string, flavorIndex = 0, flavor?: Flavor) => {
+      // If it's a CPU-only instance (empty gpuName)
+      if (!gpuName && flavor) {
+        // Get the CPU, RAM, and storage prices from the price book
+        const cpuPriceItem = priceBook.find((item) => item.name === "vCPU (cpu-only-flavors)")
+        const ramPriceItem = priceBook.find((item) => item.name === "RAM (cpu-only-flavors)")
+        const storagePriceItem = priceBook.find((item) => item.name === "hypervisor-local-storage (cpu-only-flavors)")
+
+        // Calculate the price components
+        const cpuPrice = (Number.parseFloat(cpuPriceItem?.value || "0") || 0) * flavor.cpu
+        const ramPrice = (Number.parseFloat(ramPriceItem?.value || "0") || 0) * flavor.ram
+        const storagePrice = (Number.parseFloat(storagePriceItem?.value || "0") || 0) * flavor.disk
+
+        // Return the total price
+        return cpuPrice + ramPrice + storagePrice
+      }
+
+      // For GPU instances, use the existing logic
       const priceItem = priceBook.find((item) => item.name === gpuName)
       if (!priceItem) return 0
 
@@ -284,7 +307,8 @@ const CreateCluster = () => {
     const flavorIndex = gpuCard.flavors.findIndex((flavor) => String(flavor.id) === selectedFlavorId)
     if (flavorIndex === -1) return 0
 
-    return calculateGpuPrice(gpuName, flavorIndex)
+    const selectedFlavor = gpuCard.flavors[flavorIndex]
+    return calculateGpuPrice(gpuName, flavorIndex, selectedFlavor)
   }, [selectedGpu, gpuCards, selectedFlavors, calculateGpuPrice])
 
   // Event handlers - memoized to prevent unnecessary re-renders
@@ -316,16 +340,29 @@ const CreateCluster = () => {
     setShowSpotInstances((prev) => !prev)
   }, [])
 
-  // Handle payment confirmation on the same page
+  // Improve the handleRentConfirmation function to show loading state and handle errors
   const handleRentConfirmation = useCallback(() => {
-    if (!selectedGpu || !selectedImage) return
+    if (!selectedGpu || !selectedImage || isRenting) return
 
     if (window.confirm(`Confirm payment for renting GPU with rloop token? Price: $${selectedGpuPrice.toFixed(2)}/hr`)) {
-      // Here you would typically call an API to process the payment
-      alert(`Payment successful! Your GPU cluster is now being provisioned.`)
-      // You can update UI state here to show the provisioning status
+      setIsRenting(true)
+
+      // Simulate API call - replace with your actual API call
+      setTimeout(() => {
+        try {
+          // Here you would typically call an API to process the payment
+          alert(`Payment successful! Your GPU cluster is now being provisioned.`)
+          // Redirect to dashboard or cluster management page
+          router.push("/dashboard/clusters")
+        } catch (error) {
+          console.error("Error processing payment:", error)
+          alert("Payment failed. Please try again.")
+        } finally {
+          setIsRenting(false)
+        }
+      }, 1500)
     }
-  }, [selectedGpu, selectedImage, selectedGpuPrice])
+  }, [selectedGpu, selectedImage, selectedGpuPrice, isRenting, router])
 
   // Modify the toggleGpuSelection function
   const toggleGpuSelection = useCallback((gpuKey: string, flavorId: string) => {
@@ -421,7 +458,8 @@ const CreateCluster = () => {
       const { cpu = 0, ram = 0, disk = 0, ephemeral = 0, stock_available = false } = selectedFlavor || {}
 
       // Get the price for this GPU with the appropriate multiplier
-      const gpuPrice = calculateGpuPrice(gpuCard.gpu, flavorIndex)
+      // Pass the selectedFlavor to calculateGpuPrice for CPU-only instances
+      const gpuPrice = calculateGpuPrice(gpuCard.gpu, flavorIndex, selectedFlavor)
 
       return (
         <Flex
@@ -434,10 +472,13 @@ const CreateCluster = () => {
           <Flex className={styles.gpuCardContent} direction="column" gap="2">
             <Flex width="100%" justify="between">
               <Flex gap="2" className={styles.nvidiaTitle}>
-                <Icons.Nvidia />
+                {gpuCard.gpu ? <Icons.Nvidia /> : <Icons.Socket />}
                 <div>{gpuCard.gpu || "CPU only"}</div>
               </Flex>
               {gpuPrice > 0 && <div className={styles.gpuPrice}>${gpuPrice.toFixed(2)}/hr</div>}
+            </Flex>
+            <Flex width="100%" className={styles.regionInfo}>
+              <div className={styles.contentText}>Region: {gpuCard.region_name}</div>
             </Flex>
 
             <FormSelect
@@ -606,7 +647,13 @@ const CreateCluster = () => {
               {isLoading ? (
                 <LoadingState />
               ) : filteredGpuCards.length === 0 ? (
-                <NoResultsState message="No GPU types available. Please adjust your filters." />
+                <NoResultsState
+                  message={
+                    searchTerm
+                      ? `No GPU types found matching "${searchTerm}". Please try a different search term.`
+                      : "No GPU types available for the selected region. Please try a different region."
+                  }
+                />
               ) : (
                 filteredGpuCards.map((gpuCard, index) => (
                   <GpuCard key={`${gpuCard.gpu}-${index}`} gpuCard={gpuCard} index={index} />
@@ -695,7 +742,8 @@ const CreateCluster = () => {
                   const flavorIndex = gpuCard.flavors.findIndex((flavor) => String(flavor.id) === selectedFlavorId)
 
                   // Get the price for this GPU with the appropriate multiplier
-                  const gpuPrice = calculateGpuPrice(gpuCard.gpu, flavorIndex)
+                  // Pass the selectedFlavor to calculateGpuPrice
+                  const gpuPrice = calculateGpuPrice(gpuCard.gpu, flavorIndex, selectedFlavor)
 
                   return (
                     <React.Fragment key={gpuKey}>
@@ -768,7 +816,15 @@ const CreateCluster = () => {
               <div className={styles.contentText}>Compute Types</div>
             </Flex>
             <Flex justify="between" className={styles.instanceArea} p="4">
-              <div className={styles.contentTextWhite}>Show Spot Instances</div>
+              <div className={styles.contentTextWhite}>
+                Show Spot Instances
+                <span
+                  className={styles.tooltip}
+                  title="Spot instances offer lower prices but may be reclaimed with short notice"
+                >
+                  ⓘ
+                </span>
+              </div>
               <Switch.Root
                 className={styles.switchRoot}
                 id="spotInstance"
@@ -809,11 +865,11 @@ const CreateCluster = () => {
             </Button>
             {/* Updated Rent button */}
             <Button
-              className={`${styles.defaultButton} ${isRentDisabled ? styles.disabledButton : ""}`}
+              className={`${styles.defaultButton} ${isRentDisabled || isRenting ? styles.disabledButton : ""}`}
               onClick={handleRentConfirmation}
-              disabled={isRentDisabled}
+              disabled={isRentDisabled || isRenting}
             >
-              Rent
+              {isRenting ? "Processing..." : "Rent"}
             </Button>
           </Flex>
         </Flex>
