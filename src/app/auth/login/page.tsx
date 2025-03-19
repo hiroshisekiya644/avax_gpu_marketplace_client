@@ -27,7 +27,7 @@ const Login = () => {
       Snackbar({ message: 'You have successfully logged in!' })
 
       sessionStorage.setItem('authToken', response.accessToken)
-      sessionStorage.setItem('userId', response.userId)
+      // sessionStorage.setItem('userId', response.userId.toString())
       router.push('/dashboard/create-cluster')
     } catch (error: unknown) {
       if (error instanceof Error) {

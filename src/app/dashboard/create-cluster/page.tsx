@@ -76,9 +76,9 @@ const DEFAULT_REGION = "any"
 // Icon components consolidated into a single object for better organization
 const Icons = {
   Any: () => <DynamicSvgIcon height={22} className="rounded-none" iconName="any" />,
-  Africa: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="za" />,
-  SouthAsia: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="in" />,
-  Canada: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="ca" />,
+  Norway: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="norway" />,
+  US: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="us" />,
+  Canada: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="canada" />,
   SecureCloud: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="secure-cloud" />,
   CommunityCloud: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="community-cloud" />,
   ShowAll: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="show-all" />,
@@ -171,8 +171,8 @@ const CreateCluster = () => {
   const regionList = useMemo(() => {
     const getRegionIcon = (name: string) => {
       const lowerName = name.toLowerCase()
-      if (lowerName.includes("africa")) return <Icons.Africa />
-      if (lowerName.includes("asia")) return <Icons.SouthAsia />
+      if (lowerName.includes("us")) return <Icons.US />
+      if (lowerName.includes("norway")) return <Icons.Norway />
       if (lowerName.includes("canada")) return <Icons.Canada />
       return <Icons.Any />
     }
@@ -477,8 +477,25 @@ const CreateCluster = () => {
               </Flex>
               {gpuPrice > 0 && <div className={styles.gpuPrice}>${gpuPrice.toFixed(2)}/hr</div>}
             </Flex>
-            <Flex width="100%" className={styles.regionInfo}>
-              <div className={styles.contentText}>Region: {gpuCard.region_name}</div>
+            <Flex width="100%" className={styles.regionInfo} align="center" gap="2">
+              {gpuCard.region_name.includes("NORWAY") && (
+                <DynamicSvgIcon height={16} className="rounded-none" iconName="norway" />
+              )}
+              {gpuCard.region_name.includes("CANADA") && (
+                <DynamicSvgIcon height={16} className="rounded-none" iconName="canada" />
+              )}
+              {gpuCard.region_name.includes("US") && (
+                <DynamicSvgIcon height={16} className="rounded-none" iconName="us" />
+              )}
+              <div className={styles.contentText}>
+                <span className={styles.regionLabel}>Region:</span>
+                <span className={styles.regionName}>{gpuCard.region_name}</span>
+                {gpuCard.region_name.includes("NORWAY") || gpuCard.region_name.includes("CANADA") ? (
+                  <span className={styles.greenBadge} title="Green Energy Data Center">
+                    🌱
+                  </span>
+                ) : null}
+              </div>
             </Flex>
 
             <FormSelect
