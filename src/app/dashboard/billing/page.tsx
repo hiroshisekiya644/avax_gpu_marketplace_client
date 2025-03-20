@@ -1,59 +1,55 @@
-"use client"
+'use client'
 
-import React, { useCallback, useState, useEffect } from "react"
-import { Flex, Button, Box, TextField } from '@radix-ui/themes'
+import React, { useCallback, useState, useEffect } from 'react'
+import { Flex, Button, TextField } from '@radix-ui/themes'
 import styles from './page.module.css'
-import axios, { AxiosResponse } from 'axios'
-import { getBalance } from "@/api/Payment"
+import { getBalance, createDeposit } from '@/api/Payment'
 
 const Billing = () => {
-
-  const [credit, setCredit] = useState("");
-  const [balance, setBalance] = useState("");
+  const [credit, setCredit] = useState<number | ''>('')
+  const [balance, setBalance] = useState<number>(0)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const results = await Promise.allSettled([getBalance()])
-        console.log(results)
+        const fetchedBalance = await getBalance()
+        setBalance(fetchedBalance)
       } catch (error) {
-        console.error("Error in data fetching:", error)
+        setError('Failed to fetch balance')
       }
     }
     fetchData()
   }, [])
 
   const handleCredit = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setCredit(e.target.value)
+    const value = e.target.value
+    if (/^\d*\.?\d*$/.test(value)) {
+      setCredit(value === '' ? '' : parseFloat(value))
+    }
   }, [])
 
   const handleDeposit = async () => {
+    if (!credit || credit <= 0) {
+      setError('Enter a valid amount')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
     try {
-      const response = await axios.post('https://api.nowpayments.io/v1/invoice', {
-        price_amount: credit,
-        price_currency: "usd",
-        order_id: "",
-        order_description: "Deposit to AVAX Marketplace",
-        ipn_callback_url: "https://nowpayments.io",
-        success_url: "http://localhost:3000/dashboard/billing",
-        cancel_url: "http://localhost:3000/dashboard/billing"
-      }, {
-        headers: {
-          'x-api-key': 'MJJRTZY-ZT743MJ-JZJCF76-ZXN8PP4',
-          'Content-Type': 'application/json'
-        }
-      });
+      const { invoiceUrl } = await createDeposit(credit)
+      window.open(invoiceUrl, '_blank')
 
-
-      console.log(response.data);
-
-      window.open(response.data?.invoice_url, '_blank');
-
-      return response.data;
-
+      const updatedBalance = await getBalance()
+      setBalance(updatedBalance)
+      setCredit('')
     } catch (error) {
-      console.error('Error creating invoice:', error);
-      throw error;
+      setError('Deposit failed. Try again later.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -67,27 +63,26 @@ const Billing = () => {
           </Flex>
         </Flex>
       </Flex>
-      <Flex m="4"
-        p="8"
-        gap="10px"
-        justify="start"
-        direction="column"
-        align="start"
-        className={styles.billingWrapper}
-      >
-        <Flex>Current Balance: </Flex>
+
+      <Flex m="4" p="8" gap="10px" justify="start" direction="column" align="start" className={styles.billingWrapper}>
+        {error && <div className={styles.error}>{error}</div>}
+        <Flex>Current Balance: ${balance.toFixed(2)}</Flex>
         <Flex align="center" gap="4">
           <div>Add Amount:</div>
-          <TextField.Root placeholder="" className={styles.credit} onChange={handleCredit} value={credit}>
-            <TextField.Slot>
-            </TextField.Slot>
+          <TextField.Root
+            placeholder="Enter amount"
+            className={styles.credit}
+            onChange={handleCredit}
+            value={credit.toString()}
+          >
+            <TextField.Slot></TextField.Slot>
           </TextField.Root>
         </Flex>
-        <Button mt="2" className={styles.billingButton} onClick={handleDeposit}>
-          Add Credit
+        <Button mt="2" className={styles.billingButton} onClick={handleDeposit} disabled={loading}>
+          {loading ? 'Processing...' : 'Add Credit'}
         </Button>
       </Flex>
-    </Flex >
+    </Flex>
   )
 }
 
