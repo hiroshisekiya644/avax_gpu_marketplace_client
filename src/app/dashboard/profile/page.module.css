@@ -1,0 +1,344 @@
+.bg {
+  background-color: var(--bg);
+  height: 100%;
+  min-height: 100vh;
+  color: var(--text);
+}
+
+.header {
+  height: 90px;
+  border-bottom: 1px solid rgb(61 61 61);
+  width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .header {
+    height: 110px;
+  }
+}
+
+.headerTitle {
+  color: var(--text);
+  font-size: 1.5rem;
+  margin-top: 10px;
+}
+
+.subTitle {
+  color: var(--textSoft);
+  font-size: 12px;
+}
+
+.wrapper {
+  gap: 24px;
+  width: 100%;
+}
+
+.tabList {
+  background-color: var(--white-color);
+  display: flex;
+  gap: 28px;
+  height: fit-content;
+  margin-top: 20px;
+  align-items: center;
+  border-bottom: 2px solid var(--bgSoft);
+}
+
+.tabListItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  color: var(--textSoft);
+  padding-bottom: 15px;
+
+  & svg path {
+    fill: var(--text-gray-color-dark);
+  }
+
+  & span {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.05rem;
+    color: var(--text-gray-color-dark);
+  }
+}
+
+.tabListItem:hover {
+  color: var(--textSoftDark);
+}
+
+.tabListItem[data-state='active'] {
+  color: var(--text);
+  border-bottom: 2px solid white;
+
+  & svg path {
+    fill: var(--white-color);
+  }
+
+  & span {
+    color: var(--white-color);
+  }
+}
+
+.sectionCard {
+  background-color: var(--bgSoftDark);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.sectionDescription {
+  color: var(--textSoft);
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media screen and (max-width: 768px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.saveButton {
+  background-color: var(--button);
+  cursor: pointer;
+  border: 2px solid var(--border);
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 40px;
+  border-radius: 8px;
+  padding: 0 20px;
+}
+
+.saveButton:hover {
+  background-color: var(--border);
+}
+
+.cancelButton {
+  background-color: var(--bg);
+  cursor: pointer;
+  border: 2px solid var(--textSoftDark);
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 40px;
+  border-radius: 8px;
+  padding: 0 20px;
+  margin-right: 10px;
+}
+
+.cancelButton:hover {
+  background-color: var(--bgSoft);
+}
+
+.sshKeyCard {
+  background-color: var(--bgSoft);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sshKeyInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sshKeyName {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.sshKeyFingerprint {
+  color: var(--textSoft);
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.sshKeyDate {
+  color: var(--textSoft);
+  font-size: 11px;
+}
+
+.deleteButton {
+  background-color: transparent;
+  color: var(--textSoft);
+  cursor: pointer;
+  border: none;
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.deleteButton:hover {
+  color: #ff4d4f;
+  background-color: rgba(255, 77, 79, 0.1);
+}
+
+.addKeyButton {
+  background-color: var(--bgSoft);
+  cursor: pointer;
+  border: 2px solid var(--border);
+  font-size: 14px;
+  text-align: center;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 15px;
+}
+
+.addKeyButton:hover {
+  background-color: var(--button);
+}
+
+.dialogOverlay {
+  background-color: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(4px);
+  position: fixed;
+  inset: 0;
+  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dialogContent {
+  background-color: var(--bg);
+  border-radius: 6px;
+  box-shadow:
+    hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
+    hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 600px;
+  max-height: 85vh;
+  padding: 20px;
+  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: auto;
+}
+
+@media (max-width: 768px) {
+  .dialogContent {
+    max-width: 300px;
+  }
+}
+
+.dialogContent:focus {
+  outline: none;
+}
+
+.dialogTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.textAreaContainer {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.textArea {
+  width: 100%;
+  min-height: 150px;
+  padding: 10px;
+  background-color: var(--bgSoft);
+  color: var(--text);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  resize: vertical;
+}
+
+.textArea:focus {
+  outline: 2px solid var(--border);
+  border-color: transparent;
+}
+
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.avatarSection {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.avatarPreview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--bgSoft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarUploadButton {
+  background-color: var(--bgSoft);
+  cursor: pointer;
+  border: 1px solid var(--textSoftDark);
+  font-size: 14px;
+  padding: 8px 15px;
+  border-radius: 4px;
+}
+
+.avatarUploadButton:hover {
+  background-color: var(--button);
+}
+
+.fileInput {
+  display: none;
+}
