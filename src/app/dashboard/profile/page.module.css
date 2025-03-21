@@ -342,3 +342,25 @@
 .fileInput {
   display: none;
 }
+
+.editButton {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.editButton:hover {
+  background-color: var(--primaryDark);
+}
+
+.editButton:disabled {
+  background-color: var(--primaryLight);
+  cursor: not-allowed;
+}
