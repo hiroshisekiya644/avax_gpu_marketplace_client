@@ -52,7 +52,7 @@ const Billing = () => {
 
     try {
       const { invoiceUrl } = await createDeposit(credit)
-      window.open(invoiceUrl, '_blank')
+      window.open(invoiceUrl, '_self')
 
       const updatedBalance = await getBalance()
       setBalance(updatedBalance)
