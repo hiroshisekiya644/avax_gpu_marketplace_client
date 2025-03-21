@@ -1,14 +1,13 @@
 'use client'
 
-import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
-import { FormInput } from '@/components/input/FormInput'
-import { Snackbar } from '@/components/snackbar/SnackBar'
-import { useResize } from '@/utils/Helper'
+import { useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
 import { Button, Flex } from '@radix-ui/themes'
 import Image from 'next/image'
-import { useState } from 'react'
+import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+import { FormInput } from '@/components/input/FormInput'
+import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
 
 const ProfileIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="user-icon" />
@@ -40,7 +39,6 @@ const sampleSSHKeys = [
 ]
 
 const ProfilePage = () => {
-  const { isResponsive } = useResize()
   const [activeTab, setActiveTab] = useState<TabValue>(tabValues[0])
   const [addKeyModalOpen, setAddKeyModalOpen] = useState(false)
   const [newKeyName, setNewKeyName] = useState('')
