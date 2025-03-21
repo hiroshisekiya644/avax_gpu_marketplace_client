@@ -16,6 +16,10 @@ interface PaymentStatusResponse {
   status: string;
 }
 
+/**
+ * Fetches the user's current balance
+ * @returns The user's balance as a number
+ */
 export const getBalance = async (): Promise<number> => {
   try {
     const url = `${API_URL}/payment/getBalance`;
@@ -26,11 +30,17 @@ export const getBalance = async (): Promise<number> => {
     });
 
     return result.data.balance;
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Balance fetch error:', error instanceof Error ? error.message : 'Unknown error');
     throw new Error('Failed to fetch balance');
   }
 };
 
+/**
+ * Creates a new deposit request
+ * @param amount - The amount to deposit
+ * @returns Object containing invoice URL and order ID
+ */
 export const createDeposit = async (amount: number): Promise<DepositResponse> => {
   try {
     const url = `${API_URL}/payment/deposit`;
@@ -44,11 +54,17 @@ export const createDeposit = async (amount: number): Promise<DepositResponse> =>
       }
     );
     return response.data;
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Deposit creation error:', error instanceof Error ? error.message : 'Unknown error');
     throw new Error('Failed to create deposit');
   }
 };
 
+/**
+ * Checks the status of a payment
+ * @param orderId - The ID of the order to check
+ * @returns The payment status as a string
+ */
 export const checkPaymentStatus = async (orderId: string): Promise<string> => {
   try {
     const url = `${API_URL}/payment/status/${orderId}`;
@@ -59,7 +75,8 @@ export const checkPaymentStatus = async (orderId: string): Promise<string> => {
     });
 
     return response.data.status;
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Payment status check error:', error instanceof Error ? error.message : 'Unknown error');
     throw new Error('Failed to fetch payment status');
   }
 };

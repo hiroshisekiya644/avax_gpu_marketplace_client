@@ -2,27 +2,35 @@
 
 import React, { useCallback, useState, useEffect } from 'react'
 import { Flex, Button, TextField } from '@radix-ui/themes'
-import styles from './page.module.css'
 import { getBalance, createDeposit } from '@/api/Payment'
+import styles from './page.module.css'
 
+/**
+ * Billing component for managing user balance and deposits
+ */
 const Billing = () => {
   const [credit, setCredit] = useState<number | ''>('')
   const [balance, setBalance] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Fetch initial balance on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
         const fetchedBalance = await getBalance()
         setBalance(fetchedBalance)
-      } catch (error) {
+      } catch (err) {
+        console.error('Balance fetch error:', err)
         setError('Failed to fetch balance')
       }
     }
     fetchData()
   }, [])
 
+  /**
+   * Handle credit input changes with validation
+   */
   const handleCredit = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     if (/^\d*\.?\d*$/.test(value)) {
@@ -30,6 +38,9 @@ const Billing = () => {
     }
   }, [])
 
+  /**
+   * Process deposit request and update balance
+   */
   const handleDeposit = async () => {
     if (!credit || credit <= 0) {
       setError('Enter a valid amount')
@@ -46,7 +57,8 @@ const Billing = () => {
       const updatedBalance = await getBalance()
       setBalance(updatedBalance)
       setCredit('')
-    } catch (error) {
+    } catch (err) {
+      console.error('Deposit error:', err)
       setError('Deposit failed. Try again later.')
     } finally {
       setLoading(false)
