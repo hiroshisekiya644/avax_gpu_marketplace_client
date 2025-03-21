@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
 import { Button, Flex } from '@radix-ui/themes'
 import Image from 'next/image'
+import { getUserKeyPairs, importKeyPair, updateKeyPair, deleteKeyPair, type KeyPair } from '@/api/KeyPair'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormInput } from '@/components/input/FormInput'
 import { Snackbar } from '@/components/snackbar/SnackBar'
@@ -13,7 +14,8 @@ import styles from './page.module.css'
 const ProfileIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="user-icon" />
 const KeyIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="key-icon" />
 const PlusIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="plus-icon" />
-const TrashIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="trash-icon" />
+const DeleteIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="trash-icon" />
+const EditIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="edit-icon" />
 
 type TabValue = 'profile' | 'ssh'
 const tabValues: TabValue[] = ['profile', 'ssh']
@@ -22,28 +24,20 @@ const tabListItems = [
   { name: 'SSH Keys', icon: <KeyIcon />, value: 'ssh' }
 ]
 
-// Sample SSH key data
-const sampleSSHKeys = [
-  {
-    id: '1',
-    name: 'MacBook Pro',
-    fingerprint: 'SHA256:NHg8Jpn+rExRxr6a2Pbj9NBgMzlV/1oeE/fEXkDgYQ4',
-    createdAt: '2023-10-15T14:30:00Z'
-  },
-  {
-    id: '2',
-    name: 'Work Desktop',
-    fingerprint: 'SHA256:7Hj9Kpn+rExRxr6a2Pbj9NBgMzlV/1oeE/fEXkDgYQ4',
-    createdAt: '2023-11-20T09:15:00Z'
-  }
-]
-
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<TabValue>(tabValues[0])
   const [addKeyModalOpen, setAddKeyModalOpen] = useState(false)
+  const [editKeyModalOpen, setEditKeyModalOpen] = useState(false)
   const [newKeyName, setNewKeyName] = useState('')
   const [newKeyContent, setNewKeyContent] = useState('')
-  const [sshKeys, setSSHKeys] = useState(sampleSSHKeys)
+  const [editKeyId, setEditKeyId] = useState<number | null>(null)
+  const [editKeyName, setEditKeyName] = useState('')
+  const [sshKeys, setSSHKeys] = useState<KeyPair[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Add environment name state for the key pair
+  const [environmentName, setEnvironmentName] = useState('default')
 
   // Profile form state
   const [name, setName] = useState('John Doe')
@@ -52,34 +46,107 @@ const ProfilePage = () => {
   const [location, setLocation] = useState('San Francisco, CA')
   const [bio, setBio] = useState('AI and GPU enthusiast')
 
+  // Fetch SSH keys on component mount
+  useEffect(() => {
+    const fetchSSHKeys = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+        const response = await getUserKeyPairs()
+        setSSHKeys(response.keyPairs)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch SSH keys')
+        Snackbar({ message: err instanceof Error ? err.message : 'Failed to fetch SSH keys' })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (activeTab === 'ssh') {
+      fetchSSHKeys()
+    }
+  }, [activeTab])
+
   const handleTabChange = (value: TabValue) => {
     setActiveTab(value)
   }
 
-  const handleAddKey = () => {
+  const handleAddKey = async () => {
     if (!newKeyName.trim() || !newKeyContent.trim()) {
       Snackbar({ message: 'Key name and content are required' })
       return
     }
 
-    // In a real app, you would send this to your backend
-    const newKey = {
-      id: `${Date.now()}`,
-      name: newKeyName,
-      fingerprint: 'SHA256:' + Math.random().toString(36).substring(2, 15),
-      createdAt: new Date().toISOString()
-    }
+    try {
+      setIsLoading(true)
+      setError(null)
 
-    setSSHKeys([...sshKeys, newKey])
-    setNewKeyName('')
-    setNewKeyContent('')
-    setAddKeyModalOpen(false)
-    Snackbar({ message: 'SSH key added successfully' })
+      const response = await importKeyPair({
+        ssh_key_name: newKeyName,
+        ssh_public_key: newKeyContent,
+        environment_name: environmentName
+      })
+
+      setSSHKeys([response.keypair, ...sshKeys])
+      setNewKeyName('')
+      setNewKeyContent('')
+      setAddKeyModalOpen(false)
+      Snackbar({ message: response.message || 'SSH key added successfully' })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add SSH key')
+      Snackbar({ message: err instanceof Error ? err.message : 'Failed to add SSH key' })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handleDeleteKey = (id: string) => {
-    setSSHKeys(sshKeys.filter((key) => key.id !== id))
-    Snackbar({ message: 'SSH key deleted successfully' })
+  const handleEditKey = (key: KeyPair) => {
+    setEditKeyId(key.id)
+    setEditKeyName(key.ssh_key_name)
+    setEditKeyModalOpen(true)
+  }
+
+  const handleUpdateKey = async () => {
+    if (!editKeyId || !editKeyName.trim()) {
+      Snackbar({ message: 'Key name is required' })
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const response = await updateKeyPair(editKeyId, {
+        name: editKeyName
+      })
+
+      // Update the key in the local state
+      setSSHKeys(sshKeys.map((key) => (key.id === editKeyId ? response.keypair : key)))
+
+      setEditKeyModalOpen(false)
+      Snackbar({ message: response.message || 'SSH key updated successfully' })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update SSH key')
+      Snackbar({ message: err instanceof Error ? err.message : 'Failed to update SSH key' })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDeleteKey = async (id: number) => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const response = await deleteKeyPair(id)
+      setSSHKeys(sshKeys.filter((key) => key.id !== id))
+      Snackbar({ message: response.message || 'SSH key deleted successfully' })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete SSH key')
+      Snackbar({ message: err instanceof Error ? err.message : 'Failed to delete SSH key' })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleSaveProfile = () => {
@@ -240,13 +307,33 @@ const ProfilePage = () => {
                       SSH keys allow you to establish a secure connection between your computer and our platform
                     </p>
                   </div>
-                  <Button className={styles.addKeyButton} onClick={() => setAddKeyModalOpen(true)}>
+                  <Button className={styles.addKeyButton} onClick={() => setAddKeyModalOpen(true)} disabled={isLoading}>
                     <PlusIcon />
                     Add SSH Key
                   </Button>
                 </Flex>
 
-                {sshKeys.length === 0 ? (
+                {isLoading && sshKeys.length === 0 ? (
+                  <Flex
+                    direction="column"
+                    align="center"
+                    justify="center"
+                    p="6"
+                    style={{ backgroundColor: 'var(--bgSoft)', borderRadius: '8px' }}
+                  >
+                    <p style={{ color: 'var(--textSoft)' }}>Loading SSH keys...</p>
+                  </Flex>
+                ) : error && sshKeys.length === 0 ? (
+                  <Flex
+                    direction="column"
+                    align="center"
+                    justify="center"
+                    p="6"
+                    style={{ backgroundColor: 'var(--bgSoft)', borderRadius: '8px' }}
+                  >
+                    <p style={{ color: 'var(--textSoft)' }}>{error}</p>
+                  </Flex>
+                ) : sshKeys.length === 0 ? (
                   <Flex
                     direction="column"
                     align="center"
@@ -262,13 +349,22 @@ const ProfilePage = () => {
                     {sshKeys.map((key) => (
                       <div key={key.id} className={styles.sshKeyCard}>
                         <div className={styles.sshKeyInfo}>
-                          <div className={styles.sshKeyName}>{key.name}</div>
-                          <div className={styles.sshKeyFingerprint}>{key.fingerprint}</div>
+                          <div className={styles.sshKeyName}>{key.ssh_key_name}</div>
+                          <div className={styles.sshKeyFingerprint}>{key.ssh_public_key.substring(0, 30)}...</div>
                           <div className={styles.sshKeyDate}>Added on {formatDate(key.createdAt)}</div>
                         </div>
-                        <Button className={styles.deleteButton} onClick={() => handleDeleteKey(key.id)}>
-                          <TrashIcon />
-                        </Button>
+                        <Flex gap="2">
+                          <Button className={styles.editButton} onClick={() => handleEditKey(key)} disabled={isLoading}>
+                            <EditIcon />
+                          </Button>
+                          <Button
+                            className={styles.deleteButton}
+                            onClick={() => handleDeleteKey(key.id)}
+                            disabled={isLoading}
+                          >
+                            <DeleteIcon />
+                          </Button>
+                        </Flex>
                       </div>
                     ))}
                   </div>
@@ -309,6 +405,18 @@ const ProfilePage = () => {
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
               required
+              disabled={isLoading}
+            />
+
+            <FormInput
+              id="environment-name"
+              label="Environment Name"
+              type="text"
+              placeholder="e.g. default"
+              value={environmentName}
+              onChange={(e) => setEnvironmentName(e.target.value)}
+              required
+              disabled={isLoading}
             />
 
             <div className={styles.textAreaContainer}>
@@ -322,15 +430,46 @@ const ProfilePage = () => {
                 value={newKeyContent}
                 onChange={(e) => setNewKeyContent(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
 
             <Flex justify="end" gap="2" mt="4">
-              <Button className={styles.cancelButton} onClick={() => setAddKeyModalOpen(false)}>
+              <Button className={styles.cancelButton} onClick={() => setAddKeyModalOpen(false)} disabled={isLoading}>
                 Cancel
               </Button>
-              <Button className={styles.saveButton} onClick={handleAddKey}>
-                Add Key
+              <Button className={styles.saveButton} onClick={handleAddKey} disabled={isLoading}>
+                {isLoading ? 'Adding...' : 'Add Key'}
+              </Button>
+            </Flex>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      {/* Edit SSH Key Dialog */}
+      <Dialog.Root open={editKeyModalOpen} onOpenChange={setEditKeyModalOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className={styles.dialogOverlay} />
+          <Dialog.Content className={styles.dialogContent}>
+            <Dialog.Title className={styles.dialogTitle}>Edit SSH Key</Dialog.Title>
+
+            <FormInput
+              id="edit-key-name"
+              label="Key Name"
+              type="text"
+              placeholder="e.g. MacBook Pro"
+              value={editKeyName}
+              onChange={(e) => setEditKeyName(e.target.value)}
+              required
+              disabled={isLoading}
+            />
+
+            <Flex justify="end" gap="2" mt="4">
+              <Button className={styles.cancelButton} onClick={() => setEditKeyModalOpen(false)} disabled={isLoading}>
+                Cancel
+              </Button>
+              <Button className={styles.saveButton} onClick={handleUpdateKey} disabled={isLoading}>
+                {isLoading ? 'Updating...' : 'Update Key'}
               </Button>
             </Flex>
           </Dialog.Content>
