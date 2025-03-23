@@ -1,27 +1,29 @@
-import React from 'react'
+'use client'
 import toast from 'react-hot-toast'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import styles from './SnackBar.module.css'
 
 const Cross = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="cross" />
 const DialogCheck = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="dialogCheck" />
+const AlertIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="alert-circle" />
 
-export const Snackbar = ({
-  message,
-  linkText,
-  linkHref
-}: {
+interface SnackbarProps {
   message: string
   linkText?: string
   linkHref?: string
-}) => {
+  type?: 'success' | 'error' | 'info'
+}
+
+export const Snackbar = ({ message, linkText, linkHref, type = 'success' }: SnackbarProps) => {
   const mediaQuery = window.matchMedia('(max-width: 768px)')
+
+  const Icon = type === 'error' ? AlertIcon : DialogCheck
 
   toast(
     (t) => (
-      <div className={styles.toast}>
+      <div className={`${styles.toast} ${type === 'error' ? styles.errorToast : ''}`}>
         <div className={styles.toastLeft}>
-          <DialogCheck />
+          <Icon />
           <span className={styles.text}>
             {message}
             {linkText && linkHref && (
@@ -38,7 +40,7 @@ export const Snackbar = ({
     ),
     {
       style: {
-        background: 'rgb(8 29 87)',
+        background: type === 'error' ? 'rgb(87 29 29)' : 'rgb(8 29 87)',
         color: '#ffffff',
         width: mediaQuery.matches ? '320px' : '400px',
         maxWidth: '400px',
@@ -46,7 +48,8 @@ export const Snackbar = ({
         borderRadius: '10px',
         alignItems: 'center'
       },
-      position: mediaQuery.matches ? 'bottom-center' : 'top-right'
+      position: mediaQuery.matches ? 'bottom-center' : 'top-right',
+      duration: type === 'error' ? 5000 : 3000
     }
   )
 }

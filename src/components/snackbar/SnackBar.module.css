@@ -1,32 +1,42 @@
 .toast {
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 400;
-  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
+  width: 100%;
 }
 
 .toastLeft {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .text {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .link {
-  color: var(--white-color);
+  color: #9945fc;
   text-decoration: underline;
+  margin-left: 5px;
+}
+
+.link:hover {
+  text-decoration: none;
 }
 
 .close {
+  background: transparent;
+  border: none;
   cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.errorToast {
+  border-left: 4px solid #ef4444;
 }

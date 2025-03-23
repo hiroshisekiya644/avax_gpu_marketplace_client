@@ -5,9 +5,18 @@ import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
 import { Button, Flex } from '@radix-ui/themes'
 import Image from 'next/image'
-import { getUserKeyPairs, importKeyPair, updateKeyPair, deleteKeyPair, type KeyPair } from '@/api/KeyPair'
+import {
+  getUserKeyPairs,
+  importKeyPair,
+  updateKeyPair,
+  deleteKeyPair,
+  type KeyPair,
+  type KeyPairCreateData
+} from '@/api/KeyPair'
+import { getRegionAction } from '@/api/RegionProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormInput } from '@/components/input/FormInput'
+import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
 
@@ -35,9 +44,9 @@ const ProfilePage = () => {
   const [sshKeys, setSSHKeys] = useState<KeyPair[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  // Add environment name state for the key pair
-  const [environmentName, setEnvironmentName] = useState('default')
+  const [regions, setRegions] = useState<SelectItem[]>([])
+  const [selectedRegion, setSelectedRegion] = useState('')
+  const [isLoadingRegions, setIsLoadingRegions] = useState(false)
 
   // Profile form state
   const [name, setName] = useState('John Doe')
@@ -46,7 +55,38 @@ const ProfilePage = () => {
   const [location, setLocation] = useState('San Francisco, CA')
   const [bio, setBio] = useState('AI and GPU enthusiast')
 
-  // Fetch SSH keys on component mount
+  // Fetch regions when component mounts
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        setIsLoadingRegions(true)
+        const response = await getRegionAction()
+
+        if (response.data && response.data.regions) {
+          const regionItems: SelectItem[] = response.data.regions.map((region) => ({
+            label: region.name,
+            name: region.name
+          }))
+
+          setRegions(regionItems)
+
+          // Set default selected region if available
+          if (regionItems.length > 0) {
+            setSelectedRegion(String(regionItems[0].name))
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch regions:', err)
+        Snackbar({ message: 'Failed to fetch regions', linkText: 'Retry' })
+      } finally {
+        setIsLoadingRegions(false)
+      }
+    }
+
+    fetchRegions()
+  }, [])
+
+  // Fetch SSH keys when SSH tab is selected
   useEffect(() => {
     const fetchSSHKeys = async () => {
       try {
@@ -72,8 +112,8 @@ const ProfilePage = () => {
   }
 
   const handleAddKey = async () => {
-    if (!newKeyName.trim() || !newKeyContent.trim()) {
-      Snackbar({ message: 'Key name and content are required' })
+    if (!newKeyName.trim() || !newKeyContent.trim() || !selectedRegion) {
+      Snackbar({ message: 'Key name, content, and region are required' })
       return
     }
 
@@ -81,11 +121,14 @@ const ProfilePage = () => {
       setIsLoading(true)
       setError(null)
 
-      const response = await importKeyPair({
+      // Create the request data with the correct field names
+      const keyPairData: KeyPairCreateData = {
         ssh_key_name: newKeyName,
         ssh_public_key: newKeyContent,
-        environment_name: environmentName
-      })
+        region: selectedRegion
+      }
+
+      const response = await importKeyPair(keyPairData)
 
       setSSHKeys([response.keypair, ...sshKeys])
       setNewKeyName('')
@@ -390,38 +433,45 @@ const ProfilePage = () => {
         </Tabs.Root>
       </Flex>
 
-      {/* Add SSH Key Dialog */}
+      {/* Add SSH Key Dialog - Enhanced styling */}
       <Dialog.Root open={addKeyModalOpen} onOpenChange={setAddKeyModalOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className={styles.dialogOverlay} />
           <Dialog.Content className={styles.dialogContent}>
             <Dialog.Title className={styles.dialogTitle}>Add New SSH Key</Dialog.Title>
 
-            <FormInput
-              id="key-name"
-              label="Key Name"
-              type="text"
-              placeholder="e.g. MacBook Pro"
-              value={newKeyName}
-              onChange={(e) => setNewKeyName(e.target.value)}
-              required
-              disabled={isLoading}
-            />
+            <div className={styles.modalFormInput}>
+              <FormInput
+                id="key-name"
+                label="Key Name"
+                type="text"
+                placeholder="e.g. MacBook Pro"
+                value={newKeyName}
+                onChange={(e) => setNewKeyName(e.target.value)}
+                required
+                disabled={isLoading}
+              />
+              <div className={styles.modalHint}>A descriptive name to identify this key</div>
+            </div>
 
-            <FormInput
-              id="environment-name"
-              label="Environment Name"
-              type="text"
-              placeholder="e.g. default"
-              value={environmentName}
-              onChange={(e) => setEnvironmentName(e.target.value)}
-              required
-              disabled={isLoading}
-            />
+            <div className={styles.modalFormSelect}>
+              <FormSelect
+                id="region-select"
+                name="region"
+                label="Region"
+                items={regions}
+                value={selectedRegion}
+                onChange={(value) => setSelectedRegion(value)}
+                required
+                disabled={isLoading || isLoadingRegions}
+                className={styles.selectValueBox}
+              />
+              <div className={styles.modalHint}>Select the region where this key will be used</div>
+            </div>
 
             <div className={styles.textAreaContainer}>
-              <label htmlFor="key-content" style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
-                Key Content <span style={{ color: 'var(--border)' }}>*</span>
+              <label htmlFor="key-content" className={styles.formLabel}>
+                Key Content <span className={styles.formRequired}>*</span>
               </label>
               <textarea
                 id="key-content"
@@ -432,46 +482,53 @@ const ProfilePage = () => {
                 required
                 disabled={isLoading}
               />
+              <div className={styles.modalHint}>
+                Your public SSH key content. This typically starts with "ssh-rsa" or "ssh-ed25519" and contains no line
+                breaks
+              </div>
             </div>
 
-            <Flex justify="end" gap="2" mt="4">
+            <div className={styles.formActions}>
               <Button className={styles.cancelButton} onClick={() => setAddKeyModalOpen(false)} disabled={isLoading}>
                 Cancel
               </Button>
-              <Button className={styles.saveButton} onClick={handleAddKey} disabled={isLoading}>
+              <Button className={styles.saveButton} onClick={handleAddKey} disabled={isLoading || isLoadingRegions}>
                 {isLoading ? 'Adding...' : 'Add Key'}
               </Button>
-            </Flex>
+            </div>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
 
-      {/* Edit SSH Key Dialog */}
+      {/* Edit SSH Key Dialog - Enhanced styling */}
       <Dialog.Root open={editKeyModalOpen} onOpenChange={setEditKeyModalOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className={styles.dialogOverlay} />
           <Dialog.Content className={styles.dialogContent}>
             <Dialog.Title className={styles.dialogTitle}>Edit SSH Key</Dialog.Title>
 
-            <FormInput
-              id="edit-key-name"
-              label="Key Name"
-              type="text"
-              placeholder="e.g. MacBook Pro"
-              value={editKeyName}
-              onChange={(e) => setEditKeyName(e.target.value)}
-              required
-              disabled={isLoading}
-            />
+            <div className={styles.modalFormInput}>
+              <FormInput
+                id="edit-key-name"
+                label="Key Name"
+                type="text"
+                placeholder="e.g. MacBook Pro"
+                value={editKeyName}
+                onChange={(e) => setEditKeyName(e.target.value)}
+                required
+                disabled={isLoading}
+              />
+              <div className={styles.modalHint}>A descriptive name to identify this key</div>
+            </div>
 
-            <Flex justify="end" gap="2" mt="4">
+            <div className={styles.formActions}>
               <Button className={styles.cancelButton} onClick={() => setEditKeyModalOpen(false)} disabled={isLoading}>
                 Cancel
               </Button>
               <Button className={styles.saveButton} onClick={handleUpdateKey} disabled={isLoading}>
                 {isLoading ? 'Updating...' : 'Update Key'}
               </Button>
-            </Flex>
+            </div>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
