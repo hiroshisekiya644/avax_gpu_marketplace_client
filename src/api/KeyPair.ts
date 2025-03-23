@@ -8,7 +8,11 @@ interface KeyPair {
   user_id: number
   ssh_key_name: string
   ssh_public_key: string
+  region: string
   hyperstack_ssh_key_id: string
+  hyperstack_ssh_key_name: string
+  is_deleted: boolean
+  deleted_at: string | null
   createdAt: string
   updatedAt: string
 }
@@ -25,7 +29,7 @@ interface HyperstackEnvironment {
 }
 
 interface HyperstackKeypair {
-  id: number
+  id: string
   name: string
   environment: HyperstackEnvironment
   public_key: string
@@ -53,13 +57,12 @@ interface KeyPairCreateResponse {
 interface KeyPairUpdateResponse {
   message: string
   keypair: KeyPair
-  hyperstackData: HyperstackData
 }
 
 interface KeyPairCreateData {
   ssh_key_name: string
   ssh_public_key: string
-  environment_name: string
+  region: string
 }
 
 interface KeyPairUpdateData {
@@ -163,5 +166,5 @@ export const deleteKeyPair = async (id: number): Promise<{ message: string }> =>
 }
 
 // Export the KeyPair type for use in other files
-export type { KeyPair, KeyPairCreateResponse, KeyPairUpdateResponse, HyperstackData }
+export type { KeyPair, KeyPairCreateResponse, KeyPairUpdateResponse, HyperstackData, KeyPairCreateData }
 

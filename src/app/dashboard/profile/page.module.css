@@ -223,20 +223,20 @@
   background-color: var(--button);
 }
 
+/* Enhanced dialog styles */
 .dialogOverlay {
-  background-color: rgba(255, 255, 255, 0.12);
+  background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   position: fixed;
   inset: 0;
   animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 999;
 }
 
 .dialogContent {
-  background-color: var(--bg);
-  border-radius: 6px;
-  box-shadow:
-    hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
-    hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  background-color: var(--bgSoftDark);
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
   position: fixed;
   top: 50%;
   left: 50%;
@@ -244,14 +244,17 @@
   width: 90vw;
   max-width: 600px;
   max-height: 85vh;
-  padding: 20px;
+  padding: 24px;
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
   overflow: auto;
+  border: 1px solid var(--border);
+  z-index: 1000;
 }
 
 @media (max-width: 768px) {
   .dialogContent {
-    max-width: 300px;
+    max-width: 90%;
+    padding: 20px;
   }
 }
 
@@ -260,32 +263,66 @@
 }
 
 .dialogTitle {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+.formLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.formRequired {
+  color: var(--border);
+  margin-left: 4px;
 }
 
 .textAreaContainer {
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  margin-top: 16px;
 }
 
 .textArea {
   width: 100%;
   min-height: 150px;
-  padding: 10px;
+  padding: 12px;
   background-color: var(--bgSoft);
   color: var(--text);
   border: 1px solid var(--textSoftDark);
-  border-radius: 4px;
+  border-radius: 8px;
   font-family: monospace;
-  font-size: 12px;
+  font-size: 14px;
   resize: vertical;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .textArea:focus {
-  outline: 2px solid var(--border);
-  border-color: transparent;
+  outline: none;
+  border-color: var(--border);
+  box-shadow: 0 0 0 2px rgba(153, 69, 252, 0.2);
+}
+
+.textArea::placeholder {
+  color: var(--textSoftDark);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  border-top: 1px solid var(--bgSoft);
+  padding-top: 20px;
 }
 
 @keyframes overlayShow {
@@ -347,8 +384,8 @@
   background-color: var(--primary);
   color: white;
   border: none;
+  padding: 8px;
   border-radius: 4px;
-  padding: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -357,10 +394,51 @@
 }
 
 .editButton:hover {
-  background-color: var(--primaryDark);
+  background-color: var(--primaryHover);
 }
 
 .editButton:disabled {
-  background-color: var(--primaryLight);
+  opacity: 0.5;
   cursor: not-allowed;
+}
+
+.selectValueBox {
+  width: 100%;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+/* Enhanced form input styles for the modal */
+.modalFormInput {
+  margin-bottom: 16px;
+}
+
+.modalFormInput label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.modalFormSelect {
+  margin-bottom: 16px;
+}
+
+.modalFormSelect label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.modalDivider {
+  height: 1px;
+  background-color: var(--bgSoft);
+  margin: 20px 0;
+  width: 100%;
+}
+
+.modalHint {
+  font-size: 12px;
+  color: var(--textSoft);
+  margin-top: 4px;
+  margin-bottom: 16px;
 }
