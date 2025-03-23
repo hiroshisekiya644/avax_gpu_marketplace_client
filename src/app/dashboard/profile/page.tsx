@@ -16,7 +16,7 @@ import {
 import { getRegionAction } from '@/api/RegionProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormInput } from '@/components/input/FormInput'
-import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
+import type { SelectItem } from '@/components/select/FormSelect'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
 
@@ -61,16 +61,12 @@ const ProfilePage = () => {
       try {
         setIsLoadingRegions(true)
         const response = await getRegionAction()
-
-        if (response.data && response.data.regions) {
-          const regionItems: SelectItem[] = response.data.regions.map((region) => ({
+        if (response.data?.regions) {
+          const regionItems = response.data.regions.map((region) => ({
             label: region.name,
             name: region.name
           }))
-
           setRegions(regionItems)
-
-          // Set default selected region if available
           if (regionItems.length > 0) {
             setSelectedRegion(String(regionItems[0].name))
           }
@@ -82,30 +78,30 @@ const ProfilePage = () => {
         setIsLoadingRegions(false)
       }
     }
-
     fetchRegions()
   }, [])
 
   // Fetch SSH keys when SSH tab is selected
   useEffect(() => {
-    const fetchSSHKeys = async () => {
-      try {
-        setIsLoading(true)
-        setError(null)
-        const response = await getUserKeyPairs()
-        setSSHKeys(response.keyPairs)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch SSH keys')
-        Snackbar({ message: err instanceof Error ? err.message : 'Failed to fetch SSH keys' })
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
     if (activeTab === 'ssh') {
       fetchSSHKeys()
     }
   }, [activeTab])
+
+  const fetchSSHKeys = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      const response = await getUserKeyPairs()
+      setSSHKeys(response.keyPairs)
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to fetch SSH keys'
+      setError(errorMsg)
+      Snackbar({ message: errorMsg })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleTabChange = (value: TabValue) => {
     setActiveTab(value)
@@ -113,31 +109,28 @@ const ProfilePage = () => {
 
   const handleAddKey = async () => {
     if (!newKeyName.trim() || !newKeyContent.trim() || !selectedRegion) {
-      Snackbar({ message: 'Key name, content, and region are required' })
+      Snackbar({ message: 'Key name and content are required' })
       return
     }
 
     try {
       setIsLoading(true)
       setError(null)
-
-      // Create the request data with the correct field names
       const keyPairData: KeyPairCreateData = {
         ssh_key_name: newKeyName,
         ssh_public_key: newKeyContent,
         region: selectedRegion
       }
-
       const response = await importKeyPair(keyPairData)
-
       setSSHKeys([response.keypair, ...sshKeys])
       setNewKeyName('')
       setNewKeyContent('')
       setAddKeyModalOpen(false)
       Snackbar({ message: response.message || 'SSH key added successfully' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add SSH key')
-      Snackbar({ message: err instanceof Error ? err.message : 'Failed to add SSH key' })
+      const errorMsg = err instanceof Error ? err.message : 'Failed to add SSH key'
+      setError(errorMsg)
+      Snackbar({ message: errorMsg })
     } finally {
       setIsLoading(false)
     }
@@ -158,19 +151,14 @@ const ProfilePage = () => {
     try {
       setIsLoading(true)
       setError(null)
-
-      const response = await updateKeyPair(editKeyId, {
-        name: editKeyName
-      })
-
-      // Update the key in the local state
+      const response = await updateKeyPair(editKeyId, { name: editKeyName })
       setSSHKeys(sshKeys.map((key) => (key.id === editKeyId ? response.keypair : key)))
-
       setEditKeyModalOpen(false)
       Snackbar({ message: response.message || 'SSH key updated successfully' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update SSH key')
-      Snackbar({ message: err instanceof Error ? err.message : 'Failed to update SSH key' })
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update SSH key'
+      setError(errorMsg)
+      Snackbar({ message: errorMsg })
     } finally {
       setIsLoading(false)
     }
@@ -180,20 +168,19 @@ const ProfilePage = () => {
     try {
       setIsLoading(true)
       setError(null)
-
       const response = await deleteKeyPair(id)
       setSSHKeys(sshKeys.filter((key) => key.id !== id))
       Snackbar({ message: response.message || 'SSH key deleted successfully' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete SSH key')
-      Snackbar({ message: err instanceof Error ? err.message : 'Failed to delete SSH key' })
+      const errorMsg = err instanceof Error ? err.message : 'Failed to delete SSH key'
+      setError(errorMsg)
+      Snackbar({ message: errorMsg })
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleSaveProfile = () => {
-    // In a real app, you would send this to your backend
     Snackbar({ message: 'Profile updated successfully' })
   }
 
@@ -221,14 +208,14 @@ const ProfilePage = () => {
           value={activeTab}
           defaultValue="profile"
           className={styles.wrapper}
-          onValueChange={(value) => handleTabChange(value as TabValue)}
+          onValueChange={(value) => setActiveTab(value as TabValue)}
         >
           <Tabs.List className={styles.tabList}>
-            {tabListItems.map((tabListItem, i) => (
-              <Tabs.Trigger key={i} value={tabListItem.value} className={styles.tabListItem}>
+            {tabListItems.map((item, i) => (
+              <Tabs.Trigger key={i} value={item.value} className={styles.tabListItem}>
                 <Flex gap="1">
-                  {tabListItem.icon}
-                  {tabListItem.name}
+                  {item.icon}
+                  {item.name}
                 </Flex>
               </Tabs.Trigger>
             ))}
@@ -433,7 +420,7 @@ const ProfilePage = () => {
         </Tabs.Root>
       </Flex>
 
-      {/* Add SSH Key Dialog - Enhanced styling */}
+      {/* Add SSH Key Dialog */}
       <Dialog.Root open={addKeyModalOpen} onOpenChange={setAddKeyModalOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className={styles.dialogOverlay} />
@@ -452,21 +439,6 @@ const ProfilePage = () => {
                 disabled={isLoading}
               />
               <div className={styles.modalHint}>A descriptive name to identify this key</div>
-            </div>
-
-            <div className={styles.modalFormSelect}>
-              <FormSelect
-                id="region-select"
-                name="region"
-                label="Region"
-                items={regions}
-                value={selectedRegion}
-                onChange={(value) => setSelectedRegion(value)}
-                required
-                disabled={isLoading || isLoadingRegions}
-                className={styles.selectValueBox}
-              />
-              <div className={styles.modalHint}>Select the region where this key will be used</div>
             </div>
 
             <div className={styles.textAreaContainer}>
@@ -500,7 +472,7 @@ const ProfilePage = () => {
         </Dialog.Portal>
       </Dialog.Root>
 
-      {/* Edit SSH Key Dialog - Enhanced styling */}
+      {/* Edit SSH Key Dialog */}
       <Dialog.Root open={editKeyModalOpen} onOpenChange={setEditKeyModalOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className={styles.dialogOverlay} />
