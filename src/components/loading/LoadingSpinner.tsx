@@ -9,7 +9,7 @@ interface LoadingSpinnerProps {
   size?: 'small' | 'medium' | 'large'
 }
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message = 'Loading...', size = 'medium' }) => {
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message = 'Loading...'}) => {
   return (
     <Flex className={styles.container}>
       <div className={styles.spinnerBox}>

@@ -9,9 +9,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getUserData, updateUser, deleteUserAccount, type User } from '@/api/User'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+import LoadingSpinner from '@/components/loading/LoadingSpinner'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from '../page.module.css'
-import LoadingSpinner from '@/components/loading/LoadingSpinner'
 
 // Icons
 const ProfileIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="profile-icon" />
