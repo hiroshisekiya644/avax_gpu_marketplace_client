@@ -13,10 +13,8 @@ import {
   type KeyPair,
   type KeyPairCreateData
 } from '@/api/KeyPair'
-import { getRegionAction } from '@/api/RegionProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormInput } from '@/components/input/FormInput'
-import type { SelectItem } from '@/components/select/FormSelect'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
 
@@ -44,9 +42,6 @@ const ProfilePage = () => {
   const [sshKeys, setSSHKeys] = useState<KeyPair[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [regions, setRegions] = useState<SelectItem[]>([])
-  const [selectedRegion, setSelectedRegion] = useState('')
-  const [isLoadingRegions, setIsLoadingRegions] = useState(false)
 
   // Profile form state
   const [name, setName] = useState('John Doe')
@@ -54,32 +49,6 @@ const ProfilePage = () => {
   const [company, setCompany] = useState('AVAX Technologies')
   const [location, setLocation] = useState('San Francisco, CA')
   const [bio, setBio] = useState('AI and GPU enthusiast')
-
-  // Fetch regions when component mounts
-  useEffect(() => {
-    const fetchRegions = async () => {
-      try {
-        setIsLoadingRegions(true)
-        const response = await getRegionAction()
-        if (response.data?.regions) {
-          const regionItems = response.data.regions.map((region) => ({
-            label: region.name,
-            name: region.name
-          }))
-          setRegions(regionItems)
-          if (regionItems.length > 0) {
-            setSelectedRegion(String(regionItems[0].name))
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch regions:', err)
-        Snackbar({ message: 'Failed to fetch regions', linkText: 'Retry' })
-      } finally {
-        setIsLoadingRegions(false)
-      }
-    }
-    fetchRegions()
-  }, [])
 
   // Fetch SSH keys when SSH tab is selected
   useEffect(() => {
@@ -108,7 +77,7 @@ const ProfilePage = () => {
   }
 
   const handleAddKey = async () => {
-    if (!newKeyName.trim() || !newKeyContent.trim() || !selectedRegion) {
+    if (!newKeyName.trim() || !newKeyContent.trim()) {
       Snackbar({ message: 'Key name and content are required' })
       return
     }
@@ -119,7 +88,7 @@ const ProfilePage = () => {
       const keyPairData: KeyPairCreateData = {
         ssh_key_name: newKeyName,
         ssh_public_key: newKeyContent,
-        region: selectedRegion
+        region: 'default' // Using a default value since region selection is removed
       }
       const response = await importKeyPair(keyPairData)
       setSSHKeys([response.keypair, ...sshKeys])
@@ -464,7 +433,7 @@ const ProfilePage = () => {
               <Button className={styles.cancelButton} onClick={() => setAddKeyModalOpen(false)} disabled={isLoading}>
                 Cancel
               </Button>
-              <Button className={styles.saveButton} onClick={handleAddKey} disabled={isLoading || isLoadingRegions}>
+              <Button className={styles.saveButton} onClick={handleAddKey} disabled={isLoading}>
                 {isLoading ? 'Adding...' : 'Add Key'}
               </Button>
             </div>
