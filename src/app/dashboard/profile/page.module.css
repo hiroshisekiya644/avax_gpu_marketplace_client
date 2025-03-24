@@ -697,3 +697,29 @@
   font-size: 12px;
   color: var(--textSoft);
 }
+
+/* Add styles for the "Add Funds" button */
+.addFundsButton {
+  display: inline-block;
+  background-color: var(--button);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+  text-decoration: none;
+}
+
+.addFundsButton:hover {
+  background-color: var(--border);
+  transform: translateY(-2px);
+}
+
+.addFundsButton:active {
+  transform: translateY(0);
+}
