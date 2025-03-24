@@ -1,0 +1,336 @@
+.bg {
+  background-color: var(--bg);
+  height: 100%;
+  min-height: 100vh;
+  color: var(--text);
+}
+
+.header {
+  height: 90px;
+  border-bottom: 1px solid rgb(61 61 61);
+  width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .header {
+    height: 110px;
+  }
+}
+
+.headerTitle {
+  color: var(--text);
+  font-size: 1.5rem;
+  margin-top: 10px;
+}
+
+.subTitle {
+  color: var(--textSoft);
+  font-size: 12px;
+}
+
+/* Tab navigation */
+.wrapper {
+  gap: 24px;
+  width: 100%;
+}
+
+.tabList {
+  background-color: var(--white-color);
+  display: flex;
+  gap: 28px;
+  height: fit-content;
+  margin-top: 20px;
+  align-items: center;
+  border-bottom: 2px solid var(--bgSoft);
+}
+
+.tabListItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  color: var(--textSoft);
+  padding-bottom: 15px;
+}
+
+.tabListItem:hover {
+  color: var(--textSoftDark);
+}
+
+.tabListItem[data-state='active'] {
+  color: var(--text);
+  border-bottom: 2px solid white;
+}
+
+/* Card styles */
+.card {
+  background-color: var(--bgSoftDark);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.cardDescription {
+  color: var(--textSoft);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+/* Form elements */
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #9945fc;
+}
+
+.formInput {
+  width: 100%;
+  padding: 12px;
+  background-color: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.formInput:focus {
+  border-color: #9945fc;
+  outline: none;
+}
+
+/* Button styles */
+.button {
+  background-color: #9945fc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.button:hover {
+  background-color: #8035ec;
+}
+
+.buttonSecondary {
+  background-color: transparent;
+  color: white;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.buttonSecondary:hover {
+  background-color: #2a2a2a;
+}
+
+.buttonDanger {
+  background-color: rgb(97 0 29);
+  color: var(--text);
+  border: none;
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.buttonDanger:hover {
+  background-color: rgb(127 0 39);
+}
+
+/* SSH Key list */
+.sshKeyList {
+  margin-top: 20px;
+}
+
+.sshKeyItem {
+  background-color: var(--bgSoft);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.sshKeyName {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.sshKeyFingerprint {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--textSoft);
+  background-color: var(--bg);
+  padding: 6px;
+  border-radius: 4px;
+  margin: 8px 0;
+  word-break: break-all;
+}
+
+.sshKeyMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--textSoft);
+}
+
+.sshKeyActions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Add SSH Key modal */
+.modalOverlay {
+  background-color: rgba(0, 0, 0, 0.7);
+  position: fixed;
+  inset: 0;
+  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalContent {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 600px;
+  max-height: 85vh;
+  padding: 24px;
+  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: auto;
+}
+
+.modalTitle {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: white;
+}
+
+.modalDescription {
+  color: #a0a0a0;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: #a0a0a0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Avatar section */
+.avatarSection {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: var(--bgSoft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: var(--text);
+  overflow: hidden;
+}
+
+.avatarUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.avatarUploadButton {
+  background-color: var(--bgSoft);
+  color: var(--text);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.avatarUploadButton:hover {
+  background-color: var(--button);
+}
+
+.avatarUploadHint {
+  font-size: 12px;
+  color: var(--textSoft);
+}
+
+/* Animations */
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.button:disabled,
+.buttonSecondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Required field indicator */
+.requiredField::after {
+  content: ' *';
+  color: #9945fc;
+}
