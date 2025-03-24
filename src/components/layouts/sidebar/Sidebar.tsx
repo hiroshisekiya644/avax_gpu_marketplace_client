@@ -40,7 +40,7 @@ export const sidebarClusterMenu: SidebarMenu[] = [
   { name: 'Reserved Instances', href: '/dashboard/quotes', icon: <QuoteIcon /> },
   { name: 'Intelligence', href: '/dashboard/intelligence', icon: <TrainingIcon /> },
   { name: 'Billing', href: '/dashboard/billing', icon: <BillingIcon /> },
-  { name: 'Profile', href: '/dashboard/profile', icon: <ProfileIcon /> }
+  // { name: 'Profile', href: '/dashboard/profile', icon: <ProfileIcon /> }
   // { name: 'Providers', href: '/dashboard/providers', icon: <ProvidersIcon /> },
   // { name: 'Support', href: '/dashboard/support', icon: <SupportIcon /> },
   // { name: 'Create Team', href: '/dashboard/createTeam', icon: <TeamsIcon /> },
