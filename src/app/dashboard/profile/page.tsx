@@ -6,12 +6,11 @@ import { Cross2Icon } from '@radix-ui/react-icons'
 import * as Tabs from '@radix-ui/react-tabs'
 import { Flex } from '@radix-ui/themes'
 import Image from 'next/image'
-import { getUserKeyPairs, importKeyPair, deleteKeyPair, type KeyPair } from '@/api/KeyPair'
+import { getUserKeyPairs, importKeyPair, deleteKeyPair, type KeyPair, updateKeyPair } from '@/api/KeyPair'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
-import type { SelectItem } from '@/components/select/FormSelect'
 import { Snackbar } from '@/components/snackbar/SnackBar'
-import { useResize } from '@/utils/Helper'
 import styles from './page.module.css'
+import type { SelectItem } from '@/components/select/FormSelect'
 
 // Icons
 const ProfileIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="profile-icon" />
@@ -47,7 +46,6 @@ const regionOptions: SelectItem[] = [
 ]
 
 const ProfilePage = () => {
-  const { isResponsive } = useResize()
   const [activeTab, setActiveTab] = useState<TabValue>(tabValues[0])
   const [isAddKeyModalOpen, setIsAddKeyModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -62,6 +60,11 @@ const ProfilePage = () => {
     ssh_public_key: '',
     region: 'us-east'
   })
+
+  // Add a new state for edit modal and the key being edited
+  const [isEditKeyModalOpen, setIsEditKeyModalOpen] = useState(false)
+  const [keyToEdit, setKeyToEdit] = useState<KeyPair | null>(null)
+  const [newKeyName, setNewKeyName] = useState('')
 
   // Fetch SSH keys on component mount
   useEffect(() => {
@@ -131,6 +134,26 @@ const ProfilePage = () => {
     } catch (error) {
       console.error('Failed to delete SSH key:', error)
       Snackbar({ message: 'Failed to delete SSH key', type: 'error' })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Add this function to handle editing a key
+  const handleEditKey = async () => {
+    if (keyToEdit === null) return
+
+    try {
+      setIsLoading(true)
+      await updateKeyPair(keyToEdit.id, { name: newKeyName })
+      Snackbar({ message: 'SSH key updated successfully' })
+      setIsEditKeyModalOpen(false)
+      setKeyToEdit(null)
+      setNewKeyName('')
+      await fetchSSHKeys()
+    } catch (error) {
+      console.error('Failed to update SSH key:', error)
+      Snackbar({ message: 'Failed to update SSH key', type: 'error' })
     } finally {
       setIsLoading(false)
     }
@@ -316,7 +339,9 @@ const ProfilePage = () => {
                 {isLoading && <p>Loading SSH keys...</p>}
 
                 {!isLoading && sshKeys.length === 0 && (
-                  <p className={styles.cardDescription}>You don't have any SSH keys yet. Add one to get started.</p>
+                  <p className={styles.cardDescription}>
+                    You don&apos;t have any SSH keys yet. Add one to get started.
+                  </p>
                 )}
 
                 <div className={styles.sshKeyList}>
@@ -341,6 +366,16 @@ const ProfilePage = () => {
                           Added on {formatDate(key.createdAt)} • Region: {key.region}
                         </span>
                         <div className={styles.sshKeyActions}>
+                          <button
+                            className={styles.buttonSecondary}
+                            onClick={() => {
+                              setKeyToEdit(key)
+                              setNewKeyName(key.ssh_key_name)
+                              setIsEditKeyModalOpen(true)
+                            }}
+                          >
+                            <EditIcon />
+                          </button>
                           <button
                             className={styles.buttonDanger}
                             onClick={() => {
@@ -454,6 +489,54 @@ const ProfilePage = () => {
               </button>
               <button className={styles.buttonDanger} onClick={handleDeleteKey} disabled={isLoading}>
                 {isLoading ? 'Deleting...' : 'Delete Key'}
+              </button>
+            </div>
+
+            <Dialog.Close asChild>
+              <button className={styles.closeButton} aria-label="Close">
+                <Cross2Icon />
+              </button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      {/* Edit SSH Key Modal */}
+      <Dialog.Root open={isEditKeyModalOpen} onOpenChange={setIsEditKeyModalOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className={styles.modalOverlay} />
+          <Dialog.Content className={styles.modalContent}>
+            <Dialog.Title className={styles.modalTitle}>Edit SSH Key</Dialog.Title>
+            <Dialog.Description className={styles.modalDescription}>Update the name of your SSH key</Dialog.Description>
+
+            <div>
+              <label className={`${styles.formLabel} ${styles.requiredField}`}>Key Name</label>
+              <input
+                type="text"
+                className={styles.formInput}
+                placeholder="e.g., My Work Laptop"
+                value={newKeyName}
+                onChange={(e) => setNewKeyName(e.target.value)}
+              />
+            </div>
+
+            {keyToEdit && (
+              <div>
+                <label className={styles.formLabel}>Region</label>
+                <input type="text" className={styles.formInput} value={keyToEdit.region} disabled />
+              </div>
+            )}
+
+            <div className={styles.modalFooter}>
+              <button
+                className={styles.buttonSecondary}
+                onClick={() => setIsEditKeyModalOpen(false)}
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+              <button className={styles.button} onClick={handleEditKey} disabled={isLoading || !newKeyName.trim()}>
+                {isLoading ? 'Updating...' : 'Update Key'}
               </button>
             </div>
 

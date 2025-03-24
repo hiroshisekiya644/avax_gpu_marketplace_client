@@ -1,14 +1,23 @@
-'use client'
+"use client"
 
-import type React from 'react'
+import type React from "react"
 
-import { useCallback, useState, useEffect } from 'react'
-import { Flex, Button, TextField } from '@radix-ui/themes'
-import Image from 'next/image'
-import { getBalance, createDeposit } from '@/api/Payment'
-import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
-import { Snackbar } from '@/components/snackbar/SnackBar'
-import styles from './page.module.css'
+import { useCallback, useState, useEffect } from "react"
+import { Flex, Button, TextField } from "@radix-ui/themes"
+import Image from "next/image"
+import { getBalance, createDeposit } from "@/api/Payment"
+import DynamicSvgIcon from "@/components/icons/DynamicSvgIcon"
+import { Snackbar } from "@/components/snackbar/SnackBar"
+import styles from "./page.module.css"
+
+interface Transaction {
+  id: number
+  date: string
+  type: string
+  amount: number
+  status: string
+  currency: string
+}
 
 const WalletIcon = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="wallet-icon" />
 const CryptoIcon = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="crypto-icon" />
@@ -18,18 +27,18 @@ const HistoryIcon = () => <DynamicSvgIcon height={24} className="rounded-none" i
  * Enhanced Billing component for managing user balance and deposits
  */
 const Billing = () => {
-  const [credit, setCredit] = useState<number | ''>('')
+  const [credit, setCredit] = useState<number | "">("")
   const [balance, setBalance] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
-  const [transactions, setTransactions] = useState<any[]>([])
-  const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview')
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [activeTab, setActiveTab] = useState<"overview" | "history">("overview")
 
   // Sample transaction data - would be replaced with actual API data
-  const sampleTransactions = [
-    { id: 1, date: '2024-03-20', type: 'Deposit', amount: 100, status: 'Completed', currency: 'AVAX' },
-    { id: 2, date: '2024-03-15', type: 'Usage', amount: -25.5, status: 'Completed', currency: 'USD' },
-    { id: 3, date: '2024-03-10', type: 'Deposit', amount: 50, status: 'Completed', currency: 'USDT' }
+  const sampleTransactions: Transaction[] = [
+    { id: 1, date: "2024-03-20", type: "Deposit", amount: 100, status: "Completed", currency: "AVAX" },
+    { id: 2, date: "2024-03-15", type: "Usage", amount: -25.5, status: "Completed", currency: "USD" },
+    { id: 3, date: "2024-03-10", type: "Deposit", amount: 50, status: "Completed", currency: "USDT" },
   ]
 
   // Fetch initial balance on component mount
@@ -37,6 +46,7 @@ const Billing = () => {
     fetchBalance()
     // In a real implementation, you would fetch transaction history here
     setTransactions(sampleTransactions)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   /**
@@ -49,9 +59,9 @@ const Billing = () => {
       const fetchedBalance = await getBalance()
       setBalance(fetchedBalance)
     } catch (err) {
-      console.error('Balance fetch error:', err)
-      setError('Failed to fetch balance')
-      Snackbar({ message: 'Failed to fetch balance. Please try again.' })
+      console.error("Balance fetch error:", err)
+      setError("Failed to fetch balance")
+      Snackbar({ message: "Failed to fetch balance. Please try again." })
     } finally {
       setLoading(false)
     }
@@ -63,7 +73,7 @@ const Billing = () => {
   const handleCredit = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     if (/^\d*\.?\d*$/.test(value)) {
-      setCredit(value === '' ? '' : Number.parseFloat(value))
+      setCredit(value === "" ? "" : Number.parseFloat(value))
     }
   }, [])
 
@@ -72,8 +82,8 @@ const Billing = () => {
    */
   const handleDeposit = async () => {
     if (!credit || credit <= 0) {
-      setError('Please enter a valid amount')
-      Snackbar({ message: 'Please enter a valid amount' })
+      setError("Please enter a valid amount")
+      Snackbar({ message: "Please enter a valid amount" })
       return
     }
 
@@ -82,19 +92,19 @@ const Billing = () => {
 
     try {
       const { invoiceUrl } = await createDeposit(credit)
-      window.open(invoiceUrl, '_self')
+      window.open(invoiceUrl, "_self")
 
       // After successful deposit, update the balance
       const updatedBalance = await getBalance()
       setBalance(updatedBalance)
-      setCredit('')
+      setCredit("")
 
       // In a real implementation, you would refresh transaction history here
-      Snackbar({ message: 'Deposit initiated successfully' })
+      Snackbar({ message: "Deposit initiated successfully" })
     } catch (err) {
-      console.error('Deposit error:', err)
-      setError('Deposit failed. Please try again later.')
-      Snackbar({ message: 'Deposit failed. Please try again later.' })
+      console.error("Deposit error:", err)
+      setError("Deposit failed. Please try again later.")
+      Snackbar({ message: "Deposit failed. Please try again later." })
     } finally {
       setLoading(false)
     }
@@ -116,20 +126,20 @@ const Billing = () => {
         <Flex direction="column" className={styles.leftColumn}>
           <div className={styles.tabContainer}>
             <button
-              className={`${styles.tabButton} ${activeTab === 'overview' ? styles.activeTab : ''}`}
-              onClick={() => setActiveTab('overview')}
+              className={`${styles.tabButton} ${activeTab === "overview" ? styles.activeTab : ""}`}
+              onClick={() => setActiveTab("overview")}
             >
               Overview
             </button>
             <button
-              className={`${styles.tabButton} ${activeTab === 'history' ? styles.activeTab : ''}`}
-              onClick={() => setActiveTab('history')}
+              className={`${styles.tabButton} ${activeTab === "history" ? styles.activeTab : ""}`}
+              onClick={() => setActiveTab("history")}
             >
               Transaction History
             </button>
           </div>
 
-          {activeTab === 'overview' ? (
+          {activeTab === "overview" ? (
             <>
               <div className={styles.balanceCard}>
                 <div className={styles.balanceHeader}>
@@ -178,7 +188,7 @@ const Billing = () => {
                   </div>
 
                   <Button className={styles.addCreditButton} onClick={handleDeposit} disabled={loading}>
-                    {loading ? 'Processing...' : 'Add Funds'}
+                    {loading ? "Processing..." : "Add Funds"}
                   </Button>
                 </div>
 
@@ -238,7 +248,7 @@ const Billing = () => {
                       <div>{transaction.date}</div>
                       <div>{transaction.type}</div>
                       <div className={transaction.amount > 0 ? styles.positiveAmount : styles.negativeAmount}>
-                        {transaction.amount > 0 ? '+' : ''}
+                        {transaction.amount > 0 ? "+" : ""}
                         {transaction.amount.toFixed(2)} {transaction.currency}
                       </div>
                       <div className={styles.transactionStatus}>{transaction.status}</div>
@@ -291,3 +301,4 @@ const Billing = () => {
 }
 
 export default Billing
+
