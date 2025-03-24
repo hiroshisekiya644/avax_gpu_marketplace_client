@@ -1,8 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-const getAuthToken = () => sessionStorage.getItem('authToken');
-
 interface BalanceResponse {
   balance: number;
 }
@@ -15,6 +12,9 @@ interface DepositResponse {
 interface PaymentStatusResponse {
   status: string;
 }
+
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+const getAuthToken = () => sessionStorage.getItem('authToken');
 
 /**
  * Fetches the user's current balance

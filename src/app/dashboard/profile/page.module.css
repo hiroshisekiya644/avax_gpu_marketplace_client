@@ -52,11 +52,15 @@
   cursor: pointer;
   font-family: 'Inter', sans-serif;
   color: var(--textSoft);
+  padding: 5px;
+  border-radius: 4px 4px 0 0;
   padding-bottom: 15px;
 }
 
 .tabListItem:hover {
-  color: var(--textSoftDark);
+  color: var(--text);
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
 }
 
 .tabListItem[data-state='active'] {
@@ -64,53 +68,352 @@
   border-bottom: 2px solid white;
 }
 
+.activeTab {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-bottom: 2px solid var(--primary-color, #3b82f6);
+  font-weight: 500;
+}
+
+/* Loading styles */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  padding: 2rem;
+  background-color: var(--bgSoftDark);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.loadingContent {
+  width: 100%;
+  text-align: center;
+}
+
+.loadingTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+}
+
+.loadingText {
+  margin-top: 1rem;
+  color: var(--textSoft);
+  font-size: 0.9rem;
+}
+
+/* Loading spinner styles */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  width: 100%;
+  text-align: center;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.loadingSpinner {
+  border: 3px solid transparent;
+  border-top-color: #09f;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.contentText {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+}
+
+/* Profile header */
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: var(--bgSoftDark);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.avatarLarge {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: var(--bgSoft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: var(--text);
+  overflow: hidden;
+  border: 4px solid rgba(153, 69, 252, 0.3);
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.profileName {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.profileEmail {
+  font-size: 1rem;
+  color: var(--textSoft);
+  margin-bottom: 1rem;
+}
+
+.profileMeta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.profileBadge {
+  background-color: rgba(153, 69, 252, 0.2);
+  color: #9945fc;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Card Grid */
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media screen and (max-width: 768px) {
+  .cardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .profileHeader {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .passwordGroup {
+    flex-direction: column;
+  }
+}
+
 /* Card styles */
 .card {
   background-color: var(--bgSoftDark);
-  border-radius: 10px;
-  padding: 24px;
-  margin-bottom: 24px;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.cardHover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.cardIconHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.cardIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: rgba(153, 69, 252, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9945fc;
+}
+
+.dangerIcon {
+  background-color: rgba(220, 38, 38, 0.2);
+  color: rgb(220, 38, 38);
 }
 
 .cardTitle {
-  font-size: 18px;
+  font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 16px;
   color: var(--text);
+  margin: 0;
 }
 
 .cardDescription {
   color: var(--textSoft);
-  font-size: 14px;
-  margin-bottom: 20px;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.cardValue {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0.5rem 0;
+}
+
+.cardNote {
+  color: var(--textSoft);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.securityCard {
+  background-color: var(--bgSoftDark);
+  border-left: 4px solid #9945fc;
+}
+
+.dangerCard {
+  background-color: var(--bgSoftDark);
+  border-left: 4px solid rgb(220, 38, 38);
+}
+
+.dangerZoneBox {
+  background-color: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.dangerZoneTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgb(220, 38, 38);
+  margin: 0 0 0.5rem 0;
+}
+
+.dangerZoneDescription {
+  color: var(--textSoft);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Password group */
+.passwordGroup {
+  display: flex;
+  gap: 1rem;
+}
+
+.passwordGroup .formGroup {
+  flex: 1;
+}
+
+.passwordRequirements {
+  background-color: var(--bgSoft);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.requirementTitle {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--textSoft);
+  margin: 0 0 0.5rem 0;
+}
+
+.requirementList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.requirementList li {
+  font-size: 0.85rem;
+  color: var(--textSoft);
+  padding: 0.25rem 0;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.requirementList li:before {
+  content: '○';
+  position: absolute;
+  left: 0;
+  color: var(--textSoft);
+}
+
+.requirementList li.requirementMet {
+  color: #10b981;
+}
+
+.requirementList li.requirementMet:before {
+  content: '✓';
+  color: #10b981;
 }
 
 /* Form elements */
 .formGroup {
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 }
 
 .formLabel {
   display: block;
-  margin-bottom: 8px;
-  font-size: 14px;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
   color: #9945fc;
+  font-weight: 500;
 }
 
 .formInput {
   width: 100%;
-  padding: 12px;
+  padding: 0.75rem 1rem;
   background-color: #2a2a2a;
   border: 1px solid #3a3a3a;
-  border-radius: 4px;
+  border-radius: 8px;
   color: white;
-  font-size: 14px;
-  margin-bottom: 16px;
+  font-size: 0.9rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .formInput:focus {
   border-color: #9945fc;
+  box-shadow: 0 0 0 2px rgba(153, 69, 252, 0.2);
   outline: none;
+}
+
+.formInput::placeholder {
+  color: #6b6b6b;
 }
 
 /* Button styles */
@@ -118,45 +421,191 @@
   background-color: #9945fc;
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 10px 16px;
-  font-size: 14px;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
 }
 
 .button:hover {
   background-color: #8035ec;
+  transform: translateY(-2px);
+}
+
+.button:active {
+  transform: translateY(0);
 }
 
 .buttonSecondary {
   background-color: transparent;
   color: white;
   border: 1px solid #3a3a3a;
-  border-radius: 4px;
-  padding: 10px 16px;
-  font-size: 14px;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
 }
 
 .buttonSecondary:hover {
   background-color: #2a2a2a;
+  transform: translateY(-2px);
+}
+
+.buttonSecondary:active {
+  transform: translateY(0);
 }
 
 .buttonDanger {
-  background-color: rgb(97 0 29);
-  color: var(--text);
+  background-color: rgb(220, 38, 38);
+  color: white;
   border: none;
-  border-radius: 4px;
-  padding: 10px 16px;
-  font-size: 14px;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
 }
 
 .buttonDanger:hover {
-  background-color: rgb(127 0 39);
+  background-color: rgb(185, 28, 28);
+  transform: translateY(-2px);
+}
+
+.buttonDanger:active {
+  transform: translateY(0);
+}
+
+/* Delete warning */
+.deleteWarning {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: rgba(220, 38, 38, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.deleteWarning svg {
+  color: rgb(220, 38, 38);
+  flex-shrink: 0;
+}
+
+.deleteWarning p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--textSoft);
+}
+
+/* Add SSH Key modal */
+.modalOverlay {
+  background-color: rgba(0, 0, 0, 0.7);
+  position: fixed;
+  inset: 0;
+  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 50;
+}
+
+.modalContent {
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 600px;
+  max-height: 85vh;
+  padding: 2rem;
+  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: auto;
+  z-index: 51;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.modalDescription {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: #a0a0a0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Animations */
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.button:disabled,
+.buttonSecondary:disabled,
+.buttonDanger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Required field indicator */
+.requiredField::after {
+  content: ' *';
+  color: #9945fc;
 }
 
 /* SSH Key list */
@@ -200,59 +649,6 @@
 .sshKeyActions {
   display: flex;
   gap: 8px;
-}
-
-/* Add SSH Key modal */
-.modalOverlay {
-  background-color: rgba(0, 0, 0, 0.7);
-  position: fixed;
-  inset: 0;
-  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modalContent {
-  background-color: #1a1a1a;
-  border-radius: 8px;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90vw;
-  max-width: 600px;
-  max-height: 85vh;
-  padding: 24px;
-  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: auto;
-}
-
-.modalTitle {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: white;
-}
-
-.modalDescription {
-  color: #a0a0a0;
-  font-size: 14px;
-  margin-bottom: 24px;
-}
-
-.closeButton {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  color: #a0a0a0;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.modalFooter {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
 }
 
 /* Avatar section */
@@ -300,37 +696,4 @@
 .avatarUploadHint {
   font-size: 12px;
   color: var(--textSoft);
-}
-
-/* Animations */
-@keyframes overlayShow {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes contentShow {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -48%) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-.button:disabled,
-.buttonSecondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Required field indicator */
-.requiredField::after {
-  content: ' *';
-  color: #9945fc;
 }
