@@ -1,17 +1,22 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useCallback, useState, useEffect } from "react"
-import { Flex, Button, TextField } from "@radix-ui/themes"
-import Image from "next/image"
-import { getBalance, createDeposit } from "@/api/Payment"
-import DynamicSvgIcon from "@/components/icons/DynamicSvgIcon"
-import { Snackbar } from "@/components/snackbar/SnackBar"
-import styles from "./page.module.css"
+import { useCallback, useState, useEffect } from 'react'
+import { Flex, Button, TextField } from '@radix-ui/themes'
+import Image from 'next/image'
+import { getBalance, createDeposit, getPaymentHistory } from '@/api/Payment'
+import { getPriceBook } from '@/api/PriceBook'
+import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+import { Snackbar } from '@/components/snackbar/SnackBar'
+import styles from './page.module.css'
+
+const WalletIcon = () => <DynamicSvgIcon height={22} className="wallet-none" iconName="wallet-icon" />
+const CryptoIcon = () => <DynamicSvgIcon height={22} className="crypto-none" iconName="crypto-icon" />
+const HistoryIcon = () => <DynamicSvgIcon height={22} className="history-none" iconName="history-icon" />
 
 interface Transaction {
-  id: number
+  id: string
   date: string
   type: string
   amount: number
@@ -19,33 +24,36 @@ interface Transaction {
   currency: string
 }
 
-const WalletIcon = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="wallet-icon" />
-const CryptoIcon = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="crypto-icon" />
-const HistoryIcon = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="history-icon" />
+interface PriceItem {
+  id: number
+  name: string
+  value: string
+  original_value: string
+  discount_applied: boolean
+  start_time: string | null
+  end_time: string | null
+}
 
 /**
  * Enhanced Billing component for managing user balance and deposits
  */
 const Billing = () => {
-  const [credit, setCredit] = useState<number | "">("")
+  const [credit, setCredit] = useState<number | ''>('')
   const [balance, setBalance] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [activeTab, setActiveTab] = useState<"overview" | "history">("overview")
+  const [transactionsLoading, setTransactionsLoading] = useState<boolean>(true)
+  const [transactionsError, setTransactionsError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview')
+  const [priceItems, setPriceItems] = useState<PriceItem[]>([])
+  const [pricingLoading, setPricingLoading] = useState<boolean>(true)
 
-  // Sample transaction data - would be replaced with actual API data
-  const sampleTransactions: Transaction[] = [
-    { id: 1, date: "2024-03-20", type: "Deposit", amount: 100, status: "Completed", currency: "AVAX" },
-    { id: 2, date: "2024-03-15", type: "Usage", amount: -25.5, status: "Completed", currency: "USD" },
-    { id: 3, date: "2024-03-10", type: "Deposit", amount: 50, status: "Completed", currency: "USDT" },
-  ]
-
-  // Fetch initial balance on component mount
+  // Fetch initial balance and data on component mount
   useEffect(() => {
     fetchBalance()
-    // In a real implementation, you would fetch transaction history here
-    setTransactions(sampleTransactions)
+    fetchPriceBook()
+    fetchTransactionHistory()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -59,11 +67,78 @@ const Billing = () => {
       const fetchedBalance = await getBalance()
       setBalance(fetchedBalance)
     } catch (err) {
-      console.error("Balance fetch error:", err)
-      setError("Failed to fetch balance")
-      Snackbar({ message: "Failed to fetch balance. Please try again." })
+      console.error('Balance fetch error:', err)
+      setError('Failed to fetch balance')
+      Snackbar({ message: 'Failed to fetch balance. Please try again.' })
     } finally {
       setLoading(false)
+    }
+  }
+
+  /**
+   * Fetch transaction history from the API
+   */
+  const fetchTransactionHistory = async () => {
+    try {
+      setTransactionsLoading(true)
+      setTransactionsError(null)
+
+      const history = await getPaymentHistory()
+
+      // Transform the backend data to match our UI format
+      const formattedTransactions = history.map((item, index) => {
+        // For deposits, we'll determine currency based on transaction data
+        // In a real implementation, this would come from the backend
+        const currency = item.type === 'deposit' ? (index % 2 === 0 ? 'AVAX' : 'USDT') : 'USD'
+
+        return {
+          id: `${index}-${item.createdAt}`, // Generate a unique ID
+          date: new Date(item.createdAt).toLocaleDateString(),
+          type: item.type.charAt(0).toUpperCase() + item.type.slice(1), // Capitalize first letter
+          amount: item.type === 'deposit' ? item.amount : -item.amount, // Positive for deposits, negative for usage
+          status: item.status.charAt(0).toUpperCase() + item.status.slice(1), // Capitalize first letter
+          currency
+        }
+      })
+
+      setTransactions(formattedTransactions)
+    } catch (err) {
+      console.error('Transaction history fetch error:', err)
+      setTransactionsError('Failed to fetch transaction history')
+      // We'll show an error message in the UI
+    } finally {
+      setTransactionsLoading(false)
+    }
+  }
+
+  /**
+   * Fetch price book data from the API
+   */
+  const fetchPriceBook = async () => {
+    try {
+      setPricingLoading(true)
+      const priceBookResponse = await getPriceBook()
+
+      // Filter out non-GPU items (typically those are vCPU, RAM, storage, etc.)
+      const gpuItems = priceBookResponse.data.filter(
+        (item) =>
+          !item.name.toLowerCase().includes('vcpu') &&
+          !item.name.toLowerCase().includes('ram') &&
+          !item.name.toLowerCase().includes('storage') &&
+          !item.name.toLowerCase().includes('hypervisor') &&
+          !item.name.toLowerCase().includes('publicip')
+      )
+
+      // Randomly select 3 items
+      const shuffled = [...gpuItems].sort(() => 0.5 - Math.random())
+      const selected = shuffled.slice(0, 3)
+
+      setPriceItems(selected)
+    } catch (err) {
+      console.error('Price book fetch error:', err)
+      // We'll just show empty state if this fails
+    } finally {
+      setPricingLoading(false)
     }
   }
 
@@ -73,7 +148,7 @@ const Billing = () => {
   const handleCredit = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     if (/^\d*\.?\d*$/.test(value)) {
-      setCredit(value === "" ? "" : Number.parseFloat(value))
+      setCredit(value === '' ? '' : Number.parseFloat(value))
     }
   }, [])
 
@@ -82,8 +157,8 @@ const Billing = () => {
    */
   const handleDeposit = async () => {
     if (!credit || credit <= 0) {
-      setError("Please enter a valid amount")
-      Snackbar({ message: "Please enter a valid amount" })
+      setError('Please enter a valid amount')
+      Snackbar({ message: 'Please enter a valid amount' })
       return
     }
 
@@ -92,19 +167,21 @@ const Billing = () => {
 
     try {
       const { invoiceUrl } = await createDeposit(credit)
-      window.open(invoiceUrl, "_self")
+      window.open(invoiceUrl, '_self')
 
       // After successful deposit, update the balance
       const updatedBalance = await getBalance()
       setBalance(updatedBalance)
-      setCredit("")
+      setCredit('')
 
-      // In a real implementation, you would refresh transaction history here
-      Snackbar({ message: "Deposit initiated successfully" })
+      // Refresh transaction history
+      fetchTransactionHistory()
+
+      Snackbar({ message: 'Deposit initiated successfully' })
     } catch (err) {
-      console.error("Deposit error:", err)
-      setError("Deposit failed. Please try again later.")
-      Snackbar({ message: "Deposit failed. Please try again later." })
+      console.error('Deposit error:', err)
+      setError('Deposit failed. Please try again later.')
+      Snackbar({ message: 'Deposit failed. Please try again later.' })
     } finally {
       setLoading(false)
     }
@@ -126,20 +203,20 @@ const Billing = () => {
         <Flex direction="column" className={styles.leftColumn}>
           <div className={styles.tabContainer}>
             <button
-              className={`${styles.tabButton} ${activeTab === "overview" ? styles.activeTab : ""}`}
-              onClick={() => setActiveTab("overview")}
+              className={`${styles.tabButton} ${activeTab === 'overview' ? styles.activeTab : ''}`}
+              onClick={() => setActiveTab('overview')}
             >
               Overview
             </button>
             <button
-              className={`${styles.tabButton} ${activeTab === "history" ? styles.activeTab : ""}`}
-              onClick={() => setActiveTab("history")}
+              className={`${styles.tabButton} ${activeTab === 'history' ? styles.activeTab : ''}`}
+              onClick={() => setActiveTab('history')}
             >
               Transaction History
             </button>
           </div>
 
-          {activeTab === "overview" ? (
+          {activeTab === 'overview' ? (
             <>
               <div className={styles.balanceCard}>
                 <div className={styles.balanceHeader}>
@@ -188,7 +265,7 @@ const Billing = () => {
                   </div>
 
                   <Button className={styles.addCreditButton} onClick={handleDeposit} disabled={loading}>
-                    {loading ? "Processing..." : "Add Funds"}
+                    {loading ? 'Processing...' : 'Add Funds'}
                   </Button>
                 </div>
 
@@ -204,24 +281,25 @@ const Billing = () => {
                       <span>USDT</span>
                     </div>
                   </div>
+                  <div className={styles.acceptedCryptoNote}>Currently we only accept USDT on the Avalanche network.</div>
                 </div>
               </div>
 
               <div className={styles.pricingCard}>
                 <h2>Compute Pricing</h2>
                 <div className={styles.pricingTable}>
-                  <div className={styles.pricingRow}>
-                    <div>H100 80GB SXM</div>
-                    <div>$2.55/hr</div>
-                  </div>
-                  <div className={styles.pricingRow}>
-                    <div>A100 80GB SXM</div>
-                    <div>$1.80/hr</div>
-                  </div>
-                  <div className={styles.pricingRow}>
-                    <div>A100 40GB SXM</div>
-                    <div>$1.10/hr</div>
-                  </div>
+                  {pricingLoading ? (
+                    <div className={styles.loadingPricing}>Loading pricing data...</div>
+                  ) : priceItems.length === 0 ? (
+                    <div className={styles.noPricing}>No pricing data available</div>
+                  ) : (
+                    priceItems.map((item) => (
+                      <div key={item.id} className={styles.pricingRow}>
+                        <div>{item.name}</div>
+                        <div>${Number.parseFloat(item.value).toFixed(2)}/hr</div>
+                      </div>
+                    ))
+                  )}
                 </div>
                 <div className={styles.pricingNote}>Prices are per GPU. Multi-GPU instances available.</div>
               </div>
@@ -233,7 +311,11 @@ const Billing = () => {
                 <h2>Transaction History</h2>
               </div>
 
-              {transactions.length === 0 ? (
+              {transactionsLoading ? (
+                <div className={styles.loadingTransactions}>Loading transaction history...</div>
+              ) : transactionsError ? (
+                <div className={styles.errorMessage}>{transactionsError}</div>
+              ) : transactions.length === 0 ? (
                 <div className={styles.noTransactions}>No transaction history available</div>
               ) : (
                 <div className={styles.transactionTable}>
@@ -248,8 +330,8 @@ const Billing = () => {
                       <div>{transaction.date}</div>
                       <div>{transaction.type}</div>
                       <div className={transaction.amount > 0 ? styles.positiveAmount : styles.negativeAmount}>
-                        {transaction.amount > 0 ? "+" : ""}
-                        {transaction.amount.toFixed(2)} {transaction.currency}
+                        {transaction.amount > 0 ? '+' : ''}
+                        {`$${Math.abs(transaction.amount).toFixed(2)}`}
                       </div>
                       <div className={styles.transactionStatus}>{transaction.status}</div>
                     </div>
@@ -268,8 +350,8 @@ const Billing = () => {
             <div className={styles.faqItem}>
               <h3>How do payments work?</h3>
               <p>
-                You can add funds to your account using AVAX or USDT cryptocurrencies. These funds are used to pay for
-                GPU compute resources.
+                We accept AVAX and USDT cryptocurrencies on the Avalanche network. These funds are used to pay for GPU
+                compute resources based on your usage.
               </p>
             </div>
 
@@ -285,7 +367,15 @@ const Billing = () => {
 
             <div className={styles.faqItem}>
               <h3>Is there a minimum deposit?</h3>
-              <p>The minimum deposit amount is $10 equivalent in cryptocurrency.</p>
+              <p>The minimum deposit amount is $10 equivalent in AVAX or USDT.</p>
+            </div>
+
+            <div className={styles.faqItem}>
+              <h3>Which cryptocurrencies do you accept?</h3>
+              <p>
+                We accept AVAX (Avalanche) and USDT (Tether) on the Avalanche network. You must use the Avalanche
+                C-Chain for all transactions.
+              </p>
             </div>
           </div>
 
@@ -301,4 +391,3 @@ const Billing = () => {
 }
 
 export default Billing
-
