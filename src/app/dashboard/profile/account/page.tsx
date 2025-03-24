@@ -202,6 +202,11 @@ const AccountPage = () => {
                   </div>
                   <p className={styles.cardValue}>${userData?.balance.toFixed(2) || '0.00'}</p>
                   <p className={styles.cardNote}>Your current account balance</p>
+                  <Flex justify="end" mt="3">
+                    <Link href="/dashboard/billing" className={styles.addFundsButton}>
+                      Add Funds
+                    </Link>
+                  </Flex>
                 </div>
 
                 <div className={`${styles.card} ${styles.cardHover}`}>

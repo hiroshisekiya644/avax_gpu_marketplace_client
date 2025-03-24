@@ -24,6 +24,63 @@
   cursor: pointer;
 }
 
+/* Add styles for the avatar in header */
+.avatarInitial {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--button);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.avatarPlaceholder {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--bgSoft);
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.userInfo {
+  padding: 8px;
+  border-bottom: 1px solid var(--bgSoft);
+  margin-bottom: 8px;
+}
+
+.userEmail {
+  font-size: 14px;
+  color: var(--text);
+  word-break: break-all;
+}
+
+/* Profile button styles */
+.profileButton {
+  border-bottom: 1px solid var(--bgSoft);
+}
+
+.profileLink {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
 .menu[data-highlighted] {
   background-color: var(--bg);
   color: var(--text);
@@ -34,7 +91,7 @@
 }
 
 @media screen and (max-width: 768px) {
-  .header{
+  .header {
     width: 100%;
     left: 0;
     height: 60px;
@@ -53,7 +110,6 @@
     height: 30px;
     color: var(--text);
     margin-top: 10px;
-
 
     & span {
       display: block;
@@ -156,7 +212,7 @@
 }
 
 .logoutButton {
-  border-top: 1px solid white;
+  margin-top: 4px;
 }
 
 .createClusterButton {
@@ -184,8 +240,3 @@
   color: var(--text);
   cursor: pointer;
 }
-
-
-
-
-
