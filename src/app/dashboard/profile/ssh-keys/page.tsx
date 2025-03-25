@@ -1,17 +1,16 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import * as Dialog from "@radix-ui/react-dialog"
-import { Cross2Icon } from "@radix-ui/react-icons"
-import { Flex, Theme } from "@radix-ui/themes"
-import Link from "next/link"
-import { getUserKeyPairs, importKeyPair, deleteKeyPair, type KeyPair, updateKeyPair } from "@/api/KeyPair"
-import { getRegionAction } from "@/api/RegionProvider"
-import DynamicSvgIcon from "@/components/icons/DynamicSvgIcon"
-import LoadingSpinner from "@/components/loading/LoadingSpinner"
-import { FormSelect, type SelectItem } from "@/components/select/FormSelect"
-import { Snackbar } from "@/components/snackbar/SnackBar"
-import styles from "../page.module.css"
+import { useEffect, useState } from 'react'
+import * as Dialog from '@radix-ui/react-dialog'
+import { Cross2Icon } from '@radix-ui/react-icons'
+import { Flex, Theme } from '@radix-ui/themes'
+import Link from 'next/link'
+import { getUserKeyPairs, importKeyPair, deleteKeyPair, type KeyPair, updateKeyPair } from '@/api/KeyPair'
+import { getRegionAction } from '@/api/RegionProvider'
+import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
+import { Snackbar } from '@/components/snackbar/SnackBar'
+import styles from '../page.module.css'
 
 // First, let's update the Region interface to make the fields optional that might not be present in the API response
 interface Region {
@@ -34,7 +33,7 @@ const SSHKeysPage = () => {
   const [isAddKeyModalOpen, setIsAddKeyModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [keyToDelete, setKeyToDelete] = useState<number | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [sshKeys, setSSHKeys] = useState<KeyPair[]>([])
   const [regions, setRegions] = useState<Region[]>([])
   const [regionItems, setRegionItems] = useState<SelectItem[]>([])
@@ -42,15 +41,15 @@ const SSHKeysPage = () => {
 
   // Form states
   const [newKeyData, setNewKeyData] = useState({
-    ssh_key_name: "",
-    ssh_public_key: "",
-    region: "",
+    ssh_key_name: '',
+    ssh_public_key: '',
+    region: ''
   })
 
   // Add a new state for edit modal and the key being edited
   const [isEditKeyModalOpen, setIsEditKeyModalOpen] = useState(false)
   const [keyToEdit, setKeyToEdit] = useState<KeyPair | null>(null)
-  const [newKeyName, setNewKeyName] = useState("")
+  const [newKeyName, setNewKeyName] = useState('')
 
   // Fetch SSH keys and regions on component mount
   useEffect(() => {
@@ -63,7 +62,7 @@ const SSHKeysPage = () => {
     if (regionItems.length > 0 && !newKeyData.region) {
       setNewKeyData((prev) => ({
         ...prev,
-        region: String(regionItems[0].name),
+        region: String(regionItems[0].name)
       }))
     }
   }, [regionItems, newKeyData.region])
@@ -74,9 +73,9 @@ const SSHKeysPage = () => {
       const items: SelectItem[] = regions.map((region) => {
         const isGreen = isGreenEnergy(region)
         return {
-          label: `${region.name}${isGreen ? " (Green Energy)" : ""}`,
+          label: `${region.name}${isGreen ? ' (Green Energy)' : ''}`,
           name: region.name,
-          image: isGreen ? <GreenIcon /> : undefined,
+          image: isGreen ? <GreenIcon /> : undefined
         }
       })
       setRegionItems(items)
@@ -87,21 +86,18 @@ const SSHKeysPage = () => {
     try {
       setIsLoadingRegions(true)
       const response = await getRegionAction()
-      console.log("Regions response:", response)
+      console.log('Regions response:', response)
       if (response.data && response.data.regions) {
         setRegions(response.data.regions)
       } else {
-        console.error("Unexpected region response format:", response)
-        Snackbar({ message: "Failed to parse regions data", type: "error" })
+        console.error('Unexpected region response format:', response)
+        Snackbar({ message: 'Failed to parse regions data', type: 'error' })
       }
     } catch (error) {
-      console.error("Failed to fetch regions:", error)
-      Snackbar({ message: "Failed to fetch regions", type: "error" })
+      console.error('Failed to fetch regions:', error)
+      Snackbar({ message: 'Failed to fetch regions', type: 'error' })
     } finally {
-      // Add a small delay to ensure the loading spinner is visible
-      setTimeout(() => {
-        setIsLoadingRegions(false)
-      }, 500)
+      setIsLoadingRegions(false)
     }
   }
 
@@ -111,13 +107,10 @@ const SSHKeysPage = () => {
       const response = await getUserKeyPairs()
       setSSHKeys(response.keyPairs)
     } catch (error) {
-      console.error("Failed to fetch SSH keys:", error)
-      Snackbar({ message: "Failed to fetch SSH keys", type: "error" })
+      console.error('Failed to fetch SSH keys:', error)
+      Snackbar({ message: 'Failed to fetch SSH keys', type: 'error' })
     } finally {
-      // Add a small delay to ensure the loading spinner is visible
-      setTimeout(() => {
-        setIsLoading(false)
-      }, 500)
+      setIsLoading(false)
     }
   }
 
@@ -126,24 +119,24 @@ const SSHKeysPage = () => {
   }
 
   const handleRegionChange = (value: string) => {
-    handleNewKeyDataChange("region", value)
+    handleNewKeyDataChange('region', value)
   }
 
   const handleAddKey = async () => {
     try {
       setIsLoading(true)
       await importKeyPair(newKeyData)
-      Snackbar({ message: "SSH key added successfully" })
+      Snackbar({ message: 'SSH key added successfully' })
       setIsAddKeyModalOpen(false)
       setNewKeyData({
-        ssh_key_name: "",
-        ssh_public_key: "",
-        region: regionItems.length > 0 ? String(regionItems[0].name) : "",
+        ssh_key_name: '',
+        ssh_public_key: '',
+        region: regionItems.length > 0 ? String(regionItems[0].name) : ''
       })
       await fetchSSHKeys()
     } catch (error) {
-      console.error("Failed to add SSH key:", error)
-      Snackbar({ message: "Failed to add SSH key", type: "error" })
+      console.error('Failed to add SSH key:', error)
+      Snackbar({ message: 'Failed to add SSH key', type: 'error' })
     } finally {
       setIsLoading(false)
     }
@@ -155,13 +148,13 @@ const SSHKeysPage = () => {
     try {
       setIsLoading(true)
       await deleteKeyPair(keyToDelete)
-      Snackbar({ message: "SSH key deleted successfully" })
+      Snackbar({ message: 'SSH key deleted successfully' })
       setIsDeleteModalOpen(false)
       setKeyToDelete(null)
       await fetchSSHKeys()
     } catch (error) {
-      console.error("Failed to delete SSH key:", error)
-      Snackbar({ message: "Failed to delete SSH key", type: "error" })
+      console.error('Failed to delete SSH key:', error)
+      Snackbar({ message: 'Failed to delete SSH key', type: 'error' })
     } finally {
       setIsLoading(false)
     }
@@ -174,14 +167,14 @@ const SSHKeysPage = () => {
     try {
       setIsLoading(true)
       await updateKeyPair(keyToEdit.id, { name: newKeyName })
-      Snackbar({ message: "SSH key updated successfully" })
+      Snackbar({ message: 'SSH key updated successfully' })
       setIsEditKeyModalOpen(false)
       setKeyToEdit(null)
-      setNewKeyName("")
+      setNewKeyName('')
       await fetchSSHKeys()
     } catch (error) {
-      console.error("Failed to update SSH key:", error)
-      Snackbar({ message: "Failed to update SSH key", type: "error" })
+      console.error('Failed to update SSH key:', error)
+      Snackbar({ message: 'Failed to update SSH key', type: 'error' })
     } finally {
       setIsLoading(false)
     }
@@ -190,32 +183,28 @@ const SSHKeysPage = () => {
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      Snackbar({ message: "Copied to clipboard" })
+      Snackbar({ message: 'Copied to clipboard' })
     } catch (error) {
-      console.error("Failed to copy to clipboard:", error)
+      console.error('Failed to copy to clipboard:', error)
     }
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     })
   }
 
   // Then, let's update the isGreenEnergy function to safely check for the green_status property
   const isGreenEnergy = (region?: Region): boolean => {
-    return !!region && region.green_status === "GREEN"
+    return !!region && region.green_status === 'GREEN'
   }
 
   // Find region details by name
   const getRegionDetails = (regionName: string): Region | undefined => {
     return regions.find((region) => region.name === regionName)
-  }
-
-  if (isLoading) {
-    return <LoadingSpinner message="Loading SSH keys..." />
   }
 
   return (
@@ -249,73 +238,79 @@ const SSHKeysPage = () => {
 
           {/* SSH Keys Content */}
           <div className={styles.tabContent}>
-            <Flex direction="column" mt="4">
-              <div className={styles.card}>
-                <Flex justify="between" align="center" mb="4">
-                  <div>
-                    <h2 className={styles.cardTitle}>SSH Keys</h2>
-                    <p className={styles.cardDescription}>Manage SSH keys to securely access your GPU instances</p>
-                  </div>
-                  <button className={styles.button} onClick={() => setIsAddKeyModalOpen(true)}>
-                    Add SSH Key
-                  </button>
-                </Flex>
+            {isLoading ? (
+              <div className={styles.skeletonContainer}>
+                <div className={styles.skeletonCard} style={{ height: '300px' }}></div>
+              </div>
+            ) : (
+              <Flex direction="column" mt="4">
+                <div className={styles.card}>
+                  <Flex justify="between" align="center" mb="4">
+                    <div>
+                      <h2 className={styles.cardTitle}>SSH Keys</h2>
+                      <p className={styles.cardDescription}>Manage SSH keys to securely access your GPU instances</p>
+                    </div>
+                    <button className={styles.button} onClick={() => setIsAddKeyModalOpen(true)}>
+                      Add SSH Key
+                    </button>
+                  </Flex>
 
-                {!isLoading && sshKeys.length === 0 && (
-                  <p className={styles.cardDescription}>
-                    You don&apos;t have any SSH keys yet. Add one to get started.
-                  </p>
-                )}
+                  {!isLoading && sshKeys.length === 0 && (
+                    <p className={styles.cardDescription}>
+                      You don&apos;t have any SSH keys yet. Add one to get started.
+                    </p>
+                  )}
 
-                <div className={styles.sshKeyList}>
-                  {sshKeys.map((key) => (
-                    <div key={key.id} className={styles.sshKeyItem}>
-                      <div className={styles.sshKeyName}>{key.ssh_key_name}</div>
+                  <div className={styles.sshKeyList}>
+                    {sshKeys.map((key) => (
+                      <div key={key.id} className={styles.sshKeyItem}>
+                        <div className={styles.sshKeyName}>{key.ssh_key_name}</div>
 
-                      <div className={styles.sshKeyFingerprint}>
-                        {key.ssh_public_key.length > 60
-                          ? `${key.ssh_public_key.substring(0, 60)}...`
-                          : key.ssh_public_key}
-                        <button
-                          onClick={() => copyToClipboard(key.ssh_public_key)}
-                          style={{ marginLeft: "8px", cursor: "pointer" }}
-                        >
-                          <CopyIcon />
-                        </button>
-                      </div>
-
-                      <div className={styles.sshKeyMeta}>
-                        <span>
-                          Added on {formatDate(key.createdAt)} • Region: {key.region}
-                          {isGreenEnergy(getRegionDetails(key.region)) && <GreenIcon />}
-                        </span>
-                        <div className={styles.sshKeyActions}>
+                        <div className={styles.sshKeyFingerprint}>
+                          {key.ssh_public_key.length > 60
+                            ? `${key.ssh_public_key.substring(0, 60)}...`
+                            : key.ssh_public_key}
                           <button
-                            className={styles.buttonSecondary}
-                            onClick={() => {
-                              setKeyToEdit(key)
-                              setNewKeyName(key.ssh_key_name)
-                              setIsEditKeyModalOpen(true)
-                            }}
+                            onClick={() => copyToClipboard(key.ssh_public_key)}
+                            style={{ marginLeft: '8px', cursor: 'pointer' }}
                           >
-                            <EditIcon />
-                          </button>
-                          <button
-                            className={styles.buttonDanger}
-                            onClick={() => {
-                              setKeyToDelete(key.id)
-                              setIsDeleteModalOpen(true)
-                            }}
-                          >
-                            <DeleteIcon />
+                            <CopyIcon />
                           </button>
                         </div>
+
+                        <div className={styles.sshKeyMeta}>
+                          <span>
+                            Added on {formatDate(key.createdAt)} • Region: {key.region}
+                            {isGreenEnergy(getRegionDetails(key.region)) && <GreenIcon />}
+                          </span>
+                          <div className={styles.sshKeyActions}>
+                            <button
+                              className={styles.buttonSecondary}
+                              onClick={() => {
+                                setKeyToEdit(key)
+                                setNewKeyName(key.ssh_key_name)
+                                setIsEditKeyModalOpen(true)
+                              }}
+                            >
+                              <EditIcon />
+                            </button>
+                            <button
+                              className={styles.buttonDanger}
+                              onClick={() => {
+                                setKeyToDelete(key.id)
+                                setIsDeleteModalOpen(true)
+                              }}
+                            >
+                              <DeleteIcon />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </Flex>
+              </Flex>
+            )}
           </div>
         </div>
       </Flex>
@@ -338,17 +333,19 @@ const SSHKeysPage = () => {
                   className={styles.formInput}
                   placeholder="e.g., My Work Laptop"
                   value={newKeyData.ssh_key_name}
-                  onChange={(e) => handleNewKeyDataChange("ssh_key_name", e.target.value)}
+                  onChange={(e) => handleNewKeyDataChange('ssh_key_name', e.target.value)}
                 />
               </div>
 
               <div>
                 {isLoadingRegions ? (
-                  <div style={{ padding: "20px 0" }}>
-                    <div className="loading-spinner" style={{ width: "20px", height: "20px" }}></div>
-                    <div style={{ color: "#a0a0a0", fontSize: "14px", marginTop: "10px", textAlign: "center" }}>
-                      Loading regions...
+                  <div className={styles.loadingRegions}>
+                    <div className={styles.loadingDots}>
+                      <span></span>
+                      <span></span>
+                      <span></span>
                     </div>
+                    <div>Loading regions...</div>
                   </div>
                 ) : (
                   <FormSelect
@@ -371,7 +368,7 @@ const SSHKeysPage = () => {
                   rows={4}
                   placeholder="Paste your SSH public key here (begins with ssh-rsa or ssh-ed25519)"
                   value={newKeyData.ssh_public_key}
-                  onChange={(e) => handleNewKeyDataChange("ssh_public_key", e.target.value)}
+                  onChange={(e) => handleNewKeyDataChange('ssh_public_key', e.target.value)}
                 />
               </div>
 
@@ -388,7 +385,7 @@ const SSHKeysPage = () => {
                   onClick={handleAddKey}
                   disabled={isLoading || !newKeyData.ssh_key_name || !newKeyData.ssh_public_key || !newKeyData.region}
                 >
-                  {isLoading ? "Adding..." : "Add Key"}
+                  {isLoading ? 'Adding...' : 'Add Key'}
                 </button>
               </div>
 
@@ -422,7 +419,7 @@ const SSHKeysPage = () => {
                   Cancel
                 </button>
                 <button className={styles.buttonDanger} onClick={handleDeleteKey} disabled={isLoading}>
-                  {isLoading ? "Deleting..." : "Delete Key"}
+                  {isLoading ? 'Deleting...' : 'Delete Key'}
                 </button>
               </div>
 
@@ -477,7 +474,7 @@ const SSHKeysPage = () => {
                   Cancel
                 </button>
                 <button className={styles.button} onClick={handleEditKey} disabled={isLoading || !newKeyName.trim()}>
-                  {isLoading ? "Updating..." : "Update Key"}
+                  {isLoading ? 'Updating...' : 'Update Key'}
                 </button>
               </div>
 
@@ -495,4 +492,3 @@ const SSHKeysPage = () => {
 }
 
 export default SSHKeysPage
-

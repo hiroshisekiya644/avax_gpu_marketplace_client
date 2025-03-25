@@ -9,7 +9,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getUserData, updateUser, deleteUserAccount, type User } from '@/api/User'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
-import LoadingSpinner from '@/components/loading/LoadingSpinner'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from '../page.module.css'
 
@@ -54,10 +53,7 @@ const AccountPage = () => {
       console.error('Failed to fetch user data:', error)
       Snackbar({ message: 'Failed to fetch user data', type: 'error' })
     } finally {
-      // Add a small delay to ensure the loading spinner is visible
-      setTimeout(() => {
-        setIsLoading(false)
-      }, 500)
+      setIsLoading(false)
     }
   }
 
@@ -117,10 +113,6 @@ const AccountPage = () => {
     }
   }
 
-  if (isLoading) {
-    return <LoadingSpinner message="Loading user data..." />
-  }
-
   return (
     <Flex className={styles.bg} direction="column">
       <Flex className={styles.header} p="4">
@@ -152,176 +144,199 @@ const AccountPage = () => {
 
           {/* Account Settings Content */}
           <div className={styles.tabContent}>
-            <Flex direction="column" mt="4">
-              <div className={styles.profileHeader}>
-                <div className={styles.avatarLarge}>
-                  {userData?.avatar ? (
-                    <Image
-                      src={userData.avatar || '/placeholder.svg'}
-                      alt="Profile"
-                      width={120}
-                      height={120}
-                      style={{ objectFit: 'cover' }}
-                    />
-                  ) : (
-                    userData?.email.charAt(0).toUpperCase()
-                  )}
-                </div>
-                <div className={styles.profileInfo}>
-                  <h1 className={styles.profileName}>{userData?.email.split('@')[0]}</h1>
-                  <p className={styles.profileEmail}>{userData?.email}</p>
-                  <div className={styles.profileMeta}>
-                    <span className={styles.profileBadge}>
-                      {userData?.role ? userData.role.charAt(0).toUpperCase() + userData.role.slice(1) : 'User'}
-                    </span>
-                    <span className={styles.profileBadge}>
-                      Member since {userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString() : ''}
-                    </span>
+            {isLoading ? (
+              <div className={styles.skeletonContainer}>
+                <div className={styles.skeletonHeader}>
+                  <div className={styles.skeletonAvatar}></div>
+                  <div className={styles.skeletonInfo}>
+                    <div className={styles.skeletonName}></div>
+                    <div className={styles.skeletonEmail}></div>
+                    <div className={styles.skeletonBadges}>
+                      <div className={styles.skeletonBadge}></div>
+                      <div className={styles.skeletonBadge}></div>
+                    </div>
                   </div>
                 </div>
+                <div className={styles.skeletonGrid}>
+                  <div className={styles.skeletonCard}></div>
+                  <div className={styles.skeletonCard}></div>
+                  <div className={styles.skeletonCard}></div>
+                </div>
+                <div className={styles.skeletonCard} style={{ height: '200px' }}></div>
+                <div className={styles.skeletonCard} style={{ height: '120px' }}></div>
               </div>
-
-              <div className={styles.cardGrid}>
-                <div className={`${styles.card} ${styles.cardHover}`}>
-                  <div className={styles.cardIconHeader}>
-                    <div className={styles.cardIcon}>
-                      <EmailIcon />
-                    </div>
-                    <h2 className={styles.cardTitle}>Email Address</h2>
+            ) : (
+              <Flex direction="column" mt="4">
+                <div className={styles.profileHeader}>
+                  <div className={styles.avatarLarge}>
+                    {userData?.avatar ? (
+                      <Image
+                        src={userData.avatar || '/placeholder.svg'}
+                        alt="Profile"
+                        width={120}
+                        height={120}
+                        style={{ objectFit: 'cover' }}
+                      />
+                    ) : (
+                      userData?.email.charAt(0).toUpperCase()
+                    )}
                   </div>
-                  <p className={styles.cardValue}>{userData?.email}</p>
-                  <p className={styles.cardNote}>Your email address is used for login and cannot be changed</p>
+                  <div className={styles.profileInfo}>
+                    <h1 className={styles.profileName}>{userData?.email.split('@')[0]}</h1>
+                    <p className={styles.profileEmail}>{userData?.email}</p>
+                    <div className={styles.profileMeta}>
+                      <span className={styles.profileBadge}>
+                        {userData?.role ? userData.role.charAt(0).toUpperCase() + userData.role.slice(1) : 'User'}
+                      </span>
+                      <span className={styles.profileBadge}>
+                        Member since {userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString() : ''}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className={`${styles.card} ${styles.cardHover}`}>
+                <div className={styles.cardGrid}>
+                  <div className={`${styles.card} ${styles.cardHover}`}>
+                    <div className={styles.cardIconHeader}>
+                      <div className={styles.cardIcon}>
+                        <EmailIcon />
+                      </div>
+                      <h2 className={styles.cardTitle}>Email Address</h2>
+                    </div>
+                    <p className={styles.cardValue}>{userData?.email}</p>
+                    <p className={styles.cardNote}>Your email address is used for login and cannot be changed</p>
+                  </div>
+
+                  <div className={`${styles.card} ${styles.cardHover}`}>
+                    <div className={styles.cardIconHeader}>
+                      <div className={styles.cardIcon}>
+                        <WalletIcon />
+                      </div>
+                      <h2 className={styles.cardTitle}>Account Balance</h2>
+                    </div>
+                    <p className={styles.cardValue}>${userData?.balance.toFixed(2) || '0.00'}</p>
+                    <p className={styles.cardNote}>Your current account balance</p>
+                    <Flex justify="end" mt="3">
+                      <Link href="/dashboard/billing" className={styles.addFundsButton}>
+                        Add Funds
+                      </Link>
+                    </Flex>
+                  </div>
+
+                  <div className={`${styles.card} ${styles.cardHover}`}>
+                    <div className={styles.cardIconHeader}>
+                      <div className={styles.cardIcon}>
+                        <CalendarIcon />
+                      </div>
+                      <h2 className={styles.cardTitle}>Account Created</h2>
+                    </div>
+                    <p className={styles.cardValue}>
+                      {userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString() : ''}
+                    </p>
+                    <p className={styles.cardNote}>Date when your account was created</p>
+                  </div>
+                </div>
+
+                <div className={`${styles.card} ${styles.securityCard}`}>
                   <div className={styles.cardIconHeader}>
                     <div className={styles.cardIcon}>
-                      <WalletIcon />
+                      <LockIcon />
                     </div>
-                    <h2 className={styles.cardTitle}>Account Balance</h2>
+                    <h2 className={styles.cardTitle}>Account Security</h2>
                   </div>
-                  <p className={styles.cardValue}>${userData?.balance.toFixed(2) || '0.00'}</p>
-                  <p className={styles.cardNote}>Your current account balance</p>
-                  <Flex justify="end" mt="3">
-                    <Link href="/dashboard/billing" className={styles.addFundsButton}>
-                      Add Funds
-                    </Link>
+                  <p className={styles.cardDescription}>Update your password to keep your account secure</p>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Current Password</label>
+                    <input
+                      type="password"
+                      className={styles.formInput}
+                      value={passwordData.currentPassword}
+                      onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
+                      placeholder="Enter your current password"
+                    />
+                  </div>
+
+                  <div className={styles.passwordGroup}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>New Password</label>
+                      <input
+                        type="password"
+                        className={styles.formInput}
+                        value={passwordData.newPassword}
+                        onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
+                        placeholder="Enter new password"
+                      />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Confirm New Password</label>
+                      <input
+                        type="password"
+                        className={styles.formInput}
+                        value={passwordData.confirmPassword}
+                        onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
+                        placeholder="Confirm new password"
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.passwordRequirements}>
+                    <p className={styles.requirementTitle}>Password requirements:</p>
+                    <ul className={styles.requirementList}>
+                      <li className={passwordData.newPassword.length >= 8 ? styles.requirementMet : ''}>
+                        At least 8 characters
+                      </li>
+                      <li className={/[A-Z]/.test(passwordData.newPassword) ? styles.requirementMet : ''}>
+                        At least one uppercase letter
+                      </li>
+                      <li className={/[0-9]/.test(passwordData.newPassword) ? styles.requirementMet : ''}>
+                        At least one number
+                      </li>
+                    </ul>
+                  </div>
+
+                  <Flex justify="end">
+                    <button
+                      className={styles.button}
+                      onClick={handleUpdatePassword}
+                      disabled={
+                        isUpdating ||
+                        !passwordData.currentPassword ||
+                        !passwordData.newPassword ||
+                        !passwordData.confirmPassword
+                      }
+                    >
+                      {isUpdating ? 'Updating...' : 'Update Password'}
+                    </button>
                   </Flex>
                 </div>
 
-                <div className={`${styles.card} ${styles.cardHover}`}>
+                <div className={`${styles.card} ${styles.dangerCard}`}>
                   <div className={styles.cardIconHeader}>
-                    <div className={styles.cardIcon}>
-                      <CalendarIcon />
+                    <div className={`${styles.cardIcon} ${styles.dangerIcon}`}>
+                      <WarningIcon />
                     </div>
-                    <h2 className={styles.cardTitle}>Account Created</h2>
+                    <h2 className={styles.cardTitle}>Danger Zone</h2>
                   </div>
-                  <p className={styles.cardValue}>
-                    {userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString() : ''}
+                  <p className={styles.cardDescription}>
+                    Permanently delete your account and all associated data. This action cannot be undone.
                   </p>
-                  <p className={styles.cardNote}>Date when your account was created</p>
-                </div>
-              </div>
 
-              <div className={`${styles.card} ${styles.securityCard}`}>
-                <div className={styles.cardIconHeader}>
-                  <div className={styles.cardIcon}>
-                    <LockIcon />
-                  </div>
-                  <h2 className={styles.cardTitle}>Account Security</h2>
-                </div>
-                <p className={styles.cardDescription}>Update your password to keep your account secure</p>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Current Password</label>
-                  <input
-                    type="password"
-                    className={styles.formInput}
-                    value={passwordData.currentPassword}
-                    onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
-                    placeholder="Enter your current password"
-                  />
-                </div>
-
-                <div className={styles.passwordGroup}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>New Password</label>
-                    <input
-                      type="password"
-                      className={styles.formInput}
-                      value={passwordData.newPassword}
-                      onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
-                      placeholder="Enter new password"
-                    />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Confirm New Password</label>
-                    <input
-                      type="password"
-                      className={styles.formInput}
-                      value={passwordData.confirmPassword}
-                      onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
-                      placeholder="Confirm new password"
-                    />
+                  <div className={styles.dangerZoneBox}>
+                    <div>
+                      <h3 className={styles.dangerZoneTitle}>Delete Account</h3>
+                      <p className={styles.dangerZoneDescription}>
+                        Once you delete your account, there is no going back. Please be certain.
+                      </p>
+                    </div>
+                    <button className={styles.buttonDanger} onClick={() => setIsDeleteModalOpen(true)}>
+                      Delete Account
+                    </button>
                   </div>
                 </div>
-
-                <div className={styles.passwordRequirements}>
-                  <p className={styles.requirementTitle}>Password requirements:</p>
-                  <ul className={styles.requirementList}>
-                    <li className={passwordData.newPassword.length >= 8 ? styles.requirementMet : ''}>
-                      At least 8 characters
-                    </li>
-                    <li className={/[A-Z]/.test(passwordData.newPassword) ? styles.requirementMet : ''}>
-                      At least one uppercase letter
-                    </li>
-                    <li className={/[0-9]/.test(passwordData.newPassword) ? styles.requirementMet : ''}>
-                      At least one number
-                    </li>
-                  </ul>
-                </div>
-
-                <Flex justify="end">
-                  <button
-                    className={styles.button}
-                    onClick={handleUpdatePassword}
-                    disabled={
-                      isUpdating ||
-                      !passwordData.currentPassword ||
-                      !passwordData.newPassword ||
-                      !passwordData.confirmPassword
-                    }
-                  >
-                    {isUpdating ? 'Updating...' : 'Update Password'}
-                  </button>
-                </Flex>
-              </div>
-
-              <div className={`${styles.card} ${styles.dangerCard}`}>
-                <div className={styles.cardIconHeader}>
-                  <div className={`${styles.cardIcon} ${styles.dangerIcon}`}>
-                    <WarningIcon />
-                  </div>
-                  <h2 className={styles.cardTitle}>Danger Zone</h2>
-                </div>
-                <p className={styles.cardDescription}>
-                  Permanently delete your account and all associated data. This action cannot be undone.
-                </p>
-
-                <div className={styles.dangerZoneBox}>
-                  <div>
-                    <h3 className={styles.dangerZoneTitle}>Delete Account</h3>
-                    <p className={styles.dangerZoneDescription}>
-                      Once you delete your account, there is no going back. Please be certain.
-                    </p>
-                  </div>
-                  <button className={styles.buttonDanger} onClick={() => setIsDeleteModalOpen(true)}>
-                    Delete Account
-                  </button>
-                </div>
-              </div>
-            </Flex>
+              </Flex>
+            )}
           </div>
         </div>
       </Flex>

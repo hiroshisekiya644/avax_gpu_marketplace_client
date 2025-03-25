@@ -723,3 +723,158 @@
 .addFundsButton:active {
   transform: translateY(0);
 }
+
+/* Add these skeleton loading styles to the existing CSS file */
+.skeletonContainer {
+  width: 100%;
+  padding: 1rem 0;
+}
+
+.skeletonHeader {
+  display: flex;
+  margin-bottom: 2rem;
+}
+
+.skeletonAvatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(
+    90deg,
+    var(--bgSoftDark, #1a1a1a) 25%,
+    var(--bgDark, #222) 50%,
+    var(--bgSoftDark, #1a1a1a) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  margin-right: 1.5rem;
+}
+
+.skeletonInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.skeletonName {
+  width: 180px;
+  height: 28px;
+  background: linear-gradient(
+    90deg,
+    var(--bgSoftDark, #1a1a1a) 25%,
+    var(--bgDark, #222) 50%,
+    var(--bgSoftDark, #1a1a1a) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.skeletonEmail {
+  width: 220px;
+  height: 20px;
+  background: linear-gradient(
+    90deg,
+    var(--bgSoftDark, #1a1a1a) 25%,
+    var(--bgDark, #222) 50%,
+    var(--bgSoftDark, #1a1a1a) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.skeletonBadges {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.skeletonBadge {
+  width: 100px;
+  height: 24px;
+  background: linear-gradient(
+    90deg,
+    var(--bgSoftDark, #1a1a1a) 25%,
+    var(--bgDark, #222) 50%,
+    var(--bgSoftDark, #1a1a1a) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 12px;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.skeletonCard {
+  height: 150px;
+  background: linear-gradient(
+    90deg,
+    var(--bgSoftDark, #1a1a1a) 25%,
+    var(--bgDark, #222) 50%,
+    var(--bgSoftDark, #1a1a1a) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.loadingRegions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+  color: var(--textSoft, #a0a0a0);
+  font-size: 14px;
+}
+
+.loadingDots {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.loadingDots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--textSoft, #a0a0a0);
+  animation: pulse 1.4s infinite ease-in-out;
+}
+
+.loadingDots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loadingDots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -1,0 +1,316 @@
+.bg {
+  background-color: var(--bg);
+  height: 100%;
+  min-height: 100vh;
+  color: var(--text);
+}
+
+.header {
+  height: 90px;
+  border-bottom: 1px solid rgb(61 61 61);
+  width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .header {
+    height: 110px;
+  }
+}
+
+.headerTitle {
+  color: var(--text);
+  font-size: 1.5rem;
+  margin-top: 10px;
+}
+
+.subTitle {
+  color: var(--textSoft);
+  font-size: 12px;
+}
+
+/* Card styles */
+.card {
+  background-color: var(--bgSoftDark);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.statusBadge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.statusBadge[data-status='completed'] {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: rgb(16, 185, 129);
+}
+
+.statusBadge[data-status='failed'] {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: rgb(239, 68, 68);
+}
+
+.statusBadge[data-status='initializing'],
+.statusBadge[data-status='provisioning'],
+.statusBadge[data-status='configuring'],
+.statusBadge[data-status='starting'] {
+  background-color: rgba(153, 69, 252, 0.2);
+  color: #9945fc;
+}
+
+/* Progress bar */
+.progressContainer {
+  margin-bottom: 24px;
+}
+
+.progressBar {
+  height: 8px;
+  background-color: var(--bgSoft);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #9945fc, #8035ec);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.progressFill[data-status='error'] {
+  background: linear-gradient(90deg, #ef4444, #b91c1c);
+}
+
+.progressText {
+  font-size: 14px;
+  color: var(--textSoft);
+  text-align: right;
+}
+
+/* Deployment details */
+.deploymentDetails {
+  background-color: var(--bgSoft);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.detailItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.detailItem:last-child {
+  margin-bottom: 0;
+}
+
+.detailLabel {
+  font-size: 14px;
+  color: var(--textSoft);
+}
+
+.detailValue {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Stages list */
+.stagesList {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.stagesList::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background-color: var(--bgSoft);
+  z-index: 0;
+}
+
+.stageItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.stageIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--bgSoft);
+  color: var(--textSoft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.stageName {
+  font-size: 12px;
+  color: var(--textSoft);
+  text-align: center;
+}
+
+.completedStage .stageIcon {
+  background-color: #9945fc;
+  color: white;
+}
+
+.completedStage .stageName {
+  color: var(--text);
+}
+
+.currentStage .stageIcon {
+  border: 2px solid #9945fc;
+}
+
+/* Action buttons */
+.actionButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.primaryButton {
+  background-color: #9945fc !important;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.primaryButton:hover {
+  background-color: #8035ec !important;
+}
+
+.secondaryButton {
+  background-color: transparent !important;
+  color: var(--text);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.secondaryButton:hover {
+  background-color: var(--bgSoft) !important;
+}
+
+.retryButton {
+  background-color: rgb(220, 38, 38) !important;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retryButton:hover {
+  background-color: rgb(185, 28, 28) !important;
+}
+
+.disabledButton {
+  background-color: var(--bgSoft) !important;
+  color: var(--textSoft);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Logs container */
+.logsContainer {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: monospace;
+  height: 300px;
+  overflow-y: auto;
+}
+
+.logEntry {
+  font-size: 12px;
+  color: #a0a0a0;
+  margin-bottom: 8px;
+  line-height: 1.5;
+  display: flex;
+}
+
+.logCursor {
+  width: 8px;
+  height: 16px;
+  background-color: #9945fc;
+  animation: blink 1s infinite;
+  margin-left: 4px;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Add a clock icon for the deployment page */
+@media (max-width: 768px) {
+  .stagesList {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .stagesList::before {
+    display: none;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+  }
+}

@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import * as Dialog from "@radix-ui/react-dialog"
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons"
-import * as Switch from "@radix-ui/react-switch"
 import { Button, Flex, Grid, TextField } from "@radix-ui/themes"
 import { useRouter } from "next/navigation"
 import { getGPUAction } from "@/api/GpuProvider"
@@ -377,23 +376,26 @@ const CreateCluster = () => {
   const handleRentConfirmation = useCallback(() => {
     if (!selectedGpu || !selectedImage || isRenting) return
 
-    if (window.confirm(`Confirm payment for renting GPU with rloop token? Price: $${selectedGpuPrice.toFixed(2)}/hr`)) {
-      setIsRenting(true)
+    setIsRenting(true)
 
-      // Simulate API call - replace with actual API call in production
-      setTimeout(() => {
-        try {
-          alert(`Payment successful! Your GPU cluster is now being provisioned.`)
-          router.push("/dashboard/clusters")
-        } catch (error) {
-          console.error("Error processing payment:", error)
-          alert("Payment failed. Please try again.")
-        } finally {
-          setIsRenting(false)
-        }
-      }, 1500)
-    }
-  }, [selectedGpu, selectedImage, selectedGpuPrice, isRenting, router])
+    // Get the GPU details
+    const [gpuName, index] = selectedGpu.split("-")
+    const gpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
+
+    // Get the image details
+    const selectedImageDetails = filteredImages.find((img) => img.id === selectedImage)
+
+    // Create URL parameters for the deployment page
+    const params = new URLSearchParams()
+    params.append("gpu", gpuName || "Unknown GPU")
+    params.append("region", gpuCard?.region_name || "Unknown Region")
+    params.append("image", selectedImageDetails?.name || "Unknown Image")
+    params.append("imageId", selectedImage?.toString() || "0")
+    params.append("price", selectedGpuPrice.toFixed(2))
+
+    // Navigate to the deployment page
+    router.push(`/dashboard/create-cluster/deploy-cluster?${params.toString()}`)
+  }, [selectedGpu, selectedImage, selectedGpuPrice, isRenting, gpuCards, filteredImages, router])
 
   const toggleGpuSelection = useCallback((gpuKey: string, flavorId: string) => {
     setSelectedGpu(gpuKey)
@@ -864,30 +866,6 @@ const CreateCluster = () => {
                 })}
               </Flex>
             )}
-
-            {/* Compute Types */}
-            <Flex>
-              <div className={styles.contentText}>Compute Types</div>
-            </Flex>
-            <Flex justify="between" className={styles.instanceArea} p="4">
-              <div className={styles.contentTextWhite}>
-                Show Spot Instances
-                <span
-                  className={styles.tooltip}
-                  title="Spot instances offer lower prices but may be reclaimed with short notice"
-                >
-                  ⓘ
-                </span>
-              </div>
-              <Switch.Root
-                className={styles.switchRoot}
-                id="spotInstance"
-                checked={showSpotInstances}
-                onCheckedChange={toggleSpotInstances}
-              >
-                <Switch.Thumb className={styles.switchThumb} />
-              </Switch.Root>
-            </Flex>
 
             <Flex justify="between" align="center" className={styles.instanceArea} p="4">
               <Flex gap="2">
