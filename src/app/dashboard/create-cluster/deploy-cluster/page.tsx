@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Flex, Button } from '@radix-ui/themes'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -9,10 +9,9 @@ import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
 
 // Icons
-const SocketLogo = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="socket" />
 const CheckIcon = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="dialogCheck" />
-const ErrorIcon = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="alert-circle" />
-const ClockIcon = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="clock-icon" />
+// const ErrorIcon = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="alert-circle" />
+// const ClockIcon = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="clock-icon" />
 
 // Deployment stages
 enum DeploymentStage {
@@ -32,7 +31,6 @@ const DeployCluster = () => {
   const gpuName = searchParams.get('gpu') || ''
   const gpuRegion = searchParams.get('region') || ''
   const imageName = searchParams.get('image') || ''
-  const imageId = searchParams.get('imageId') || ''
   const price = searchParams.get('price') || '0'
 
   // State for deployment progress
@@ -42,6 +40,29 @@ const DeployCluster = () => {
   const [instanceId, setInstanceId] = useState<string | null>(null)
   const [logs, setLogs] = useState<string[]>([])
   const [isDeploying, setIsDeploying] = useState(true)
+
+  // Get message for each stage
+  const getStageMessage = useCallback(
+    (stage: DeploymentStage): string => {
+      switch (stage) {
+        case DeploymentStage.INITIALIZING:
+          return `Initializing deployment process for ${gpuName}`
+        case DeploymentStage.PROVISIONING:
+          return `Provisioning GPU resources in ${gpuRegion}`
+        case DeploymentStage.CONFIGURING:
+          return `Configuring instance with ${imageName}`
+        case DeploymentStage.STARTING:
+          return `Starting services and finalizing setup`
+        case DeploymentStage.COMPLETED:
+          return `Deployment completed successfully! Instance ID: ${instanceId}`
+        case DeploymentStage.FAILED:
+          return `Deployment failed: ${error}`
+        default:
+          return `Unknown stage`
+      }
+    },
+    [gpuName, gpuRegion, imageName, instanceId, error]
+  )
 
   // Simulate deployment process
   useEffect(() => {
@@ -83,39 +104,7 @@ const DeployCluster = () => {
     }, 3000) // Each stage takes 3 seconds
 
     return () => clearInterval(interval)
-  }, [gpuName, imageName, isDeploying])
-
-  // Get message for each stage
-  const getStageMessage = (stage: DeploymentStage): string => {
-    switch (stage) {
-      case DeploymentStage.INITIALIZING:
-        return `Initializing deployment process for ${gpuName}`
-      case DeploymentStage.PROVISIONING:
-        return `Provisioning GPU resources in ${gpuRegion}`
-      case DeploymentStage.CONFIGURING:
-        return `Configuring instance with ${imageName}`
-      case DeploymentStage.STARTING:
-        return `Starting services and finalizing setup`
-      case DeploymentStage.COMPLETED:
-        return `Deployment completed successfully! Instance ID: ${instanceId}`
-      case DeploymentStage.FAILED:
-        return `Deployment failed: ${error}`
-      default:
-        return `Unknown stage`
-    }
-  }
-
-  // Get icon for current stage
-  const getStageIcon = (stage: DeploymentStage) => {
-    switch (stage) {
-      case DeploymentStage.COMPLETED:
-        return <CheckIcon />
-      case DeploymentStage.FAILED:
-        return <ErrorIcon />
-      default:
-        return <ClockIcon />
-    }
-  }
+  }, [gpuName, imageName, isDeploying, getStageMessage])
 
   // Handle manual retry
   const handleRetry = () => {

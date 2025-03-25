@@ -1,14 +1,14 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import * as Dialog from "@radix-ui/react-dialog"
-import { Flex, Button } from "@radix-ui/themes"
-import DynamicSvgIcon from "@/components/icons/DynamicSvgIcon"
-import { FormSelect, type SelectItem } from "@/components/select/FormSelect"
-import { Snackbar } from "@/components/snackbar/SnackBar"
-import { useResize } from "@/utils/Helper"
-import styles from "./page.module.css"
-import { useRouter } from "next/navigation"
+import { useState } from 'react'
+import * as Dialog from '@radix-ui/react-dialog'
+import { Flex, Button } from '@radix-ui/themes'
+import { useRouter } from 'next/navigation'
+import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
+import { Snackbar } from '@/components/snackbar/SnackBar'
+import { useResize } from '@/utils/Helper'
+import styles from './page.module.css'
 
 const AnyIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="any" />
 const CanadaIcon = () => <DynamicSvgIcon height={20} className="rounded-none" iconName="ca" />
@@ -20,18 +20,18 @@ const LighteningIcon = () => <DynamicSvgIcon height={20} className="rounded-none
 const DiskSizeIcon = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="disksize-icon" />
 const LocationIcon = () => <DynamicSvgIcon height={24} className="rounded-none" iconName="location-icon" />
 
-const location: SelectItem[] = [{ label: "Canada", name: "canada", image: <CanadaIcon /> }]
-const cpuNodes: SelectItem[] = [{ label: "V100 (16GB)", name: "v100", image: <NvidiaLogo /> }]
-const selectImages: SelectItem[] = [{ label: "Ubuntu 22", name: "ubuntu22", image: <NvidiaLogo /> }]
+const location: SelectItem[] = [{ label: 'Canada', name: 'canada', image: <CanadaIcon /> }]
+const cpuNodes: SelectItem[] = [{ label: 'V100 (16GB)', name: 'v100', image: <NvidiaLogo /> }]
+const selectImages: SelectItem[] = [{ label: 'Ubuntu 22', name: 'ubuntu22', image: <NvidiaLogo /> }]
 
 const selectValue: SelectItem[] = [
-  { label: "8", name: "8" },
-  { label: "16", name: "16" },
-  { label: "32", name: "32" },
-  { label: "64", name: "64" },
-  { label: "128", name: "128" },
-  { label: "256 - contact us", name: "256", disabled: true },
-  { label: "512 - contact us", name: "512", disabled: true },
+  { label: '8', name: '8' },
+  { label: '16', name: '16' },
+  { label: '32', name: '32' },
+  { label: '64', name: '64' },
+  { label: '128', name: '128' },
+  { label: '256 - contact us', name: '256', disabled: true },
+  { label: '512 - contact us', name: '512', disabled: true }
 ]
 
 const Clusters = () => {
@@ -40,7 +40,7 @@ const Clusters = () => {
   const router = useRouter()
 
   const handleSubmit = () => {
-    Snackbar({ message: "You have successfully deployed." })
+    Snackbar({ message: 'You have successfully deployed.' })
     setModalopen(false)
   }
 
@@ -56,12 +56,12 @@ const Clusters = () => {
           </Flex>
         </Flex>
       </Flex>
-      <Flex p="4" direction={isResponsive ? "column" : "row"} gap="2">
-        <Flex direction="column" width={{ initial: "100%", sm: "100%", md: "35%" }} gap="2">
-          <Flex direction="column" width={{ initial: "100%", sm: "100%" }}>
+      <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2">
+        <Flex direction="column" width={{ initial: '100%', sm: '100%', md: '35%' }} gap="2">
+          <Flex direction="column" width={{ initial: '100%', sm: '100%' }}>
             <Flex className={styles.summary} p="4" gap="2" direction="column">
               <Flex gap="2">
-                <Flex width={{ initial: "66%" }}>
+                <Flex width={{ initial: '66%' }}>
                   <FormSelect
                     id="cpuNode"
                     name="cpuNode"
@@ -70,7 +70,7 @@ const Clusters = () => {
                     className={styles.selectBox}
                   />
                 </Flex>
-                <Flex width={{ initial: "33%" }}>
+                <Flex width={{ initial: '33%' }}>
                   <FormSelect
                     id="valueNumber"
                     name="valueNumber"
@@ -114,9 +114,9 @@ const Clusters = () => {
             </Flex>
           </Flex>
         </Flex>
-        <Flex direction="column" width={{ initial: "100%", sm: "100%", md: "65%" }} gap="4">
+        <Flex direction="column" width={{ initial: '100%', sm: '100%', md: '65%' }} gap="4">
           <Flex className={styles.cardSummary} p="4" gap="2" direction="column">
-            <Flex justify="between" direction={isResponsive ? "column" : "row"}>
+            <Flex justify="between" direction={isResponsive ? 'column' : 'row'}>
               <div className={styles.cardHeaderTitle}>H100 80GB x 16</div>
               <Flex align="center">
                 <span className={styles.curlIcon}>~</span>
@@ -126,7 +126,7 @@ const Clusters = () => {
             </Flex>
 
             <Flex direction="column" gap="1">
-              <Flex gap="2" direction={isResponsive ? "column" : "row"}>
+              <Flex gap="2" direction={isResponsive ? 'column' : 'row'}>
                 <Flex align="center" className={styles.sxm5Card} p="5px">
                   SXM5
                 </Flex>
@@ -143,8 +143,8 @@ const Clusters = () => {
                 </Flex>
               </Flex>
             </Flex>
-            <Flex gap="4" mt="2" className={styles.instanceArea} p="4" direction={isResponsive ? "column" : "row"}>
-              <Flex direction="column" gap="2" width={{ initial: "100%", sm: "100%", md: "35%" }}>
+            <Flex gap="4" mt="2" className={styles.instanceArea} p="4" direction={isResponsive ? 'column' : 'row'}>
+              <Flex direction="column" gap="2" width={{ initial: '100%', sm: '100%', md: '35%' }}>
                 <Flex align="center" gap="1">
                   <SocketLogo /> <Flex className={styles.subTitle}>CPU (per node)</Flex>
                 </Flex>
@@ -154,7 +154,7 @@ const Clusters = () => {
                 </Flex>
               </Flex>
 
-              <Flex direction="column" gap="2" width={{ initial: "100%", sm: "100%", md: "35%" }}>
+              <Flex direction="column" gap="2" width={{ initial: '100%', sm: '100%', md: '35%' }}>
                 <Flex align="center" gap="1">
                   <DiskSizeIcon /> <Flex className={styles.subTitle}>Disk size (per node)</Flex>
                 </Flex>
@@ -179,14 +179,14 @@ const Clusters = () => {
               <Flex className={styles.subTitle}>Spin up time: ~30 minutes</Flex>
             </Flex>
             <Flex mt="2" width="100%">
-              <Button className={styles.deployButton} onClick={() => router.push("/dashboard/create-cluster")}>
+              <Button className={styles.deployButton} onClick={() => router.push('/dashboard/create-cluster')}>
                 <SocketLogo /> Deploy Cluster
               </Button>
             </Flex>
           </Flex>
 
           <Flex className={styles.cardSummary} p="4" gap="2" direction="column">
-            <Flex justify="between" direction={isResponsive ? "column" : "row"}>
+            <Flex justify="between" direction={isResponsive ? 'column' : 'row'}>
               <div className={styles.cardHeaderTitle}>H100 80GB x 16</div>
               <Flex align="center">
                 <span className={styles.curlIcon}>~</span>
@@ -196,7 +196,7 @@ const Clusters = () => {
             </Flex>
 
             <Flex direction="column" gap="1">
-              <Flex gap="2" direction={isResponsive ? "column" : "row"}>
+              <Flex gap="2" direction={isResponsive ? 'column' : 'row'}>
                 <Flex align="center" className={styles.sxm5Card} p="5px">
                   SXM5
                 </Flex>
@@ -210,8 +210,8 @@ const Clusters = () => {
                 </Flex>
               </Flex>
             </Flex>
-            <Flex gap="4" mt="2" className={styles.instanceArea} p="4" direction={isResponsive ? "column" : "row"}>
-              <Flex direction="column" gap="2" width={{ initial: "100%", sm: "100%", md: "35%" }}>
+            <Flex gap="4" mt="2" className={styles.instanceArea} p="4" direction={isResponsive ? 'column' : 'row'}>
+              <Flex direction="column" gap="2" width={{ initial: '100%', sm: '100%', md: '35%' }}>
                 <Flex align="center" gap="1">
                   <SocketLogo /> <Flex className={styles.subTitle}>CPU (per node)</Flex>
                 </Flex>
@@ -221,7 +221,7 @@ const Clusters = () => {
                 </Flex>
               </Flex>
 
-              <Flex direction="column" gap="2" width={{ initial: "100%", sm: "100%", md: "35%" }}>
+              <Flex direction="column" gap="2" width={{ initial: '100%', sm: '100%', md: '35%' }}>
                 <Flex align="center" gap="1">
                   <DiskSizeIcon /> <Flex className={styles.subTitle}>Disk size (per node)</Flex>
                 </Flex>
@@ -283,4 +283,3 @@ const Clusters = () => {
 }
 
 export default Clusters
-
