@@ -304,20 +304,6 @@ const CreateCluster = () => {
   )
 
   /**
-   * Find the lowest GPU price from the price book
-   */
-  const lowestGpuPrice = useMemo(() => {
-    if (!priceBook.length) return 0
-
-    const gpuPrices = priceBook
-      .filter((item) => !item.name.includes('vCPU') && !item.name.includes('RAM') && !item.name.includes('storage'))
-      .map((item) => Number.parseFloat(item.value) || 0)
-      .filter((price) => price > 0)
-
-    return gpuPrices.length ? Math.min(...gpuPrices) : 0
-  }, [priceBook])
-
-  /**
    * Calculate daily price from hourly price
    */
   const calculateDailyPrice = (hourlyPrice: number) => hourlyPrice * 24
@@ -333,6 +319,8 @@ const CreateCluster = () => {
     if (!gpuCard) return 0
 
     const selectedFlavorId = selectedFlavors[selectedGpu]
+    if (!selectedFlavorId) return 0
+
     const flavorIndex = gpuCard.flavors.findIndex((flavor) => String(flavor.id) === selectedFlavorId)
     if (flavorIndex === -1) return 0
 
@@ -860,17 +848,6 @@ const CreateCluster = () => {
                 })}
               </Flex>
             )}
-
-            <Flex justify="between" align="center" className={styles.instanceArea} p="4">
-              <Flex gap="2">
-                <Icons.Any />
-                <div className={styles.priceTitle}>Lowest GPU Price</div>
-              </Flex>
-              <Flex direction="column">
-                <div className={styles.priceTitle}>${lowestGpuPrice.toFixed(2)}/hr</div>
-                <div className={styles.contentText}>${calculateDailyPrice(lowestGpuPrice).toFixed(2)} per day</div>
-              </Flex>
-            </Flex>
 
             {selectedGpu && (
               <Flex justify="between" align="center" className={styles.instanceArea} p="4">
