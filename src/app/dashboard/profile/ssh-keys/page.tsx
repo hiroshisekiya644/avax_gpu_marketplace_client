@@ -82,6 +82,22 @@ const SSHKeysPage = () => {
     }
   }, [regions])
 
+  // Add this useEffect to ensure proper z-index for dropdown content
+  useEffect(() => {
+    // Add a style to ensure the Select dropdown appears above other elements
+    const style = document.createElement('style')
+    style.innerHTML = `
+      [data-radix-popper-content-wrapper] {
+        z-index: 9999 !important;
+      }
+    `
+    document.head.appendChild(style)
+
+    return () => {
+      document.head.removeChild(style)
+    }
+  }, [])
+
   const fetchRegions = async () => {
     try {
       setIsLoadingRegions(true)
