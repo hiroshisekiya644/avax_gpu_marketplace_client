@@ -281,27 +281,10 @@ const Billing = () => {
                       <span>USDT</span>
                     </div>
                   </div>
-                  <div className={styles.acceptedCryptoNote}>Currently we only accept USDT on the Avalanche network.</div>
+                  <div className={styles.acceptedCryptoNote}>
+                    Currently we only accept USDT on the Avalanche network.
+                  </div>
                 </div>
-              </div>
-
-              <div className={styles.pricingCard}>
-                <h2>Compute Pricing</h2>
-                <div className={styles.pricingTable}>
-                  {pricingLoading ? (
-                    <div className={styles.loadingPricing}>Loading pricing data...</div>
-                  ) : priceItems.length === 0 ? (
-                    <div className={styles.noPricing}>No pricing data available</div>
-                  ) : (
-                    priceItems.map((item) => (
-                      <div key={item.id} className={styles.pricingRow}>
-                        <div>{item.name}</div>
-                        <div>${Number.parseFloat(item.value).toFixed(2)}/hr</div>
-                      </div>
-                    ))
-                  )}
-                </div>
-                <div className={styles.pricingNote}>Prices are per GPU. Multi-GPU instances available.</div>
               </div>
             </>
           ) : (
@@ -350,19 +333,14 @@ const Billing = () => {
             <div className={styles.faqItem}>
               <h3>How do payments work?</h3>
               <p>
-                We accept AVAX and USDT cryptocurrencies on the Avalanche network. These funds are used to pay for GPU
-                compute resources based on your usage.
+                We accept USDT cryptocurrency on the Avalanche network. These funds are used to pay for GPU compute
+                resources based on your usage.
               </p>
             </div>
 
             <div className={styles.faqItem}>
               <h3>How are charges calculated?</h3>
               <p>You are charged based on the GPU type and usage duration. Prices are per hour of usage.</p>
-            </div>
-
-            <div className={styles.faqItem}>
-              <h3>Can I get a refund?</h3>
-              <p>Unused funds can be refunded within 30 days of deposit. Contact support for assistance.</p>
             </div>
 
             <div className={styles.faqItem}>
@@ -373,7 +351,7 @@ const Billing = () => {
             <div className={styles.faqItem}>
               <h3>Which cryptocurrencies do you accept?</h3>
               <p>
-                We accept AVAX (Avalanche) and USDT (Tether) on the Avalanche network. You must use the Avalanche
+                We accept USDT (Tether) on the Avalanche network. You must use the Avalanche
                 C-Chain for all transactions.
               </p>
             </div>
