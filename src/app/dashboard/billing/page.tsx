@@ -13,6 +13,7 @@ import styles from './page.module.css'
 const WalletIcon = () => <DynamicSvgIcon height={22} className="wallet-none" iconName="wallet-icon" />
 const CryptoIcon = () => <DynamicSvgIcon height={22} className="crypto-none" iconName="crypto-icon" />
 const HistoryIcon = () => <DynamicSvgIcon height={22} className="history-none" iconName="history-icon" />
+const OverviewIcon = () => <DynamicSvgIcon height={22} className="overview-none" iconName="overview-icon" />
 
 interface Transaction {
   id: string
@@ -161,12 +162,14 @@ const Billing = () => {
               className={`${styles.tabButton} ${activeTab === 'overview' ? styles.activeTab : ''}`}
               onClick={() => setActiveTab('overview')}
             >
+              <OverviewIcon />
               Overview
             </button>
             <button
               className={`${styles.tabButton} ${activeTab === 'history' ? styles.activeTab : ''}`}
               onClick={() => setActiveTab('history')}
             >
+              <HistoryIcon />
               Transaction History
             </button>
           </div>
@@ -245,7 +248,6 @@ const Billing = () => {
           ) : (
             <div className={styles.historyCard}>
               <div className={styles.historyHeader}>
-                <HistoryIcon />
                 <h2>Transaction History</h2>
               </div>
 
