@@ -50,16 +50,12 @@
   gap: 8px;
   border-radius: 2px;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
   color: var(--textSoft);
-  padding: 5px;
-  border-radius: 4px 4px 0 0;
-  padding-bottom: 15px;
+  padding: 12px 24px;
 }
 
 .tabListItem:hover {
   color: var(--text);
-  background-color: rgba(255, 255, 255, 0.05);
   transition: all 0.2s ease;
 }
 
@@ -69,8 +65,8 @@
 }
 
 .activeTab {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-bottom: 2px solid var(--primary-color, #3b82f6);
+  border-bottom: 2px solid var(--border);
+  color: var(--text);
   font-weight: 500;
 }
 
@@ -464,9 +460,9 @@
 }
 
 .buttonDanger {
-  background-color: rgb(220, 38, 38);
   color: white;
-  border: none;
+  border: solid 1px;
+  border-color: rgba(220, 38, 38, 0.23);
   border-radius: 8px;
   padding: 0.75rem 1.5rem;
   font-size: 0.9rem;
@@ -478,7 +474,6 @@
 }
 
 .buttonDanger:hover {
-  background-color: rgb(185, 28, 28);
   transform: translateY(-2px);
 }
 
