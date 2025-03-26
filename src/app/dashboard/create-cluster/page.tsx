@@ -222,15 +222,6 @@ const CreateCluster = () => {
   }, [gpuCards, selectedRegion, searchTerm])
 
   /**
-   * Filter GPUs with available stock
-   */
-  // const availableGpuCards = useMemo(() => {
-  //   return filteredGpuCards.filter((gpuCard) =>
-  //     gpuCard.flavors.some((flavor) => flavor.stock_available)
-  //   )
-  // }, [filteredGpuCards])
-
-  /**
    * Filter images based on selected region
    */
   const filteredImages = useMemo(() => {
@@ -633,6 +624,17 @@ const CreateCluster = () => {
   // Check if rent button should be disabled
   const isRentDisabled = !selectedGpu || !selectedImage
 
+  // Debug log for price calculation
+  useEffect(() => {
+    if (selectedGpu) {
+      console.log('Price debug:', {
+        selectedGpu,
+        selectedFlavorId: selectedFlavors[selectedGpu],
+        calculatedPrice: selectedGpuPrice
+      })
+    }
+  }, [selectedGpu, selectedFlavors, selectedGpuPrice])
+
   return (
     <Flex className={styles.bg} direction="column">
       {/* Header Section */}
@@ -658,15 +660,6 @@ const CreateCluster = () => {
         <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '25%' }} gap="2">
           <div className={styles.contentTitle}>Select Your GPU Type</div>
           <div className={styles.contentText}>Customize your cluster for optimal performance and scalability</div>
-        </Flex>
-        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '75%' }}>
-          {/* Search */}
-          <TextField.Root placeholder="Search…" className={styles.searchPad} onChange={handleSearch} value={searchTerm}>
-            <TextField.Slot className={styles.iconSlot}>
-              <MagnifyingGlassIcon height="24" width="24" />
-            </TextField.Slot>
-          </TextField.Root>
-
           {/* Filters */}
           <Flex mt="4" gap="2" direction={isResponsive ? 'column' : 'row'}>
             <FormSelect
@@ -679,7 +672,14 @@ const CreateCluster = () => {
               onChange={handleChangeRegion}
             />
           </Flex>
-
+        </Flex>
+        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '75%' }}>
+          {/* Search */}
+          <TextField.Root placeholder="Search…" className={styles.searchPad} onChange={handleSearch} value={searchTerm}>
+            <TextField.Slot className={styles.iconSlot}>
+              <MagnifyingGlassIcon height="24" width="24" />
+            </TextField.Slot>
+          </TextField.Root>
           {/* GPU Cards Grid */}
           <Flex mt="4" gap="2" direction={isResponsive ? 'column' : 'row'}>
             <Grid columns={{ initial: '1', sm: '1', md: '2', lg: '3' }} gap={{ initial: '2', sm: '4' }} width="100%">

@@ -57,7 +57,7 @@ const SignUp = () => {
       <div className={styles.card}>
         <Flex direction="column" gap="4" justify="center" align="center">
           <Flex gap="4">
-            <Image src="/logo/logo.avif" alt="Logo" width={22} height={22} className={styles.imageButton} priority />
+            <Image src="/logo/logo.png" alt="Logo" width={32} height={32} className={styles.imageButton} priority />
             <Flex className={styles.title}>AVAX GPU MARKETPLACE</Flex>
           </Flex>
           <Flex className={styles.text}>Welcome</Flex>

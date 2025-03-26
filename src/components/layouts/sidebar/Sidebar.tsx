@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signout } from '@/api/Auth'
 import { getUserData, type User } from '@/api/User'
-import WalletButton from '@/components/button/WalletButton'
+// import WalletButton from '@/components/button/WalletButton'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import styles from './Sidebar.module.css'
 
@@ -29,7 +29,7 @@ const TrainingIcon = () => <DynamicSvgIcon height={26} className="rounded-none" 
 const InstanceIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="gpu-icon" />
 const TemplatesIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="templates-icon" />
 const CreateClusterIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="create-cluster-icon" />
-const ClustersIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="clusters-icon" />
+// const ClustersIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="clusters-icon" />
 const QuoteIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="quote-icon" />
 const BillingIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="billing-icon" />
 const ProfileIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="profile-icon" />
@@ -37,7 +37,7 @@ const LogoutIcon = () => <DynamicSvgIcon height={22} className="rounded-none" ic
 
 export const sidebarClusterMenu: SidebarMenu[] = [
   { name: 'Deploy GPU Instance', href: '/dashboard/create-cluster', icon: <CreateClusterIcon /> },
-  { name: 'Multi-Node Cluster', href: '/dashboard/clusters', icon: <ClustersIcon /> },
+  // { name: 'Multi-Node Cluster', href: '/dashboard/clusters', icon: <ClustersIcon /> },
   { name: 'Team Instances', href: '/dashboard/instances', icon: <InstanceIcon /> },
   { name: 'Templates', href: '/dashboard/templates', icon: <TemplatesIcon /> },
   { name: 'Reserved Instances', href: '/dashboard/quotes', icon: <QuoteIcon /> },
@@ -85,7 +85,7 @@ export const Sidebar = () => {
         <Flex justify="between" mb="6">
           {path !== '/dashboard/intelligence' ? (
             <>
-              <Image src="/logo/logo.avif" alt="Logo" width={22} height={22} className={styles.imageButton} priority />
+              <Image src="/logo/logo.png" alt="Logo" width={32} height={32} className={styles.imageButton} priority />
               <div className={styles.logoText}>AVAX GPU MARKETPLACE</div>
               <Image
                 src="/logo/bell-icon.svg"
@@ -98,14 +98,7 @@ export const Sidebar = () => {
           ) : (
             <>
               <Flex justify="center" width="100%">
-                <Image
-                  src="/logo/logo.avif"
-                  alt="Logo"
-                  width={20}
-                  height={20}
-                  className={styles.imageButton}
-                  priority
-                />
+                <Image src="/logo/logo.png" alt="Logo" width={24} height={24} className={styles.imageButton} priority />
               </Flex>
             </>
           )}
@@ -169,11 +162,11 @@ export const Sidebar = () => {
       <Flex mt="4" direction="column" gap="4">
         {path !== '/dashboard/intelligence' ? (
           <>
-            <Flex justify="center" gap="4">
+            {/* <Flex justify="center" gap="4">
               <div className={styles.walletButton}>
                 <WalletButton />
               </div>
-            </Flex>
+            </Flex> */}
             <Flex justify="center" gap="4">
               <Link href="/termsOfService" className={styles.textButton}>
                 Terms of Service
