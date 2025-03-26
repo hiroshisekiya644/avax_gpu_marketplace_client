@@ -6,7 +6,6 @@ import { useCallback, useState, useEffect } from 'react'
 import { Flex, Button, TextField } from '@radix-ui/themes'
 import Image from 'next/image'
 import { getBalance, createDeposit, getPaymentHistory } from '@/api/Payment'
-import { getPriceBook } from '@/api/PriceBook'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
@@ -24,16 +23,6 @@ interface Transaction {
   currency: string
 }
 
-interface PriceItem {
-  id: number
-  name: string
-  value: string
-  original_value: string
-  discount_applied: boolean
-  start_time: string | null
-  end_time: string | null
-}
-
 /**
  * Enhanced Billing component for managing user balance and deposits
  */
@@ -46,13 +35,10 @@ const Billing = () => {
   const [transactionsLoading, setTransactionsLoading] = useState<boolean>(true)
   const [transactionsError, setTransactionsError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview')
-  const [priceItems, setPriceItems] = useState<PriceItem[]>([])
-  const [pricingLoading, setPricingLoading] = useState<boolean>(true)
 
   // Fetch initial balance and data on component mount
   useEffect(() => {
     fetchBalance()
-    fetchPriceBook()
     fetchTransactionHistory()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -108,37 +94,6 @@ const Billing = () => {
       // We'll show an error message in the UI
     } finally {
       setTransactionsLoading(false)
-    }
-  }
-
-  /**
-   * Fetch price book data from the API
-   */
-  const fetchPriceBook = async () => {
-    try {
-      setPricingLoading(true)
-      const priceBookResponse = await getPriceBook()
-
-      // Filter out non-GPU items (typically those are vCPU, RAM, storage, etc.)
-      const gpuItems = priceBookResponse.data.filter(
-        (item) =>
-          !item.name.toLowerCase().includes('vcpu') &&
-          !item.name.toLowerCase().includes('ram') &&
-          !item.name.toLowerCase().includes('storage') &&
-          !item.name.toLowerCase().includes('hypervisor') &&
-          !item.name.toLowerCase().includes('publicip')
-      )
-
-      // Randomly select 3 items
-      const shuffled = [...gpuItems].sort(() => 0.5 - Math.random())
-      const selected = shuffled.slice(0, 3)
-
-      setPriceItems(selected)
-    } catch (err) {
-      console.error('Price book fetch error:', err)
-      // We'll just show empty state if this fails
-    } finally {
-      setPricingLoading(false)
     }
   }
 
@@ -351,8 +306,8 @@ const Billing = () => {
             <div className={styles.faqItem}>
               <h3>Which cryptocurrencies do you accept?</h3>
               <p>
-                We accept USDT (Tether) on the Avalanche network. You must use the Avalanche
-                C-Chain for all transactions.
+                We accept USDT (Tether) on the Avalanche network. You must use the Avalanche C-Chain for all
+                transactions.
               </p>
             </div>
           </div>
