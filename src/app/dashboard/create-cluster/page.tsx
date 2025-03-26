@@ -624,17 +624,6 @@ const CreateCluster = () => {
   // Check if rent button should be disabled
   const isRentDisabled = !selectedGpu || !selectedImage
 
-  // Debug log for price calculation
-  useEffect(() => {
-    if (selectedGpu) {
-      console.log('Price debug:', {
-        selectedGpu,
-        selectedFlavorId: selectedFlavors[selectedGpu],
-        calculatedPrice: selectedGpuPrice
-      })
-    }
-  }, [selectedGpu, selectedFlavors, selectedGpuPrice])
-
   return (
     <Flex className={styles.bg} direction="column">
       {/* Header Section */}
