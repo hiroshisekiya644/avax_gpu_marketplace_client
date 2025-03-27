@@ -85,7 +85,7 @@ export const Sidebar = () => {
         <Flex justify="between" mb="6">
           {path !== '/dashboard/intelligence' ? (
             <>
-              <Image src="/logo/logo.png" alt="Logo" width={32} height={32} className={styles.imageButton} priority />
+              <Image src="/logo/logo.jpg" alt="Logo" width={32} height={32} className={styles.imageButton} priority />
               <div className={styles.logoText}>AVAX GPU MARKETPLACE</div>
               <Image
                 src="/logo/bell-icon.svg"
@@ -98,7 +98,7 @@ export const Sidebar = () => {
           ) : (
             <>
               <Flex justify="center" width="100%">
-                <Image src="/logo/logo.png" alt="Logo" width={24} height={24} className={styles.imageButton} priority />
+                <Image src="/logo/logo.jpg" alt="Logo" width={24} height={24} className={styles.imageButton} priority />
               </Flex>
             </>
           )}

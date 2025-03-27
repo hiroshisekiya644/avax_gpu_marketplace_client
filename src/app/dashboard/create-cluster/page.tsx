@@ -930,13 +930,13 @@ const CreateCluster = () => {
             <Button className={styles.defaultButton} onClick={handleReset}>
               Reset
             </Button>
-            {/* Rent button */}
+            {/* Deploy button */}
             <Button
               className={`${styles.defaultButton} ${isRentDisabled || isRenting ? styles.disabledButton : ''}`}
-              onClick={handleRentConfirmation}
+              onClick={handleDConfirmation}
               disabled={isRentDisabled || isRenting}
             >
-              {isRenting ? 'Processing...' : 'Rent'}
+              {isRenting ? 'Processing...' : 'Deploy'}
             </Button>
           </Flex>
         </Flex>
