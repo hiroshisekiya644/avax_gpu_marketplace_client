@@ -334,7 +334,9 @@ const CreateCluster = () => {
   const selectedGpuPrice = useMemo(() => {
     if (!selectedGpu || !gpuCards.length) return 0
 
-    const [gpuName, index] = selectedGpu.split('-')
+    const lastDash = selectedGpu.lastIndexOf('-')
+    const gpuName = selectedGpu.slice(0, lastDash)
+    const index = selectedGpu.slice(lastDash + 1)
     const gpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
     if (!gpuCard) return 0
 
