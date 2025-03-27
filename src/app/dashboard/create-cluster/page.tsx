@@ -115,6 +115,7 @@ const CreateCluster = () => {
 
   // Selection state
   const [selectedGpu, setSelectedGpu] = useState<string | null>(null)
+  const [selectedGpuRegion, setSelectedGpuRegion] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
   const [selectedFlavors, setSelectedFlavors] = useState<Record<string, string>>({})
 
@@ -222,11 +223,25 @@ const CreateCluster = () => {
   }, [gpuCards, selectedRegion, searchTerm])
 
   /**
-   * Filter images based on selected region
+   * Filter images based on selected GPU's region
    */
   const filteredImages = useMemo(() => {
     if (!imageList.length) return []
 
+    // If a GPU is selected, filter by its region
+    if (selectedGpuRegion) {
+      return imageList
+        .filter((regionImages) => regionImages.region_name === selectedGpuRegion)
+        .flatMap((regionImages) =>
+          regionImages.images.map((image) => ({
+            ...image,
+            green_status: regionImages.green_status,
+            logo: regionImages.logo
+          }))
+        )
+    }
+
+    // Otherwise, filter by the selected region in the dropdown
     return imageList
       .filter((regionImages) => selectedRegion === DEFAULT_REGION || regionImages.region_name === selectedRegion)
       .flatMap((regionImages) =>
@@ -236,14 +251,28 @@ const CreateCluster = () => {
           logo: regionImages.logo
         }))
       )
-  }, [imageList, selectedRegion])
+  }, [imageList, selectedRegion, selectedGpuRegion])
 
   /**
-   * All images for modal view
+   * All images for modal view, filtered by selected GPU region if available
    */
   const allImages = useMemo(() => {
     if (!imageList.length) return []
 
+    // If a GPU is selected, filter by its region
+    if (selectedGpuRegion) {
+      return imageList
+        .filter((regionImages) => regionImages.region_name === selectedGpuRegion)
+        .flatMap((regionImages) =>
+          regionImages.images.map((image) => ({
+            ...image,
+            green_status: regionImages.green_status,
+            logo: regionImages.logo
+          }))
+        )
+    }
+
+    // Otherwise, show all images
     return imageList.flatMap((regionImages) =>
       regionImages.images.map((image) => ({
         ...image,
@@ -251,7 +280,7 @@ const CreateCluster = () => {
         logo: regionImages.logo
       }))
     )
-  }, [imageList])
+  }, [imageList, selectedGpuRegion])
 
   /**
    * Calculate price for a GPU configuration
@@ -320,9 +349,20 @@ const CreateCluster = () => {
   }, [selectedGpu, gpuCards, selectedFlavors, calculateGpuPrice])
 
   // Event handlers
-  const handleChangeRegion = useCallback((selectedValue: string) => {
-    setSelectedRegion(selectedValue)
-  }, [])
+  const handleChangeRegion = useCallback(
+    (selectedValue: string) => {
+      setSelectedRegion(selectedValue)
+
+      // Reset GPU and image selection when region changes
+      if (selectedGpuRegion && selectedGpuRegion !== selectedValue && selectedValue !== DEFAULT_REGION) {
+        setSelectedGpu(null)
+        setSelectedGpuRegion(null)
+        setSelectedImage(null)
+        setSelectedFlavors({})
+      }
+    },
+    [selectedGpuRegion]
+  )
 
   const handleFlavorChange = useCallback((gpuKey: string, selectedFlavorId: string) => {
     setSelectedFlavors((prev) => ({
@@ -371,13 +411,27 @@ const CreateCluster = () => {
     router.push(`/dashboard/create-cluster/deploy-cluster?${params.toString()}`)
   }, [selectedGpu, selectedImage, selectedGpuPrice, isRenting, gpuCards, filteredImages, router])
 
-  const toggleGpuSelection = useCallback((gpuKey: string, flavorId: string) => {
-    setSelectedGpu(gpuKey)
-    setSelectedFlavors((prev) => ({
-      ...prev,
-      [gpuKey]: flavorId
-    }))
-  }, [])
+  const toggleGpuSelection = useCallback(
+    (gpuKey: string, flavorId: string, regionName: string) => {
+      // If selecting the same GPU, just toggle it off
+      if (selectedGpu === gpuKey) {
+        setSelectedGpu(null)
+        setSelectedGpuRegion(null)
+        setSelectedImage(null) // Reset image selection when GPU is deselected
+      } else {
+        setSelectedGpu(gpuKey)
+        setSelectedGpuRegion(regionName)
+        setSelectedFlavors((prev) => ({
+          ...prev,
+          [gpuKey]: flavorId
+        }))
+
+        // Reset image selection when changing GPU
+        setSelectedImage(null)
+      }
+    },
+    [selectedGpu]
+  )
 
   /**
    * Handle GPU selection from the summary section
@@ -386,7 +440,9 @@ const CreateCluster = () => {
     (selectedGpuKey: string) => {
       if (selectedGpuKey === 'none') {
         setSelectedGpu(null)
+        setSelectedGpuRegion(null)
         setSelectedFlavors({})
+        setSelectedImage(null) // Reset image selection when GPU is deselected
         return
       }
 
@@ -397,6 +453,12 @@ const CreateCluster = () => {
       const selectedGpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
 
       if (!selectedGpuCard) return
+
+      // Store the region of the selected GPU
+      setSelectedGpuRegion(selectedGpuCard.region_name)
+
+      // Reset image selection when changing GPU
+      setSelectedImage(null)
 
       const defaultFlavor = selectedGpuCard.flavors.find((flavor) => flavor.stock_available)
       if (defaultFlavor) {
@@ -440,6 +502,7 @@ const CreateCluster = () => {
     setSelectedRegion(DEFAULT_REGION)
     setSearchTerm('')
     setSelectedGpu(null)
+    setSelectedGpuRegion(null)
     setSelectedImage(null)
     setSelectedFlavors({})
     setModalOpen(false)
@@ -536,7 +599,7 @@ const CreateCluster = () => {
             {stock_available ? (
               <Button
                 className={`${styles.selectGPUButton} ${isSelected ? styles.selectedGPUButton : ''}`}
-                onClick={() => toggleGpuSelection(gpuKey, selectedFlavorId)}
+                onClick={() => toggleGpuSelection(gpuKey, selectedFlavorId, gpuCard.region_name)}
               >
                 {isSelected ? 'Selected' : 'Select GPU'}
               </Button>
@@ -700,6 +763,11 @@ const CreateCluster = () => {
             Select a pre-configured cluster setup tailored to your specific needs, requiring no extra configurations and
             ready to integrate with your codebase immediately.
           </div>
+          {selectedGpuRegion && (
+            <div className={styles.regionFilterNotice}>
+              Showing images compatible with region: <strong>{selectedGpuRegion}</strong>
+            </div>
+          )}
         </Flex>
         <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '75%' }}>
           <Flex gap="2" direction={isResponsive ? 'column' : 'row'}>
@@ -707,7 +775,13 @@ const CreateCluster = () => {
               {isImagesLoading ? (
                 <LoadingState />
               ) : filteredImages.length === 0 ? (
-                <NoResultsState message="No images available. Please adjust your filters or try again later." />
+                <NoResultsState
+                  message={
+                    selectedGpuRegion
+                      ? `No images available for the selected GPU in region ${selectedGpuRegion}.`
+                      : 'No images available. Please adjust your filters or try again later.'
+                  }
+                />
               ) : (
                 filteredImages.map((image) => (
                   <div key={image.id} id={`image-${image.id}`} style={{ height: '200px' }}>
@@ -791,6 +865,7 @@ const CreateCluster = () => {
                           <div>RAM: {selectedFlavor.ram} GB</div>
                           <div>Disk: {selectedFlavor.disk} GB</div>
                           {selectedFlavor.ephemeral > 0 && <div>Ephemeral: {selectedFlavor.ephemeral} GB</div>}
+                          <div className={styles.summaryRegion}>Region: {gpuCard.region_name}</div>
                           {gpuPrice > 0 && (
                             <div className={styles.summaryPrice}>
                               Price: ${gpuPrice.toFixed(2)}/hr (${calculateDailyPrice(gpuPrice).toFixed(2)}/day)
@@ -875,6 +950,11 @@ const CreateCluster = () => {
             <Dialog.Title />
             <Flex direction="column">
               <Flex>Base Image</Flex>
+              {selectedGpuRegion && (
+                <div className={styles.modalRegionFilter}>
+                  Showing images for region: <strong>{selectedGpuRegion}</strong>
+                </div>
+              )}
               <Flex className={styles.contentText} mt="10px" mb="10px">
                 Select a pre-configured cluster setup tailored to your specific needs, requiring no extra configurations
                 and ready to integrate with your codebase immediately.
@@ -888,7 +968,13 @@ const CreateCluster = () => {
                     {isImagesLoading ? (
                       <LoadingState />
                     ) : allImages.length === 0 ? (
-                      <NoResultsState message="No images available. Please try again later." />
+                      <NoResultsState
+                        message={
+                          selectedGpuRegion
+                            ? `No images available for region ${selectedGpuRegion}.`
+                            : 'No images available. Please try again later.'
+                        }
+                      />
                     ) : (
                       allImages.map((image) => <ImageCard key={image.id} image={image} />)
                     )}
