@@ -14,7 +14,7 @@ export const HeaderDialog = () => {
   return (
     <Dialog.Content className={styles.modal}>
       <Flex className={styles.modalHeader}>
-        <Dialog.Title className={styles.heading}>AVAX GPU Marketplace</Dialog.Title>
+        <Dialog.Title className={styles.heading}>rLoop GPU Marketplace</Dialog.Title>
         <Dialog.Close asChild>
           <button>×</button>
         </Dialog.Close>

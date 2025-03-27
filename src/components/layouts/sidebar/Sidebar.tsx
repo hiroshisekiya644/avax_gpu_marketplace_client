@@ -86,7 +86,7 @@ export const Sidebar = () => {
           {path !== '/dashboard/intelligence' ? (
             <>
               <Image src="/logo/logo.jpg" alt="Logo" width={32} height={32} className={styles.imageButton} priority />
-              <div className={styles.logoText}>AVAX GPU MARKETPLACE</div>
+              <div className={styles.logoText}>rLoop GPU MARKETPLACE</div>
               <Image
                 src="/logo/bell-icon.svg"
                 alt="Notification Bell"
