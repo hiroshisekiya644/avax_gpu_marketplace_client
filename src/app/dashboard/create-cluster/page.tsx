@@ -635,7 +635,7 @@ const CreateCluster = () => {
           direction="column"
           onClick={() => toggleImageSelection(image.id)}
         >
-          <div className={styles.selectionIndicator}>{isSelected ? <Icons.Check /> : <Icons.Uncheck />}</div>
+          <div>{isSelected ? <Icons.Check /> : <Icons.Uncheck />}</div>
           <Flex className={styles.imageCardContent} direction="column">
             <div className={styles.imageName}>{image.name}</div>
             <div className={styles.imageDescription}>

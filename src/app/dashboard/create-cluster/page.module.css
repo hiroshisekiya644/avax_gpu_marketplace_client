@@ -199,14 +199,6 @@
   z-index: 10;
 }
 
-.selectionIndicator {
-  background-image: url('/path-to-your-unchecked-icon.svg');
-}
-
-.selectedIndicator {
-  background-image: url('/path-to-your-checked-icon.svg');
-}
-
 /* Button styles - consolidated */
 .buttonBase {
   cursor: pointer;
