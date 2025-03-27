@@ -25,9 +25,9 @@ type SidebarMenu = {
   options?: Option[]
 }
 
-const TrainingIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="globe-training-icon" />
+// const TrainingIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="globe-training-icon" />
 const InstanceIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="gpu-icon" />
-const TemplatesIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="templates-icon" />
+// const TemplatesIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="templates-icon" />
 const CreateClusterIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="create-cluster-icon" />
 // const ClustersIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="clusters-icon" />
 const QuoteIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="quote-icon" />
@@ -38,10 +38,10 @@ const LogoutIcon = () => <DynamicSvgIcon height={22} className="rounded-none" ic
 export const sidebarClusterMenu: SidebarMenu[] = [
   { name: 'Deploy GPU Instance', href: '/dashboard/create-cluster', icon: <CreateClusterIcon /> },
   // { name: 'Multi-Node Cluster', href: '/dashboard/clusters', icon: <ClustersIcon /> },
-  { name: 'Team Instances', href: '/dashboard/instances', icon: <InstanceIcon /> },
-  { name: 'Templates', href: '/dashboard/templates', icon: <TemplatesIcon /> },
+  { name: 'Instances', href: '/dashboard/instances', icon: <InstanceIcon /> },
+  // { name: 'Templates', href: '/dashboard/templates', icon: <TemplatesIcon /> },
   { name: 'Reserved Instances', href: '/dashboard/quotes', icon: <QuoteIcon /> },
-  { name: 'Intelligence', href: '/dashboard/intelligence', icon: <TrainingIcon /> },
+  // { name: 'Intelligence', href: '/dashboard/intelligence', icon: <TrainingIcon /> },
   { name: 'Billing', href: '/dashboard/billing', icon: <BillingIcon /> },
   { name: 'Profile', href: '/dashboard/profile', icon: <ProfileIcon /> }
   // { name: 'Providers', href: '/dashboard/providers', icon: <ProvidersIcon /> },
