@@ -28,6 +28,7 @@ const EditIcon = () => <DynamicSvgIcon height={18} className="rounded-none" icon
 const DeleteIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="delete-icon" />
 const CopyIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="copy-icon" />
 const GreenIcon = () => <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-1" title="Green Energy" />
+const DialogCheck = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="check-icon" />
 
 const SSHKeysPage = () => {
   const [isAddKeyModalOpen, setIsAddKeyModalOpen] = useState(false)
@@ -50,6 +51,9 @@ const SSHKeysPage = () => {
   const [isEditKeyModalOpen, setIsEditKeyModalOpen] = useState(false)
   const [keyToEdit, setKeyToEdit] = useState<KeyPair | null>(null)
   const [newKeyName, setNewKeyName] = useState('')
+
+  // Add a new state to track which key's content has been copied
+  const [copiedKeyId, setCopiedKeyId] = useState<number | null>(null)
 
   // Fetch SSH keys and regions on component mount
   useEffect(() => {
@@ -196,12 +200,48 @@ const SSHKeysPage = () => {
     }
   }
 
-  const copyToClipboard = async (text: string) => {
+  // Update the copyToClipboard function to set the copied key ID
+  const copyToClipboard = async (text: string, keyId: number) => {
     try {
-      await navigator.clipboard.writeText(text)
-      Snackbar({ message: 'Copied to clipboard' })
+      // Check if we're in a browser environment and if the clipboard API is available
+      if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text)
+        Snackbar({ message: 'Copied to clipboard' })
+        setCopiedKeyId(keyId)
+
+        // Reset the copied key ID after 2 seconds
+        setTimeout(() => {
+          setCopiedKeyId(null)
+        }, 2000)
+      } else {
+        // Fallback method using a temporary textarea element
+        const textArea = document.createElement('textarea')
+        textArea.value = text
+        textArea.style.position = 'fixed'
+        textArea.style.left = '-999999px'
+        textArea.style.top = '-999999px'
+        document.body.appendChild(textArea)
+        textArea.focus()
+        textArea.select()
+
+        const successful = document.execCommand('copy')
+        document.body.removeChild(textArea)
+
+        if (successful) {
+          Snackbar({ message: 'Copied to clipboard' })
+          setCopiedKeyId(keyId)
+
+          // Reset the copied key ID after 2 seconds
+          setTimeout(() => {
+            setCopiedKeyId(null)
+          }, 2000)
+        } else {
+          Snackbar({ message: 'Failed to copy to clipboard', type: 'error' })
+        }
+      }
     } catch (error) {
       console.error('Failed to copy to clipboard:', error)
+      Snackbar({ message: 'Failed to copy to clipboard', type: 'error' })
     }
   }
 
@@ -282,15 +322,16 @@ const SSHKeysPage = () => {
                       <div key={key.id} className={styles.sshKeyItem}>
                         <div className={styles.sshKeyName}>{key.ssh_key_name}</div>
 
+                        {/* Update the button in the SSH key list to pass the key ID and show the appropriate icon */}
                         <div className={styles.sshKeyFingerprint}>
                           {key.ssh_public_key.length > 60
                             ? `${key.ssh_public_key.substring(0, 60)}...`
                             : key.ssh_public_key}
                           <button
-                            onClick={() => copyToClipboard(key.ssh_public_key)}
+                            onClick={() => copyToClipboard(key.ssh_public_key, key.id)}
                             style={{ marginLeft: '8px', cursor: 'pointer' }}
                           >
-                            <CopyIcon />
+                            {copiedKeyId === key.id ? <DialogCheck /> : <CopyIcon />}
                           </button>
                         </div>
 
