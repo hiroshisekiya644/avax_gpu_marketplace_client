@@ -58,10 +58,10 @@ const SignUp = () => {
         <Flex direction="column" gap="4" justify="center" align="center">
           <Flex gap="4">
             <Image src="/logo/logo.jpg" alt="Logo" width={32} height={32} className={styles.imageButton} priority />
-            <Flex className={styles.title}>AVAX GPU MARKETPLACE</Flex>
+            <Flex className={styles.title}>rLoop GPU MARKETPLACE</Flex>
           </Flex>
           <Flex className={styles.text}>Welcome</Flex>
-          <Flex className={styles.subText}>Sign up to AVAX GPU marketplace to continue to Compute Platform.</Flex>
+          <Flex className={styles.subText}>Sign up to rLoop GPU marketplace to continue to Compute Platform.</Flex>
 
           <form onSubmit={handleSignUp} style={{ width: '100%' }}>
             <Flex direction="column" gap="4" mt="2" pt="2">

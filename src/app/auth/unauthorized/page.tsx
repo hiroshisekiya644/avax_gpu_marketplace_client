@@ -16,7 +16,7 @@ const UnAuthorized = () => {
         textAlign: 'center'
       }}
     >
-      <h1 style={{ fontSize: '48px' }}>AVAX GPU Marketplace</h1>
+      <h1 style={{ fontSize: '48px' }}>rLoop GPU Marketplace</h1>
       <div style={{ fontSize: '18px', marginTop: '10px' }}>You are not authorized. Please sign in first...</div>
       <div
         style={{ fontSize: '18px', marginTop: '10px', cursor: 'pointer' }}

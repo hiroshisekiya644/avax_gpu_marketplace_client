@@ -7,6 +7,7 @@ import { Button, Flex, Grid, TextField } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
 import { getGPUAction } from '@/api/GpuProvider'
 import { getImageAction } from '@/api/ImageProvider'
+import { getUserKeyPairs, type KeyPair } from '@/api/KeyPair'
 import { getPriceBook } from '@/api/PriceBook'
 import { getRegionAction } from '@/api/RegionProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
@@ -92,7 +93,8 @@ const Icons = {
   Socket: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="socket" />,
   RightArrow: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="rightArrow" />,
   Check: () => <DynamicSvgIcon height={30} width={30} className="rounded-none" iconName="checked" />,
-  Uncheck: () => <DynamicSvgIcon height={30} width={30} className="rounded-none" iconName="unchecked" />
+  Uncheck: () => <DynamicSvgIcon height={30} width={30} className="rounded-none" iconName="unchecked" />,
+  Key: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="key-icon" />
 }
 
 /**
@@ -117,6 +119,8 @@ const CreateCluster = () => {
   const [selectedGpu, setSelectedGpu] = useState<string | null>(null)
   const [selectedGpuRegion, setSelectedGpuRegion] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
+  const [selectedImageType, setSelectedImageType] = useState<string>('all')
+  const [selectedSshKey, setSelectedSshKey] = useState<string | null>(null)
   const [selectedFlavors, setSelectedFlavors] = useState<Record<string, string>>({})
 
   // Data state
@@ -126,6 +130,7 @@ const CreateCluster = () => {
   const [isImagesLoading, setIsImagesLoading] = useState(true)
   const [locations, setLocations] = useState<Region[]>([])
   const [priceBook, setPriceBook] = useState<PriceItem[]>([])
+  const [sshKeys, setSshKeys] = useState<KeyPair[]>([])
   const [isDeploying, setIsDeploying] = useState(false)
 
   /**
@@ -137,7 +142,13 @@ const CreateCluster = () => {
         setIsLoading(true)
         setIsImagesLoading(true)
 
-        const results = await Promise.allSettled([getGPUAction(), getImageAction(), getRegionAction(), getPriceBook()])
+        const results = await Promise.allSettled([
+          getGPUAction(),
+          getImageAction(),
+          getRegionAction(),
+          getPriceBook(),
+          getUserKeyPairs()
+        ])
 
         if (results[0].status === 'fulfilled') {
           setGpuCards(results[0].value?.data?.data || [])
@@ -162,6 +173,16 @@ const CreateCluster = () => {
           setPriceBook(results[3].value?.data || [])
         } else {
           console.error('Error fetching price book data:', results[3].reason)
+        }
+
+        if (results[4].status === 'fulfilled') {
+          setSshKeys(results[4].value?.keyPairs || [])
+          // Set the first SSH key as default if available
+          if (results[4].value?.keyPairs?.length > 0) {
+            setSelectedSshKey(String(results[4].value.keyPairs[0].id))
+          }
+        } else {
+          console.error('Error fetching SSH keys:', results[4].reason)
         }
       } catch (error) {
         console.error('Error in data fetching:', error)
@@ -198,6 +219,40 @@ const CreateCluster = () => {
   }, [locations])
 
   /**
+   * Generate SSH key list for the form select
+   */
+  const sshKeyList = useMemo(() => {
+    // If a GPU region is selected, filter keys by that region
+    const filteredKeys = selectedGpuRegion ? sshKeys.filter((key) => key.region === selectedGpuRegion) : sshKeys
+
+    return filteredKeys.map((key) => ({
+      label: `${key.ssh_key_name} (${key.region})`,
+      name: String(key.id),
+      image: <Icons.Key />
+    }))
+  }, [sshKeys, selectedGpuRegion])
+
+  /**
+   * Extract unique image types from the image list
+   */
+  const imageTypes = useMemo(() => {
+    if (!imageList.length) return []
+
+    const types = new Set<string>()
+    types.add('all') // Add "all" as the default option
+
+    imageList.forEach((regionImages) => {
+      regionImages.images.forEach((image) => {
+        if (image.type) {
+          types.add(image.type)
+        }
+      })
+    })
+
+    return Array.from(types)
+  }, [imageList])
+
+  /**
    * Filter GPU cards based on selected region and search term
    */
   const filteredGpuCards = useMemo(() => {
@@ -223,64 +278,64 @@ const CreateCluster = () => {
   }, [gpuCards, selectedRegion, searchTerm])
 
   /**
-   * Filter images based on selected GPU's region
+   * Filter images based on selected GPU's region and image type
    */
   const filteredImages = useMemo(() => {
     if (!imageList.length) return []
 
-    // If a GPU is selected, filter by its region
+    // First filter by region
+    let filteredByRegion = imageList
     if (selectedGpuRegion) {
-      return imageList
-        .filter((regionImages) => regionImages.region_name === selectedGpuRegion)
-        .flatMap((regionImages) =>
-          regionImages.images.map((image) => ({
-            ...image,
-            green_status: regionImages.green_status,
-            logo: regionImages.logo
-          }))
-        )
+      filteredByRegion = imageList.filter((regionImages) => regionImages.region_name === selectedGpuRegion)
+    } else if (selectedRegion !== DEFAULT_REGION) {
+      filteredByRegion = imageList.filter((regionImages) => regionImages.region_name === selectedRegion)
     }
 
-    // Otherwise, filter by the selected region in the dropdown
-    return imageList
-      .filter((regionImages) => selectedRegion === DEFAULT_REGION || regionImages.region_name === selectedRegion)
-      .flatMap((regionImages) =>
-        regionImages.images.slice(0, 4).map((image) => ({
-          ...image,
-          green_status: regionImages.green_status,
-          logo: regionImages.logo
-        }))
-      )
-  }, [imageList, selectedRegion, selectedGpuRegion])
-
-  /**
-   * All images for modal view, filtered by selected GPU region if available
-   */
-  const allImages = useMemo(() => {
-    if (!imageList.length) return []
-
-    // If a GPU is selected, filter by its region
-    if (selectedGpuRegion) {
-      return imageList
-        .filter((regionImages) => regionImages.region_name === selectedGpuRegion)
-        .flatMap((regionImages) =>
-          regionImages.images.map((image) => ({
-            ...image,
-            green_status: regionImages.green_status,
-            logo: regionImages.logo
-          }))
-        )
-    }
-
-    // Otherwise, show all images
-    return imageList.flatMap((regionImages) =>
+    // Then extract and filter images by type
+    let result = filteredByRegion.flatMap((regionImages) =>
       regionImages.images.map((image) => ({
         ...image,
         green_status: regionImages.green_status,
         logo: regionImages.logo
       }))
     )
-  }, [imageList, selectedGpuRegion])
+
+    // Filter by image type if not "all"
+    if (selectedImageType !== 'all') {
+      result = result.filter((image) => image.type === selectedImageType)
+    }
+
+    return result
+  }, [imageList, selectedRegion, selectedGpuRegion, selectedImageType])
+
+  /**
+   * All images for modal view, filtered by selected GPU region and image type if available
+   */
+  const allImages = useMemo(() => {
+    if (!imageList.length) return []
+
+    // First filter by region if a GPU is selected
+    let filteredByRegion = imageList
+    if (selectedGpuRegion) {
+      filteredByRegion = imageList.filter((regionImages) => regionImages.region_name === selectedGpuRegion)
+    }
+
+    // Then extract images
+    let result = filteredByRegion.flatMap((regionImages) =>
+      regionImages.images.map((image) => ({
+        ...image,
+        green_status: regionImages.green_status,
+        logo: regionImages.logo
+      }))
+    )
+
+    // Filter by image type if not "all"
+    if (selectedImageType !== 'all') {
+      result = result.filter((image) => image.type === selectedImageType)
+    }
+
+    return result
+  }, [imageList, selectedGpuRegion, selectedImageType])
 
   /**
    * Calculate price for a GPU configuration
@@ -386,17 +441,37 @@ const CreateCluster = () => {
     setModalOpen(true)
   }, [])
 
+  const handleImageTypeChange = useCallback((type: string) => {
+    setSelectedImageType(type)
+    setSelectedImage(null) // Reset image selection when changing type
+  }, [])
+
+  const handleSshKeyChange = useCallback((keyId: string) => {
+    setSelectedSshKey(keyId)
+  }, [])
+
   /**
    * Handle the deploy confirmation process
    */
   const handleDeployConfirmation = useCallback(() => {
-    if (!selectedGpu || !selectedImage || isDeploying) return
-
-    setIsDeploying(true)
+    if (!selectedGpu || !selectedImage || !selectedSshKey || isDeploying) return
 
     // Get the GPU details
     const [gpuName, index] = selectedGpu.split('-')
     const gpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
+
+    // Get the selected SSH key
+    const selectedKeyPair = sshKeys.find((key) => String(key.id) === selectedSshKey)
+
+    // Check if the SSH key region matches the GPU region
+    if (selectedKeyPair && gpuCard && selectedKeyPair.region !== gpuCard.region_name) {
+      alert(
+        `The selected SSH key is for region ${selectedKeyPair.region} but the GPU is in ${gpuCard.region_name}. Please select a compatible SSH key.`
+      )
+      return
+    }
+
+    setIsDeploying(true)
 
     // Get the image details
     const selectedImageDetails = filteredImages.find((img) => img.id === selectedImage)
@@ -409,9 +484,24 @@ const CreateCluster = () => {
     params.append('imageId', selectedImage?.toString() || '0')
     params.append('price', selectedGpuPrice.toFixed(2))
 
+    // Add SSH key if selected
+    if (selectedSshKey) {
+      params.append('sshKeyId', selectedSshKey)
+    }
+
     // Navigate to the deployment page
     router.push(`/dashboard/create-cluster/deploy-cluster?${params.toString()}`)
-  }, [selectedGpu, selectedImage, selectedGpuPrice, isDeploying, gpuCards, filteredImages, router])
+  }, [
+    selectedGpu,
+    selectedImage,
+    selectedGpuPrice,
+    selectedSshKey,
+    isDeploying,
+    gpuCards,
+    filteredImages,
+    router,
+    sshKeys
+  ])
 
   const toggleGpuSelection = useCallback(
     (gpuKey: string, flavorId: string, regionName: string) => {
@@ -507,6 +597,8 @@ const CreateCluster = () => {
     setSelectedGpuRegion(null)
     setSelectedImage(null)
     setSelectedFlavors({})
+    setSelectedImageType('all')
+    // Don't reset SSH key as it's likely the user wants to keep using the same key
     setModalOpen(false)
   }, [])
 
@@ -687,7 +779,27 @@ const CreateCluster = () => {
   }, [selectedImage])
 
   // Check if deploy button should be disabled
-  const isDeployDisabled = !selectedGpu || !selectedImage
+  const isDeployDisabled = !selectedGpu || !selectedImage || !selectedSshKey
+
+  // Update SSH key selection when GPU region changes
+  useEffect(() => {
+    if (selectedGpuRegion && selectedSshKey) {
+      // Find the currently selected SSH key
+      const currentKey = sshKeys.find((key) => String(key.id) === selectedSshKey)
+
+      // If the key doesn't match the selected region, find a compatible one
+      if (currentKey && currentKey.region !== selectedGpuRegion) {
+        // Find the first key that matches the selected region
+        const compatibleKey = sshKeys.find((key) => key.region === selectedGpuRegion)
+        if (compatibleKey) {
+          setSelectedSshKey(String(compatibleKey.id))
+        } else {
+          // If no compatible key is found, clear the selection
+          setSelectedSshKey(null)
+        }
+      }
+    }
+  }, [selectedGpuRegion, selectedSshKey, sshKeys])
 
   return (
     <Flex className={styles.bg} direction="column">
@@ -765,6 +877,17 @@ const CreateCluster = () => {
             Select a pre-configured cluster setup tailored to your specific needs, requiring no extra configurations and
             ready to integrate with your codebase immediately.
           </div>
+          <Flex mt="4" gap="2" direction={isResponsive ? 'column' : 'row'}>
+            <FormSelect
+              id="image-type"
+              name="image-type"
+              label="Image Type"
+              items={imageTypes.map((type) => ({ label: type.charAt(0).toUpperCase() + type.slice(1), name: type }))}
+              value={selectedImageType}
+              onChange={handleImageTypeChange}
+              className={styles.selectBox}
+            />
+          </Flex>
           {selectedGpuRegion && (
             <div className={styles.regionFilterNotice}>
               Showing images compatible with region: <strong>{selectedGpuRegion}</strong>
@@ -898,22 +1021,18 @@ const CreateCluster = () => {
               onChange={handleSummaryImageSelection}
               className={styles.summarySelect}
             />
-            {selectedImage && (
-              <Flex direction="column" gap="2">
-                {filteredImages.map((image) => {
-                  if (image.id !== selectedImage) return null
 
-                  return (
-                    <React.Fragment key={image.id}>
-                      <div className={styles.summaryImageDetails}>
-                        {image.description || `${image.type} ${image.version} - ${image.display_size}`}
-                      </div>
-                      <div className={styles.summaryImageRegion}>Region: {image.region_name}</div>
-                    </React.Fragment>
-                  )
-                })}
-              </Flex>
-            )}
+            {/* SSH Key summary */}
+            <div className={styles.summaryTitle}>SSH Key</div>
+            <FormSelect
+              id="summary-ssh-key-select"
+              name="summary-ssh-key-select"
+              label="Select SSH Key"
+              items={[{ label: 'None', name: 'none' }, ...sshKeyList]}
+              value={selectedSshKey || 'none'}
+              onChange={handleSshKeyChange}
+              className={styles.summarySelect}
+            />
 
             {selectedGpu && (
               <Flex justify="between" align="center" className={styles.instanceArea} p="4">
@@ -962,8 +1081,24 @@ const CreateCluster = () => {
                 and ready to integrate with your codebase immediately.
               </Flex>
               <TextField.Root placeholder="Find a template to deploy..." className={styles.searchPad}>
-                <TextField.Slot className={styles.iconSlot} style={{ paddingLeft: '10px' }}></TextField.Slot>
+                <TextField.Slot className={styles.iconSlot} style={{ paddingLeft: '10px' }}>
+                  <MagnifyingGlassIcon height="24" width="24" />
+                </TextField.Slot>
               </TextField.Root>
+              <Flex mt="2" mb="4">
+                <FormSelect
+                  id="modal-image-type"
+                  name="modal-image-type"
+                  label="Image Type"
+                  items={imageTypes.map((type) => ({
+                    label: type.charAt(0).toUpperCase() + type.slice(1),
+                    name: type
+                  }))}
+                  value={selectedImageType}
+                  onChange={handleImageTypeChange}
+                  className={styles.selectBox}
+                />
+              </Flex>
               <Flex direction="column" mt="10px" width={{ initial: '100%', sm: '100%' }} gap="12px">
                 <Flex gap="6" direction={isResponsive ? 'column' : 'row'}>
                   <Grid columns={{ initial: '1', sm: '1', md: '2' }} gap={{ initial: '20px', sm: '20px' }} width="100%">

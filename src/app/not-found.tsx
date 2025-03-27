@@ -27,7 +27,7 @@ const Custom404 = () => {
         textAlign: 'center'
       }}
     >
-      <h1 style={{ fontSize: '48px' }}>AVAX GPU Marketplace</h1>
+      <h1 style={{ fontSize: '48px' }}>rLoop GPU Marketplace</h1>
       <p style={{ fontSize: '18px', marginTop: '10px' }}>Comming Soon...</p>
     </div>
   )
