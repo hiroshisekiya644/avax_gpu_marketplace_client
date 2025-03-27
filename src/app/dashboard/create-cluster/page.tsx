@@ -126,7 +126,7 @@ const CreateCluster = () => {
   const [isImagesLoading, setIsImagesLoading] = useState(true)
   const [locations, setLocations] = useState<Region[]>([])
   const [priceBook, setPriceBook] = useState<PriceItem[]>([])
-  const [isRenting, setIsRenting] = useState(false)
+  const [isDeploying, setIsDeploying] = useState(false)
 
   /**
    * Fetch all required data on component mount
@@ -385,12 +385,12 @@ const CreateCluster = () => {
   }, [])
 
   /**
-   * Handle the rent confirmation process
+   * Handle the deploy confirmation process
    */
-  const handleRentConfirmation = useCallback(() => {
-    if (!selectedGpu || !selectedImage || isRenting) return
+  const handleDeployConfirmation = useCallback(() => {
+    if (!selectedGpu || !selectedImage || isDeploying) return
 
-    setIsRenting(true)
+    setIsDeploying(true)
 
     // Get the GPU details
     const [gpuName, index] = selectedGpu.split('-')
@@ -409,7 +409,7 @@ const CreateCluster = () => {
 
     // Navigate to the deployment page
     router.push(`/dashboard/create-cluster/deploy-cluster?${params.toString()}`)
-  }, [selectedGpu, selectedImage, selectedGpuPrice, isRenting, gpuCards, filteredImages, router])
+  }, [selectedGpu, selectedImage, selectedGpuPrice, isDeploying, gpuCards, filteredImages, router])
 
   const toggleGpuSelection = useCallback(
     (gpuKey: string, flavorId: string, regionName: string) => {
@@ -684,8 +684,8 @@ const CreateCluster = () => {
     }
   }, [selectedImage])
 
-  // Check if rent button should be disabled
-  const isRentDisabled = !selectedGpu || !selectedImage
+  // Check if deploy button should be disabled
+  const isDeployDisabled = !selectedGpu || !selectedImage
 
   return (
     <Flex className={styles.bg} direction="column">
@@ -932,11 +932,11 @@ const CreateCluster = () => {
             </Button>
             {/* Deploy button */}
             <Button
-              className={`${styles.defaultButton} ${isRentDisabled || isRenting ? styles.disabledButton : ''}`}
-              onClick={handleDConfirmation}
-              disabled={isRentDisabled || isRenting}
+              className={`${styles.defaultButton} ${isDeployDisabled || isDeploying ? styles.disabledButton : ''}`}
+              onClick={handleDeployConfirmation}
+              disabled={isDeployDisabled || isDeploying}
             >
-              {isRenting ? 'Processing...' : 'Deploy'}
+              {isDeploying ? 'Processing...' : 'Deploy'}
             </Button>
           </Flex>
         </Flex>
