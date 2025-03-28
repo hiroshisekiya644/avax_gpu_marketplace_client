@@ -199,6 +199,14 @@
   z-index: 10;
 }
 
+.selectionIndicator {
+  background-image: url('/path-to-your-unchecked-icon.svg');
+}
+
+.selectedIndicator {
+  background-image: url('/path-to-your-checked-icon.svg');
+}
+
 /* Button styles - consolidated */
 .buttonBase {
   cursor: pointer;
@@ -360,32 +368,68 @@
   margin-bottom: 8px;
 }
 
+/* Network options (SSH and Public IP) */
+.networkOption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bgSoft);
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.networkOptionDescription {
+  font-size: 12px;
+  color: var(--textSoft);
+  max-width: 80%;
+}
+
+.learnMoreLink {
+  color: var(--border);
+  text-decoration: none;
+  margin-left: 5px;
+  font-size: 12px;
+}
+
+.learnMoreLink:hover {
+  text-decoration: underline;
+}
+
+.switchLabel {
+  font-size: 12px;
+  color: var(--text);
+  margin-right: 8px;
+}
+
 /* Switch button */
 .switchRoot {
-  width: 32px;
-  height: 18px;
-  background-color: var(--black-a9);
+  width: 36px;
+  height: 20px;
+  background-color: var(--bgSoftDark);
   border-radius: 9999px;
   position: relative;
-  box-shadow: 0 2px 10px var(--black-a7);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  border: 1px solid var(--textSoftDark);
+  transition: all 0.2s ease;
 }
 
 .switchRoot:focus {
-  box-shadow: 0 0 0 2px black;
+  box-shadow: 0 0 0 2px var(--border);
 }
 
 .switchRoot[data-state='checked'] {
-  background-color: black;
+  background-color: var(--border);
 }
 
 .switchThumb {
   display: block;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   background-color: white;
   border-radius: 9999px;
-  box-shadow: 0 2px 2px var(--black-a7);
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
   transition: transform 100ms;
   transform: translateX(2px);
   will-change: transform;
@@ -393,7 +437,14 @@
 }
 
 .switchThumb[data-state='checked'] {
-  transform: translateX(16px);
+  transform: translateX(18px);
+}
+
+.priceBreakdown {
+  font-size: 10px;
+  color: var(--textSoft);
+  font-style: italic;
+  margin-top: 2px;
 }
 
 /* Dialog */
@@ -537,4 +588,133 @@
   padding: 4px;
   background-color: var(--bgSoft);
   border-radius: 4px;
+}
+
+/* Add these styles for the balance display */
+.balanceInfo {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.balanceTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+.balanceAmount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.balanceLoading {
+  font-size: 1rem;
+  color: var(--textSoft);
+  font-style: italic;
+}
+
+.runtimeEstimate {
+  font-size: 0.9rem;
+  color: var(--textSoft);
+  margin-top: 0.5rem;
+}
+
+.runtimeValue {
+  font-weight: 600;
+  margin-left: 0.5rem;
+  color: var(--text);
+}
+
+.lowBalance {
+  color: #ff4d4f;
+}
+
+.lowBalanceWarning {
+  font-size: 0.8rem;
+  color: #ff4d4f;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.topUpButton {
+  background-color: var(--button);
+  color: var(--text);
+  border: 2px solid var(--border);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.topUpButton:hover {
+  background-color: var(--border);
+  transform: translateY(-1px);
+}
+
+.checkboxContainer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+/* Add style for dependency note */
+.dependencyNote {
+  color: #ff9800;
+  font-size: 11px;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Add styles for the cluster name input */
+.clusterNameInput {
+  height: 38px;
+  background-color: var(--bgSoft);
+  color: var(--text);
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.clusterNameInput:focus-within {
+  outline: 2px solid var(--border);
+}
+
+.clusterNameInput input::placeholder {
+  color: var(--textSoft);
+}
+
+/* Add this style for the name hint text */
+.nameHint {
+  color: var(--textSoft);
+  font-size: 12px;
+  margin-top: -8px;
+  margin-bottom: 12px;
+}
+
+/* Add styles for the GPU name input */
+.gpuNameInput {
+  height: 38px;
+  background-color: var(--bgSoft);
+  color: var(--text);
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.gpuNameInput:focus-within {
+  outline: 2px solid var(--border);
+}
+
+.gpuNameInput input::placeholder {
+  color: var(--textSoft);
 }
