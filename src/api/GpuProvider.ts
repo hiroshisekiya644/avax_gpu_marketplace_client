@@ -117,7 +117,7 @@ export const deployVM = async (params: DeployVMParams): Promise<DeployVMResponse
 }
 
 // Update the function to match the actual response structure
-export const getActiveGpuAction = async (): Promise<ActiveGpuResponse> => {
+export const getGpuAction = async (): Promise<ActiveGpuResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus`
     const token = sessionStorage.getItem('authToken')
