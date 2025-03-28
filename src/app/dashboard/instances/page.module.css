@@ -2,7 +2,7 @@
   background-color: var(--bg);
   height: 100%;
   min-height: 100vh;
-  color: var(--text)
+  color: var(--text);
 }
 
 .header {
@@ -31,7 +31,7 @@
 .wrapper {
   gap: 24px;
   width: 100%;
-} 
+}
 
 .tabList {
   background-color: var(--white-color);
@@ -103,8 +103,8 @@
   cursor: pointer;
   border: 2px solid var(--border);
   font-size: 16px;
-  text-align: center; 
-  max-width: 100%; 
+  text-align: center;
+  max-width: 100%;
   min-width: 100px;
   font-size: 14px;
   border-radius: 7px;
@@ -127,4 +127,3 @@
 .historyTableCell {
   color: var(--textSoftDark);
 }
-

@@ -2,11 +2,11 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import * as Switch from '@radix-ui/react-switch'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import * as Switch from '@radix-ui/react-switch'
 import { Button, Flex, Grid, TextField } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
-import { getGPUAction } from '@/api/GpuProvider'
+import { getGPUAction, deployVM } from '@/api/GpuProvider'
 import { getImageAction } from '@/api/ImageProvider'
 import { getUserKeyPairs, type KeyPair } from '@/api/KeyPair'
 import { getBalance } from '@/api/Payment'
@@ -14,6 +14,7 @@ import { getPriceBook } from '@/api/PriceBook'
 import { getRegionAction } from '@/api/RegionProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
+import { Snackbar } from '@/components/snackbar/SnackBar'
 import { useResize } from '@/utils/Helper'
 import styles from './page.module.css'
 
@@ -244,7 +245,7 @@ const CreateCluster = () => {
           setGpuCards(results[0].value?.data?.data || [])
         } else {
           console.error('Error fetching GPU data:', results[0].reason)
-          alert('Failed to load GPU data. Please refresh the page.')
+          Snackbar({ message: 'Failed to load GPU data. Please refresh the page.', type: 'error' })
         }
 
         if (results[1].status === 'fulfilled') {
@@ -284,7 +285,7 @@ const CreateCluster = () => {
         }
       } catch (error) {
         console.error('Error in data fetching:', error)
-        alert('Failed to load data. Please check your connection and try again.')
+        Snackbar({ message: 'Failed to load data. Please check your connection and try again.', type: 'error' })
       } finally {
         setIsLoading(false)
         setIsImagesLoading(false)
@@ -508,7 +509,8 @@ const CreateCluster = () => {
     const lastDash = selectedGpu.lastIndexOf('-')
     const gpuName = selectedGpu.slice(0, lastDash)
     const index = selectedGpu.slice(lastDash + 1)
-    const gpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
+    const searchGpuName = gpuName === 'cpu' ? '' : gpuName
+    const gpuCard = gpuCards.find((card, idx) => card.gpu === searchGpuName && idx === Number(index))
     if (!gpuCard) return 0
 
     const selectedFlavorId = selectedFlavors[selectedGpu]
@@ -518,7 +520,7 @@ const CreateCluster = () => {
     if (flavorIndex === -1) return 0
 
     const selectedFlavor = gpuCard.flavors[flavorIndex]
-    return calculateGpuPrice(gpuName, flavorIndex, selectedFlavor)
+    return calculateGpuPrice(searchGpuName, flavorIndex, selectedFlavor)
   }, [selectedGpu, gpuCards, selectedFlavors, calculateGpuPrice])
 
   /**
@@ -608,58 +610,80 @@ const CreateCluster = () => {
   /**
    * Handle the deploy confirmation process
    */
-  const handleDeployConfirmation = useCallback(() => {
+  const handleDeployConfirmation = useCallback(async () => {
     if (!selectedGpu || !selectedImage || !selectedSshKey || isDeploying) return
 
     // Check if VM name is provided
     if (!clusterName.trim()) {
-      alert('Please enter a name for your virtual machine')
-      return
-    }
-
-    // Get the GPU details
-    const [gpuName, index] = selectedGpu.split('-')
-    const gpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
-
-    // Get the selected SSH key
-    const selectedKeyPair = sshKeys.find((key) => String(key.id) === selectedSshKey)
-
-    // Check if the SSH key region matches the GPU region
-    if (selectedKeyPair && gpuCard && selectedKeyPair.region !== gpuCard.region_name) {
-      alert(
-        `The selected SSH key is for region ${selectedKeyPair.region} but the GPU is in ${gpuCard.region_name}. Please select a compatible SSH key.`
-      )
+      Snackbar({ message: 'Please enter a name for your virtual machine', type: 'error' })
       return
     }
 
     setIsDeploying(true)
 
-    // Get the image details
-    const selectedImageDetails = filteredImages.find((img) => img.id === selectedImage)
+    try {
+      const lastDash = selectedGpu.lastIndexOf('-')
+      const gpuName = selectedGpu.slice(0, lastDash)
+      const index = selectedGpu.slice(lastDash + 1)
+      const searchGpuName = gpuName === 'cpu' ? '' : gpuName
+      const gpuCard = gpuCards.find((card, idx) => card.gpu === searchGpuName && idx === Number(index))
 
-    // Create URL parameters for the deployment page
-    const params = new URLSearchParams()
-    params.append('gpu', clusterName.trim()) // Use the VM name for the GPU name
-    params.append('originalGpu', gpuName || 'Unknown GPU') // Still pass the original GPU type for reference
-    params.append('region', gpuCard?.region_name || 'Unknown Region')
-    params.append('image', selectedImageDetails?.name || 'Unknown Image')
-    params.append('imageId', selectedImage?.toString() || '0')
-    params.append('price', totalPrice.toFixed(2))
-    params.append('sshAccess', enableSshAccess.toString())
-    params.append('publicIp', assignPublicIp.toString())
-    params.append('name', clusterName.trim())
+      // Get the selected SSH key
+      const selectedKeyPair = sshKeys.find((key) => String(key.id) === selectedSshKey)
 
-    // Add SSH key if selected
-    if (selectedSshKey) {
-      params.append('sshKeyId', selectedSshKey)
+      // Check if the SSH key region matches the GPU region
+      if (selectedKeyPair && gpuCard && selectedKeyPair.region !== gpuCard.region_name) {
+        Snackbar({
+          message: `The selected SSH key is for region ${selectedKeyPair.region} but the GPU is in ${gpuCard.region_name}. Please select a compatible SSH key.`,
+          type: 'error'
+        })
+        setIsDeploying(false)
+        return
+      }
+
+      // Get the image details
+      const selectedImageDetails = filteredImages.find((img) => img.id === selectedImage)
+
+      // Get the selected flavor
+      const selectedFlavorId = selectedFlavors[selectedGpu]
+      const selectedFlavor = gpuCard?.flavors.find((flavor) => String(flavor.id) === selectedFlavorId)
+
+      if (!gpuCard || !selectedImageDetails || !selectedFlavor || !selectedKeyPair) {
+        throw new Error('Missing required deployment information')
+      }
+
+      // Prepare deployment parameters
+      const deployParams = {
+        name: clusterName.trim(),
+        image_name: selectedImageDetails.name,
+        flavor_name: selectedFlavor.name,
+        key_name: selectedKeyPair.ssh_key_name,
+        region: gpuCard.region_name,
+        assign_floating_ip: assignPublicIp,
+        enable_port_randomization: enableSshAccess,
+        count: 1
+      }
+
+      // Call the deployVM function
+      const result = await deployVM(deployParams)
+
+      // Show success message
+      Snackbar({ message: `VM deployment initiated successfully! Status: ${result.status}`, type: 'success' })
+
+      // Navigate to the instances page
+      router.push('/dashboard/instances')
+    } catch (error) {
+      console.error('Deployment error:', error)
+      Snackbar({
+        message: `Failed to deploy VM: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        type: 'error'
+      })
+    } finally {
+      setIsDeploying(false)
     }
-
-    // Navigate to the deployment page
-    router.push(`/dashboard/create-cluster/deploy-cluster?${params.toString()}`)
   }, [
     selectedGpu,
     selectedImage,
-    totalPrice,
     selectedSshKey,
     enableSshAccess,
     assignPublicIp,
@@ -668,7 +692,8 @@ const CreateCluster = () => {
     filteredImages,
     router,
     sshKeys,
-    clusterName
+    clusterName,
+    selectedFlavors
   ])
 
   const toggleGpuSelection = useCallback(
@@ -1115,7 +1140,9 @@ const CreateCluster = () => {
               value={clusterName}
               onChange={handleClusterNameChange}
             />
-            <div className={styles.nameHint}>The VM's name is auto-generated, but you can customize it if desired.</div>
+            <div className={styles.nameHint}>
+              The VM&apos;s name is auto-generated, but you can customize it if desired.
+            </div>
 
             <div className={styles.summaryTitle}>GPU Configuration</div>
             <FormSelect
