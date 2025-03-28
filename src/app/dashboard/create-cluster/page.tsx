@@ -3,15 +3,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import * as Switch from '@radix-ui/react-switch'
 import { Button, Flex, Grid, TextField } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
-import { getGPUAction } from '@/api/GpuProvider'
+import { getGPUAction, deployVM } from '@/api/GpuProvider'
 import { getImageAction } from '@/api/ImageProvider'
 import { getUserKeyPairs, type KeyPair } from '@/api/KeyPair'
+import { getBalance } from '@/api/Payment'
 import { getPriceBook } from '@/api/PriceBook'
 import { getRegionAction } from '@/api/RegionProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
+import { Snackbar } from '@/components/snackbar/SnackBar'
 import { useResize } from '@/utils/Helper'
 import styles from './page.module.css'
 
@@ -75,6 +78,7 @@ interface PriceItem {
 // Constants
 const FLAVOR_MULTIPLIERS = [1, 2, 4, 8]
 const DEFAULT_REGION = 'any'
+const PUBLIC_IP_HOURLY_RATE = 0.00672
 
 /**
  * Icon components for UI elements
@@ -95,6 +99,52 @@ const Icons = {
   Check: () => <DynamicSvgIcon height={30} width={30} className="rounded-none" iconName="checked" />,
   Uncheck: () => <DynamicSvgIcon height={30} width={30} className="rounded-none" iconName="unchecked" />,
   Key: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="key-icon" />
+}
+
+// Add this function to generate random VM names
+const generateRandomName = () => {
+  const adjectives = [
+    'focused',
+    'elegant',
+    'swift',
+    'vibrant',
+    'cosmic',
+    'dynamic',
+    'quantum',
+    'stellar',
+    'radiant',
+    'nimble',
+    'blazing',
+    'serene',
+    'mighty',
+    'noble',
+    'rapid',
+    'silent'
+  ]
+
+  const nouns = [
+    'maxwell',
+    'newton',
+    'einstein',
+    'tesla',
+    'curie',
+    'turing',
+    'hawking',
+    'feynman',
+    'bohr',
+    'darwin',
+    'galileo',
+    'kepler',
+    'planck',
+    'dirac',
+    'heisenberg',
+    'fermi'
+  ]
+
+  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)]
+  const randomNoun = nouns[Math.floor(Math.random() * nouns.length)]
+
+  return `${randomAdjective}-${randomNoun}`
 }
 
 /**
@@ -122,7 +172,10 @@ const CreateCluster = () => {
   const [selectedImageType, setSelectedImageType] = useState<string>('all')
   const [selectedSshKey, setSelectedSshKey] = useState<string | null>(null)
   const [selectedFlavors, setSelectedFlavors] = useState<Record<string, string>>({})
-
+  const [enableSshAccess, setEnableSshAccess] = useState(false)
+  const [assignPublicIp, setAssignPublicIp] = useState(false)
+  // Add a new state variable for the cluster name after the other selection state variables
+  const [clusterName, setClusterName] = useState<string>(generateRandomName())
   // Data state
   const [gpuCards, setGpuCards] = useState<GpuCard[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -132,6 +185,42 @@ const CreateCluster = () => {
   const [priceBook, setPriceBook] = useState<PriceItem[]>([])
   const [sshKeys, setSshKeys] = useState<KeyPair[]>([])
   const [isDeploying, setIsDeploying] = useState(false)
+  const [userBalance, setUserBalance] = useState<number>(0)
+  const [isBalanceLoading, setIsBalanceLoading] = useState(true)
+
+  /**
+   * Fetch user balance
+   */
+  const fetchUserBalance = useCallback(async () => {
+    try {
+      setIsBalanceLoading(true)
+      const balance = await getBalance()
+      setUserBalance(Number(balance) || 0)
+    } catch (error) {
+      console.error('Error fetching user balance:', error)
+    } finally {
+      setIsBalanceLoading(false)
+    }
+  }, [])
+
+  // Calculate how many hours the user can run with current balance
+  const calculateRuntime = useCallback(
+    (hourlyPrice: number) => {
+      if (!hourlyPrice || hourlyPrice <= 0) return Number.POSITIVE_INFINITY
+      return userBalance / hourlyPrice
+    },
+    [userBalance]
+  )
+
+  // Format runtime in a human-readable way
+  const formatRuntime = useCallback((hours: number) => {
+    if (!isFinite(hours)) return '∞'
+    if (hours < 1) return `${Math.round(hours * 60)} minutes`
+    if (hours < 24) return `${Math.floor(hours)} hours ${Math.round((hours % 1) * 60)} minutes`
+    const days = Math.floor(hours / 24)
+    const remainingHours = Math.floor(hours % 24)
+    return `${days} days ${remainingHours} hours`
+  }, [])
 
   /**
    * Fetch all required data on component mount
@@ -141,20 +230,22 @@ const CreateCluster = () => {
       try {
         setIsLoading(true)
         setIsImagesLoading(true)
+        setIsBalanceLoading(true)
 
         const results = await Promise.allSettled([
           getGPUAction(),
           getImageAction(),
           getRegionAction(),
           getPriceBook(),
-          getUserKeyPairs()
+          getUserKeyPairs(),
+          getBalance()
         ])
 
         if (results[0].status === 'fulfilled') {
           setGpuCards(results[0].value?.data?.data || [])
         } else {
           console.error('Error fetching GPU data:', results[0].reason)
-          alert('Failed to load GPU data. Please refresh the page.')
+          Snackbar({ message: 'Failed to load GPU data. Please refresh the page.', type: 'error' })
         }
 
         if (results[1].status === 'fulfilled') {
@@ -184,17 +275,26 @@ const CreateCluster = () => {
         } else {
           console.error('Error fetching SSH keys:', results[4].reason)
         }
+
+        if (results[5].status === 'fulfilled') {
+          setUserBalance(Number(results[5].value) || 0)
+        } else {
+          console.error('Error fetching user balance:', results[5].reason)
+          // Try to fetch balance again if it failed
+          fetchUserBalance()
+        }
       } catch (error) {
         console.error('Error in data fetching:', error)
-        alert('Failed to load data. Please check your connection and try again.')
+        Snackbar({ message: 'Failed to load data. Please check your connection and try again.', type: 'error' })
       } finally {
         setIsLoading(false)
         setIsImagesLoading(false)
+        setIsBalanceLoading(false)
       }
     }
 
     fetchData()
-  }, [])
+  }, [fetchUserBalance])
 
   /**
    * Generate region list with appropriate icons
@@ -384,6 +484,23 @@ const CreateCluster = () => {
   const calculateDailyPrice = (hourlyPrice: number) => hourlyPrice * 24
 
   /**
+   * Calculate total price including GPU and additional services
+   */
+  const calculateTotalPrice = useCallback(
+    (gpuPrice: number) => {
+      let totalPrice = gpuPrice
+
+      // Add public IP cost if selected
+      if (assignPublicIp) {
+        totalPrice += PUBLIC_IP_HOURLY_RATE
+      }
+
+      return totalPrice
+    },
+    [assignPublicIp]
+  )
+
+  /**
    * Calculate price for the selected GPU configuration
    */
   const selectedGpuPrice = useMemo(() => {
@@ -392,7 +509,8 @@ const CreateCluster = () => {
     const lastDash = selectedGpu.lastIndexOf('-')
     const gpuName = selectedGpu.slice(0, lastDash)
     const index = selectedGpu.slice(lastDash + 1)
-    const gpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
+    const searchGpuName = gpuName === 'cpu' ? '' : gpuName
+    const gpuCard = gpuCards.find((card, idx) => card.gpu === searchGpuName && idx === Number(index))
     if (!gpuCard) return 0
 
     const selectedFlavorId = selectedFlavors[selectedGpu]
@@ -402,8 +520,15 @@ const CreateCluster = () => {
     if (flavorIndex === -1) return 0
 
     const selectedFlavor = gpuCard.flavors[flavorIndex]
-    return calculateGpuPrice(gpuName, flavorIndex, selectedFlavor)
+    return calculateGpuPrice(searchGpuName, flavorIndex, selectedFlavor)
   }, [selectedGpu, gpuCards, selectedFlavors, calculateGpuPrice])
+
+  /**
+   * Calculate total price including all selected options
+   */
+  const totalPrice = useMemo(() => {
+    return calculateTotalPrice(selectedGpuPrice)
+  }, [selectedGpuPrice, calculateTotalPrice])
 
   // Event handlers
   const handleChangeRegion = useCallback(
@@ -450,57 +575,125 @@ const CreateCluster = () => {
     setSelectedSshKey(keyId)
   }, [])
 
+  // Update the handleSshAccessToggle function to enforce the dependency
+  const handleSshAccessToggle = useCallback(
+    (checked: boolean) => {
+      // If turning off SSH access (which means enable_port_randomization would be false)
+      // and public IP is not assigned, we need to force public IP to be assigned
+      if (!checked && !assignPublicIp) {
+        setAssignPublicIp(true)
+      }
+      setEnableSshAccess(checked)
+    },
+    [assignPublicIp]
+  )
+
+  // Update the handlePublicIpToggle function to enforce the dependency
+  const handlePublicIpToggle = useCallback(
+    (checked: boolean) => {
+      // If turning off public IP (assign_floating_ip would be false)
+      // and SSH access is disabled (enable_port_randomization is false),
+      // we need to force SSH access to be enabled
+      if (!checked && !enableSshAccess) {
+        setEnableSshAccess(true)
+      }
+      setAssignPublicIp(checked)
+    },
+    [enableSshAccess]
+  )
+
+  // Add a handler for the cluster name input
+  const handleClusterNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setClusterName(e.target.value)
+  }, [])
+
   /**
    * Handle the deploy confirmation process
    */
-  const handleDeployConfirmation = useCallback(() => {
+  const handleDeployConfirmation = useCallback(async () => {
     if (!selectedGpu || !selectedImage || !selectedSshKey || isDeploying) return
 
-    // Get the GPU details
-    const [gpuName, index] = selectedGpu.split('-')
-    const gpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
-
-    // Get the selected SSH key
-    const selectedKeyPair = sshKeys.find((key) => String(key.id) === selectedSshKey)
-
-    // Check if the SSH key region matches the GPU region
-    if (selectedKeyPair && gpuCard && selectedKeyPair.region !== gpuCard.region_name) {
-      alert(
-        `The selected SSH key is for region ${selectedKeyPair.region} but the GPU is in ${gpuCard.region_name}. Please select a compatible SSH key.`
-      )
+    // Check if VM name is provided
+    if (!clusterName.trim()) {
+      Snackbar({ message: 'Please enter a name for your virtual machine', type: 'error' })
       return
     }
 
     setIsDeploying(true)
 
-    // Get the image details
-    const selectedImageDetails = filteredImages.find((img) => img.id === selectedImage)
+    try {
+      const lastDash = selectedGpu.lastIndexOf('-')
+      const gpuName = selectedGpu.slice(0, lastDash)
+      const index = selectedGpu.slice(lastDash + 1)
+      const searchGpuName = gpuName === 'cpu' ? '' : gpuName
+      const gpuCard = gpuCards.find((card, idx) => card.gpu === searchGpuName && idx === Number(index))
 
-    // Create URL parameters for the deployment page
-    const params = new URLSearchParams()
-    params.append('gpu', gpuName || 'Unknown GPU')
-    params.append('region', gpuCard?.region_name || 'Unknown Region')
-    params.append('image', selectedImageDetails?.name || 'Unknown Image')
-    params.append('imageId', selectedImage?.toString() || '0')
-    params.append('price', selectedGpuPrice.toFixed(2))
+      // Get the selected SSH key
+      const selectedKeyPair = sshKeys.find((key) => String(key.id) === selectedSshKey)
 
-    // Add SSH key if selected
-    if (selectedSshKey) {
-      params.append('sshKeyId', selectedSshKey)
+      // Check if the SSH key region matches the GPU region
+      if (selectedKeyPair && gpuCard && selectedKeyPair.region !== gpuCard.region_name) {
+        Snackbar({
+          message: `The selected SSH key is for region ${selectedKeyPair.region} but the GPU is in ${gpuCard.region_name}. Please select a compatible SSH key.`,
+          type: 'error'
+        })
+        setIsDeploying(false)
+        return
+      }
+
+      // Get the image details
+      const selectedImageDetails = filteredImages.find((img) => img.id === selectedImage)
+
+      // Get the selected flavor
+      const selectedFlavorId = selectedFlavors[selectedGpu]
+      const selectedFlavor = gpuCard?.flavors.find((flavor) => String(flavor.id) === selectedFlavorId)
+
+      if (!gpuCard || !selectedImageDetails || !selectedFlavor || !selectedKeyPair) {
+        throw new Error('Missing required deployment information')
+      }
+
+      // Prepare deployment parameters
+      const deployParams = {
+        name: clusterName.trim(),
+        image_name: selectedImageDetails.name,
+        flavor_name: selectedFlavor.name,
+        key_name: selectedKeyPair.ssh_key_name,
+        region: gpuCard.region_name,
+        assign_floating_ip: assignPublicIp,
+        enable_port_randomization: enableSshAccess,
+        count: 1
+      }
+
+      // Call the deployVM function
+      const result = await deployVM(deployParams)
+
+      // Show success message
+      Snackbar({ message: `VM deployment initiated successfully! Status: ${result.status}`, type: 'success' })
+
+      // Navigate to the instances page
+      router.push('/dashboard/instances')
+    } catch (error) {
+      console.error('Deployment error:', error)
+      Snackbar({
+        message: `Failed to deploy VM: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        type: 'error'
+      })
+    } finally {
+      setIsDeploying(false)
     }
-
-    // Navigate to the deployment page
-    router.push(`/dashboard/create-cluster/deploy-cluster?${params.toString()}`)
   }, [
     selectedGpu,
     selectedImage,
-    selectedGpuPrice,
     selectedSshKey,
+    enableSshAccess,
+    assignPublicIp,
     isDeploying,
     gpuCards,
     filteredImages,
     router,
-    sshKeys
+    sshKeys,
+    clusterName,
+    selectedFlavors
   ])
 
   const toggleGpuSelection = useCallback(
@@ -598,6 +791,9 @@ const CreateCluster = () => {
     setSelectedImage(null)
     setSelectedFlavors({})
     setSelectedImageType('all')
+    setEnableSshAccess(false)
+    setAssignPublicIp(false)
+    setClusterName(generateRandomName())
     // Don't reset SSH key as it's likely the user wants to keep using the same key
     setModalOpen(false)
   }, [])
@@ -728,8 +924,9 @@ const CreateCluster = () => {
           key={image.id}
           direction="column"
           onClick={() => toggleImageSelection(image.id)}
+          style={{ position: 'relative' }} // Add relative positioning to the card
         >
-          <div>{isSelected ? <Icons.Check /> : <Icons.Uncheck />}</div>
+          <div className={styles.checkboxContainer}>{isSelected ? <Icons.Check /> : <Icons.Uncheck />}</div>
           <Flex className={styles.imageCardContent} direction="column">
             <div className={styles.imageName}>{image.name}</div>
             <div className={styles.imageDescription}>
@@ -778,8 +975,8 @@ const CreateCluster = () => {
     }
   }, [selectedImage])
 
-  // Check if deploy button should be disabled
-  const isDeployDisabled = !selectedGpu || !selectedImage || !selectedSshKey
+  // Add the cluster name to the isDeployDisabled check
+  const isDeployDisabled = !selectedGpu || !selectedImage || !selectedSshKey || !clusterName.trim()
 
   // Update SSH key selection when GPU region changes
   useEffect(() => {
@@ -800,6 +997,14 @@ const CreateCluster = () => {
       }
     }
   }, [selectedGpuRegion, selectedSshKey, sshKeys])
+
+  // Add a useEffect to ensure the dependency is maintained when component mounts
+  useEffect(() => {
+    // If public IP is not assigned and SSH access is disabled, enable SSH access
+    if (!assignPublicIp && !enableSshAccess) {
+      setEnableSshAccess(true)
+    }
+  }, [assignPublicIp, enableSshAccess])
 
   return (
     <Flex className={styles.bg} direction="column">
@@ -888,11 +1093,6 @@ const CreateCluster = () => {
               className={styles.selectBox}
             />
           </Flex>
-          {selectedGpuRegion && (
-            <div className={styles.regionFilterNotice}>
-              Showing images compatible with region: <strong>{selectedGpuRegion}</strong>
-            </div>
-          )}
         </Flex>
         <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '75%' }}>
           <Flex gap="2" direction={isResponsive ? 'column' : 'row'}>
@@ -931,7 +1131,19 @@ const CreateCluster = () => {
           <div className={styles.contentText}>Review and adjust your GPU and image selection.</div>
         </Flex>
         <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '75%' }}>
+          {/* Add the cluster name field to the summary section, right after the summaryTitle "Summary" */}
           <Flex className={styles.summary} p="4" gap="2" direction="column">
+            <div className={styles.summaryTitle}>Virtual Machine Name</div>
+            <TextField.Root
+              placeholder="Enter a name for your virtual machine"
+              className={styles.clusterNameInput}
+              value={clusterName}
+              onChange={handleClusterNameChange}
+            />
+            <div className={styles.nameHint}>
+              The VM&apos;s name is auto-generated, but you can customize it if desired.
+            </div>
+
             <div className={styles.summaryTitle}>GPU Configuration</div>
             <FormSelect
               id="summary-gpu-select"
@@ -1034,17 +1246,106 @@ const CreateCluster = () => {
               className={styles.summarySelect}
             />
 
+            {/* SSH Access section */}
+            <div className={styles.summaryTitle}>SSH Access</div>
+            <div className={styles.networkOption}>
+              <div className={styles.networkOptionDescription}>
+                Enable SSH access to your VM by allowing incoming traffic on port 22.
+                {!assignPublicIp && (
+                  <div className={styles.dependencyNote}>Required when no public IP is assigned.</div>
+                )}
+                <a href="#" className={styles.learnMoreLink}>
+                  Learn more
+                </a>
+              </div>
+              <Flex align="center" gap="2">
+                <label htmlFor="ssh-access-switch" className={styles.switchLabel}>
+                  {enableSshAccess ? 'Enabled' : 'Disabled'}
+                </label>
+                <Switch.Root
+                  id="ssh-access-switch"
+                  className={styles.switchRoot}
+                  checked={enableSshAccess}
+                  onCheckedChange={handleSshAccessToggle}
+                  disabled={!assignPublicIp} // Disable the switch if no public IP is assigned
+                >
+                  <Switch.Thumb className={styles.switchThumb} />
+                </Switch.Root>
+              </Flex>
+            </div>
+
+            {/* Public IP section */}
+            <div className={styles.summaryTitle}>Public IP Address</div>
+            <div className={styles.networkOption}>
+              <div className={styles.networkOptionDescription}>
+                Enable internet access for your VM by assigning a public IP at a nominal rate of $
+                {PUBLIC_IP_HOURLY_RATE}/hr.
+                <a href="#" className={styles.learnMoreLink}>
+                  Learn more
+                </a>
+              </div>
+              <Flex align="center" gap="2">
+                <label htmlFor="public-ip-switch" className={styles.switchLabel}>
+                  {assignPublicIp ? 'Assign Public IP' : 'No Public IP'}
+                </label>
+                <Switch.Root
+                  id="public-ip-switch"
+                  className={styles.switchRoot}
+                  checked={assignPublicIp}
+                  onCheckedChange={handlePublicIpToggle}
+                >
+                  <Switch.Thumb className={styles.switchThumb} />
+                </Switch.Root>
+              </Flex>
+            </div>
+
             {selectedGpu && (
               <Flex justify="between" align="center" className={styles.instanceArea} p="4">
                 <Flex gap="2">
                   <Icons.Nvidia />
-                  <div className={styles.priceTitle}>Selected GPU Price</div>
+                  <div className={styles.priceTitle}>Total Price</div>
                 </Flex>
                 <Flex direction="column">
-                  <div className={styles.priceTitle}>${selectedGpuPrice.toFixed(2)}/hr</div>
-                  <div className={styles.contentText}>${calculateDailyPrice(selectedGpuPrice).toFixed(2)} per day</div>
+                  <div className={styles.priceTitle}>${totalPrice.toFixed(2)}/hr</div>
+                  <div className={styles.contentText}>${calculateDailyPrice(totalPrice).toFixed(2)} per day</div>
+                  {assignPublicIp && (
+                    <div className={styles.priceBreakdown}>Includes ${PUBLIC_IP_HOURLY_RATE}/hr for public IP</div>
+                  )}
                 </Flex>
               </Flex>
+            )}
+            {/* User Balance Section */}
+            {selectedGpu && (
+              <div className={styles.balanceInfo}>
+                <div className={styles.balanceTitle}>Your Balance</div>
+                {isBalanceLoading ? (
+                  <div className={styles.balanceLoading}>Loading...</div>
+                ) : (
+                  <>
+                    <div className={styles.balanceAmount}>${userBalance.toFixed(2)}</div>
+                    <div className={styles.runtimeEstimate}>
+                      Estimated runtime with current balance:
+                      <span
+                        className={`${styles.runtimeValue} ${
+                          calculateRuntime(totalPrice) < 24 ? styles.lowBalance : ''
+                        }`}
+                      >
+                        {formatRuntime(calculateRuntime(totalPrice))}
+                      </span>
+                    </div>
+                    {calculateRuntime(totalPrice) < 24 && (
+                      <div className={styles.lowBalanceWarning}>
+                        Your balance is low for extended usage. Consider adding funds.
+                      </div>
+                    )}
+                    <Flex justify="end" mt="2">
+                      <Button className={styles.topUpButton} onClick={() => router.push('/dashboard/billing')}>
+                        Top Up Balance
+                      </Button>
+                    </Flex>
+                  </>
+                )}
+              </div>
             )}
           </Flex>
           <Flex ml="auto" mt="4" gap="4">
@@ -1081,9 +1382,7 @@ const CreateCluster = () => {
                 and ready to integrate with your codebase immediately.
               </Flex>
               <TextField.Root placeholder="Find a template to deploy..." className={styles.searchPad}>
-                <TextField.Slot className={styles.iconSlot} style={{ paddingLeft: '10px' }}>
-                  <MagnifyingGlassIcon height="24" width="24" />
-                </TextField.Slot>
+                <TextField.Slot className={styles.iconSlot} style={{ paddingLeft: '10px' }}></TextField.Slot>
               </TextField.Root>
               <Flex mt="2" mb="4">
                 <FormSelect
