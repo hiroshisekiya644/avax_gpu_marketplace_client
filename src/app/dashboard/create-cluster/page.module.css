@@ -718,3 +718,32 @@
 .gpuNameInput input::placeholder {
   color: var(--textSoft);
 }
+
+/* Add these styles for the features list */
+.featuresList {
+  padding-left: 16px;
+  border-left: 1px solid var(--textSoftDark);
+  margin-left: 16px;
+}
+
+.featureItem {
+  font-size: 12px;
+  color: var(--textSoft);
+  background-color: var(--bgSoftDark);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+/* Add styles for restriction items */
+.restrictionItem {
+  font-size: 12px;
+  color: white;
+  background-color: rgba(255, 59, 48, 0.7);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  font-weight: 500;
+}

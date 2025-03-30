@@ -34,6 +34,9 @@
 .selectContent {
   background-color: var(--bgSoft);
   color: var(--text);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .selectLabel {
@@ -41,7 +44,7 @@
 }
 
 .selectItem[data-disabled] {
-	color: var(--textSoft) !important;
+  color: var(--textSoft) !important;
 }
 
 .disabledLabel {
@@ -50,3 +53,28 @@
   cursor: not-allowed;
 }
 
+/* Add styles for the delete option */
+.selectItemDelete {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: var(--error-color, #ef4444);
+  font-size: 12px;
+}
+
+.selectItemDelete[data-highlighted] {
+  background-color: var(--bgSoft);
+  color: var(--error-color, #ef4444);
+}
+
+.selectItemDelete[data-state='checked'] {
+  background-color: var(--bgSoft);
+  color: var(--error-color, #ef4444);
+}
+
+.selectItemDivider {
+  height: 1px;
+  background-color: var(--border);
+  margin: 4px 0;
+  padding: 0;
+}

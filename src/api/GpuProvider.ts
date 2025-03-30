@@ -18,7 +18,7 @@ interface GpuResponse {
   }
 }
 
-export const getGPUAction = async (): Promise<GpuResponse> => {
+export const getAvailableGPUAction = async (): Promise<GpuResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/availability`
 
@@ -42,6 +42,14 @@ export const getGPUAction = async (): Promise<GpuResponse> => {
   }
 }
 
+// Define the flavor features interface
+interface FlavorFeatures {
+  network_optimised: boolean
+  no_hibernation: boolean
+  no_snapshot: boolean
+  local_storage_only: boolean
+}
+
 // First, let's define a proper interface for the deployVM parameters
 interface DeployVMParams {
   name: string
@@ -53,6 +61,7 @@ interface DeployVMParams {
   assign_floating_ip: boolean
   enable_port_randomization: boolean
   count?: number
+  flavor_features?: FlavorFeatures
 }
 
 // Define a proper interface for the response
@@ -77,24 +86,56 @@ interface DeployVMResponse {
   }
 }
 
+// Define interface for VM management response
+interface ManageVMResponse {
+  status: string
+  message: string
+  data?: any
+}
+
+// Define interface for VM management parameters
+interface ManageVMParams {
+  instanceId: number | string
+  // Add any additional parameters that might be needed for specific actions
+  force?: boolean
+}
+
 // Update the interface based on the actual response structure
 interface ActiveGpuResponse {
   status: string
-  gpu: {
-    id: number
-    user_id: number
-    flavor_name: string
-    region: string
-    instance_id: number
-    gpu_name: string
-    hyperstack_gpu_name: string
-    status: string
-    startedAt: string
-    is_deleted: boolean
-    deleted_at: string | null
-    createdAt: string
-    updatedAt: string
-  }
+  gpu:
+    | Array<{
+        id: number
+        user_id: number
+        flavor_name: string
+        region: string
+        instance_id: number | string
+        gpu_name: string
+        hyperstack_gpu_name: string
+        status: string
+        flavor_features: FlavorFeatures
+        startedAt: string
+        is_deleted: boolean
+        deleted_at: string | null
+        createdAt: string
+        updatedAt: string
+      }>
+    | {
+        id: number
+        user_id: number
+        flavor_name: string
+        region: string
+        instance_id: number | string
+        gpu_name: string
+        hyperstack_gpu_name: string
+        status: string
+        flavor_features: FlavorFeatures
+        startedAt: string
+        is_deleted: boolean
+        deleted_at: string | null
+        createdAt: string
+        updatedAt: string
+      }
 }
 
 // Update the deployVM function with proper types
@@ -113,6 +154,59 @@ export const deployVM = async (params: DeployVMParams): Promise<DeployVMResponse
   } catch (error: unknown) {
     console.error('Deploy GPU error:', error instanceof Error ? error.message : 'Unknown error')
     throw new Error('Failed to deploy gpu')
+  }
+}
+
+// Enhanced manageVM function with better error handling and more flexibility
+export const manageVM = async (action: string, params: ManageVMParams): Promise<ManageVMResponse> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/vm/manageVM/${action}`
+    const token = sessionStorage.getItem('authToken')
+
+    const result = await axios.post(url, params, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    return result.data as ManageVMResponse
+  } catch (error: unknown) {
+    console.error(`Manage VM (${action}) error:`, error instanceof Error ? error.message : 'Unknown error')
+
+    // Enhanced error handling with more specific error messages
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        // Server responded with an error status
+        const statusCode = error.response.status
+        const errorMessage = error.response.data?.message || `Failed to ${action} instance`
+
+        if (statusCode === 400) {
+          throw new Error(`Invalid request: ${errorMessage}`)
+        } else if (statusCode === 401) {
+          throw new Error('Authentication required. Please log in again.')
+        } else if (statusCode === 403) {
+          throw new Error("You don't have permission to perform this action.")
+        } else if (statusCode === 404) {
+          throw new Error('Instance not found or already deleted.')
+        } else if (statusCode === 409) {
+          throw new Error(`Operation conflict: ${errorMessage}`)
+        } else if (statusCode >= 500) {
+          throw new Error('Server error. Please try again later.')
+        } else {
+          throw new Error(errorMessage)
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        throw new Error('No response from server. Please check your connection.')
+      } else {
+        // Something happened in setting up the request
+        throw new Error(`Request error: ${error.message}`)
+      }
+    } else if (error instanceof Error) {
+      throw new Error(error.message || `Failed to ${action} instance`)
+    } else {
+      throw new Error(`Failed to ${action} instance`)
+    }
   }
 }
 

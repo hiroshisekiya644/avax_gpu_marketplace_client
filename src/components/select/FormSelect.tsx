@@ -1,5 +1,5 @@
 'use client'
-import React, { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Flex, Select } from '@radix-ui/themes'
 import styles from './FormSelect.module.css'
 
@@ -8,6 +8,7 @@ export type SelectItem = {
   name: string | boolean
   image?: ReactNode | string
   disabled?: boolean
+  className?: string
 }
 
 type Props = {
@@ -25,6 +26,24 @@ type Props = {
 }
 
 export const FormSelect = (props: Props) => {
+  // Add a function to determine the CSS class for each item
+  const getItemClass = (item: SelectItem) => {
+    if (item.className === 'selectItemDelete') {
+      return styles.selectItemDelete
+    }
+    if (item.name === 'divider') {
+      return styles.selectItemDivider
+    }
+    return styles.selectItem
+  }
+
+  // Function to get a valid value for Select.Item
+  const getItemValue = (name: string | boolean): string => {
+    // If name is an empty string, return a placeholder value
+    if (name === '') return 'placeholder'
+    return String(name)
+  }
+
   return (
     <div className={props.className}>
       <Flex direction="column" gap="2">
@@ -40,21 +59,33 @@ export const FormSelect = (props: Props) => {
           name={props.name}
           defaultValue={props.defaultValue ? String(props.defaultValue) : undefined}
           value={props.value}
-          onValueChange={(value) => props.onChange?.(value)}
+          onValueChange={(value: string) => {
+            // If the value is our placeholder, don't trigger onChange
+            if (value === 'placeholder') return
+            props.onChange?.(value)
+          }}
           disabled={props.disabled}
         >
           <Select.Trigger
             className={props.disabled ? styles.disabledStatusSelect : styles.statusSelect}
             id={props.id}
           />
-          <Select.Content position="popper" sideOffset={5} className={styles.selectContent}>
+          <Select.Content
+            position="popper"
+            sideOffset={5}
+            className={styles.selectContent}
+            // Add these properties to fix scrolling issues
+            avoidCollisions={true}
+            sticky="always"
+            hideWhenDetached={true}
+          >
             <Select.Group>
               {props.items.map((item) => (
                 <Select.Item
                   key={String(item.name)}
-                  value={String(item.name)}
+                  value={getItemValue(item.name)}
                   disabled={item.disabled}
-                  className={styles.selectItem}
+                  className={getItemClass(item)}
                 >
                   <Flex>
                     <span className="mr-2">{item.image}</span>
