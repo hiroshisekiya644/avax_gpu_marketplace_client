@@ -6,7 +6,7 @@ import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import * as Switch from '@radix-ui/react-switch'
 import { Button, Flex, Grid, TextField } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
-import { getGPUAction, deployVM } from '@/api/GpuProvider'
+import { getAvailableGPUAction, deployVM } from '@/api/GpuProvider'
 import { getImageAction } from '@/api/ImageProvider'
 import { getUserKeyPairs, type KeyPair } from '@/api/KeyPair'
 import { getBalance } from '@/api/Payment'
@@ -30,6 +30,12 @@ interface Flavor {
   ephemeral: number
   stock_available: boolean
   gpu_count?: number
+  features?: {
+    network_optimised: boolean
+    no_hibernation: boolean
+    no_snapshot: boolean
+    local_storage_only: boolean
+  }
 }
 
 interface GpuCard {
@@ -233,7 +239,7 @@ const CreateCluster = () => {
         setIsBalanceLoading(true)
 
         const results = await Promise.allSettled([
-          getGPUAction(),
+          getAvailableGPUAction(),
           getImageAction(),
           getRegionAction(),
           getPriceBook(),
@@ -661,7 +667,14 @@ const CreateCluster = () => {
         region: gpuCard.region_name,
         assign_floating_ip: assignPublicIp,
         enable_port_randomization: enableSshAccess,
-        count: 1
+        count: 1,
+        // Include flavor features if available
+        flavor_features: selectedFlavor.features || {
+          network_optimised: false,
+          no_hibernation: false,
+          no_snapshot: false,
+          local_storage_only: false
+        }
       }
 
       // Call the deployVM function
@@ -1198,16 +1211,31 @@ const CreateCluster = () => {
                       />
                       {selectedFlavor && (
                         <Flex direction="column" className={styles.summarySpecs}>
-                          <div>CPUs: {selectedFlavor.cpu}</div>
-                          <div>RAM: {selectedFlavor.ram} GB</div>
-                          <div>Disk: {selectedFlavor.disk} GB</div>
-                          {selectedFlavor.ephemeral > 0 && <div>Ephemeral: {selectedFlavor.ephemeral} GB</div>}
-                          <div className={styles.summaryRegion}>Region: {gpuCard.region_name}</div>
-                          {gpuPrice > 0 && (
-                            <div className={styles.summaryPrice}>
-                              Price: ${gpuPrice.toFixed(2)}/hr (${calculateDailyPrice(gpuPrice).toFixed(2)}/day)
-                            </div>
-                          )}
+                          <Flex justify="between">
+                            <Flex direction="column" gap="1">
+                              <div>CPUs: {selectedFlavor.cpu}</div>
+                              <div>RAM: {selectedFlavor.ram} GB</div>
+                              <div>Disk: {selectedFlavor.disk} GB</div>
+                              {selectedFlavor.ephemeral > 0 && <div>Ephemeral: {selectedFlavor.ephemeral} GB</div>}
+                              <div className={styles.summaryRegion}>Region: {gpuCard.region_name}</div>
+                              {gpuPrice > 0 && (
+                                <div className={styles.summaryPrice}>
+                                  Price: ${gpuPrice.toFixed(2)}/hr (${calculateDailyPrice(gpuPrice).toFixed(2)}/day)
+                                </div>
+                              )}
+                            </Flex>
+
+                            {selectedFlavor.features && (
+                              <Flex direction="column" className={styles.featuresList}>
+                                {selectedFlavor.features.no_hibernation && (
+                                  <div className={styles.restrictionItem}>No Hibernation</div>
+                                )}
+                                {selectedFlavor.features.local_storage_only && (
+                                  <div className={styles.restrictionItem}>Local Storage Only</div>
+                                )}
+                              </Flex>
+                            )}
+                          </Flex>
                         </Flex>
                       )}
                     </React.Fragment>

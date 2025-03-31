@@ -1,0 +1,147 @@
+.bg {
+  background-color: var(--bg);
+  height: 100%;
+  min-height: 100vh;
+  color: var(--text);
+}
+
+.header {
+  height: 90px;
+  border-bottom: 1px solid rgb(61 61 61);
+  width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .header {
+    height: 110px;
+  }
+}
+
+.headerTitle {
+  color: var(--text);
+  font-size: 1.5rem;
+  margin-top: 10px;
+}
+
+.subTitle {
+  color: var(--textSoft);
+  font-size: 12px;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 7px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  background-color: var(--button);
+  border-color: var(--border);
+}
+
+.consoleContainer {
+  width: 100%;
+  height: calc(100vh - 90px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.consoleFrame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--bgSoft);
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background-color: var(--bgSoftDark);
+  border-radius: 10px;
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+.loadingSpinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--textSoftDark);
+  border-radius: 50%;
+  border-top-color: var(--text);
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText,
+.errorText {
+  color: var(--textSoft);
+  font-size: 1rem;
+  text-align: center;
+}
+
+.errorText {
+  color: var(--error-color);
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  background-color: var(--button);
+  cursor: pointer;
+  border: 2px solid var(--border);
+  font-size: 14px;
+  border-radius: 7px;
+  height: 36px;
+  padding: 0 16px;
+  margin-top: 1rem;
+}
+
+.retryButton:hover {
+  background-color: var(--border);
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background-color: var(--bgSoftDark);
+  border-radius: 10px;
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+.consoleInfo {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--textSoft);
+  text-align: center;
+  max-width: 600px;
+}
+
+.consoleInfoHighlight {
+  color: var(--text);
+  font-weight: 500;
+}

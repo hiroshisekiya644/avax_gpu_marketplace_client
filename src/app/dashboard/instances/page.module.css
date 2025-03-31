@@ -82,10 +82,150 @@
   }
 }
 
+.tabContent {
+  padding: 0;
+}
+
+.loadingContainer,
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background-color: var(--bgSoftDark);
+  border-radius: 10px;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.loadingSpinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--textSoftDark);
+  border-radius: 50%;
+  border-top-color: var(--text);
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText,
+.errorText {
+  color: var(--textSoft);
+  font-size: 1rem;
+}
+
+.errorText {
+  color: var(--error-color);
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  background-color: var(--button);
+  cursor: pointer;
+  border: 2px solid var(--border);
+  font-size: 14px;
+  border-radius: 7px;
+  height: 36px;
+  padding: 0 16px;
+}
+
+.retryButton:hover {
+  background-color: var(--border);
+}
+
 .instanceCardWrapper {
   background-color: var(--bgSoftDark);
   border-radius: 10px;
-  text-align: center;
+  text-align: left;
+}
+
+.searchContainer {
+  flex: 1;
+  max-width: 400px;
+  position: relative;
+}
+
+.searchInput {
+  width: 100%;
+  height: 40px;
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 7px;
+  padding: 0 16px 0 40px;
+  color: var(--text);
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--border);
+  background-color: var(--bgSoft);
+}
+
+.searchInput::placeholder {
+  color: var(--textSoftDark);
+}
+
+.searchContainer::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  pointer-events: none;
+}
+
+.refreshButton {
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 7px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.refreshButton:hover {
+  background-color: var(--button);
+  border-color: var(--border);
+}
+
+.deployButton {
+  background-color: #9945fc;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  height: 40px;
+  padding: 0 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deployButton:hover {
+  background-color: #8035ec;
+}
+
+.emptyStateContainer {
+  background-color: transparent;
+  border-top: 1px solid var(--textSoftDark);
+  padding-top: 40px;
 }
 
 .instanceTitle {
@@ -96,6 +236,69 @@
 
 .instanceContent {
   color: var(--textSoftDark);
+}
+
+.tableContainer {
+  position: relative;
+  width: 100%;
+}
+
+.tableLoadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 8px;
+}
+
+.historyTable {
+  width: 100%;
+}
+
+.historyTableHeader {
+  border-bottom: 1px solid var(--textSoftDark);
+}
+
+.historyTableCell {
+  color: var(--textSoftDark);
+}
+
+.statusBadge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusActive {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.statusDeleted {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.statusPending {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+}
+
+.statusError {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.statusDefault {
+  background-color: rgba(107, 114, 128, 0.2);
+  color: #6b7280;
 }
 
 .instanceButton {
@@ -115,15 +318,248 @@
   background-color: var(--border);
 }
 
-/* table section */
-.historyTable {
-  width: 100%;
+.actionSelect {
+  width: 140px;
 }
 
-.historyTableHeader {
-  border-bottom: 1px solid var(--textSoftDark);
+.consoleLink {
+  display: flex;
+  align-items: center;
+  color: var(--primary-color);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
-.historyTableCell {
-  color: var(--textSoftDark);
+.consoleLink:hover {
+  color: var(--primary-color-dark);
+  text-decoration: underline;
+}
+
+.restrictionBadge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  background-color: var(--error-color-bg, rgba(239, 68, 68, 0.2));
+  color: var(--error-color, #ef4444);
+  margin-top: 2px;
+}
+
+.actionButton {
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  background-color: var(--button);
+  border-color: var(--border);
+}
+
+.actionButtonDelete {
+  background-color: var(--bgSoft);
+  border: 1px solid var(--error-color);
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionButtonDelete:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-color: var(--error-color);
+}
+
+.actionDropdownContainer {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+  width: 140px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.actionButtonGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.actionDivider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 4px 0;
+}
+
+/* Add these styles for the balance display */
+.balanceContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 7px;
+  height: 40px;
+  padding: 0 16px;
+  color: var(--text);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.balanceContainer:hover {
+  border-color: var(--border);
+}
+
+.balanceAmount {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.balanceLoading {
+  font-size: 14px;
+  color: var(--textSoft);
+  font-style: italic;
+}
+
+/* Add animation for balance updates */
+@keyframes balancePulse {
+  0% {
+    background-color: var(--bgSoft);
+  }
+  50% {
+    background-color: rgba(153, 69, 252, 0.2);
+  }
+  100% {
+    background-color: var(--bgSoft);
+  }
+}
+
+.balanceUpdated {
+  animation: balancePulse 1s ease;
+}
+
+/* Dialog styles for delete confirmation */
+.dialogOverlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  inset: 0;
+  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 50;
+}
+
+.dialogContent {
+  background-color: var(--bgSoftDark);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 450px;
+  max-height: 85vh;
+  padding: 25px;
+  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 51;
+}
+
+.modalTitle {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 1.25rem;
+}
+
+.modalDescription {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  color: var(--textSoft);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.cancelButton {
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background-color: var(--bgSoft);
+  border-color: var(--textSoft);
+}
+
+.deleteButton {
+  background-color: rgba(239, 68, 68, 0.2);
+  border: 1px solid var(--error-color, #ef4444);
+  color: var(--error-color, #ef4444);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deleteButton:hover {
+  background-color: rgba(239, 68, 68, 0.3);
+}
+
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Processing indicator for actions in progress */
+.processingIndicator {
+  position: absolute;
+  top: 0;
+  right: -30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.processingSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--textSoftDark);
+  border-radius: 50%;
+  border-top-color: var(--text);
+  animation: spin 1s linear infinite;
 }
