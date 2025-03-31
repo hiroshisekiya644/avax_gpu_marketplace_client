@@ -95,8 +95,13 @@ interface ManageVMResponse {
 
 // Define interface for VM management parameters
 interface ManageVMParams {
-  instanceId: number | string
+  vmId: number | string
   // Add any additional parameters that might be needed for specific actions
+  force?: boolean
+}
+
+// Define interface for VM delete parameters
+interface DeleteVMParams {
   force?: boolean
 }
 
@@ -210,6 +215,59 @@ export const manageVM = async (action: string, params: ManageVMParams): Promise<
   }
 }
 
+// Add a dedicated function for deleting VMs
+export const deleteVM = async (rentalId: number | string, params: DeleteVMParams = {}): Promise<ManageVMResponse> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/vm/deleteVM/${rentalId}`
+    const token = sessionStorage.getItem('authToken')
+
+    const result = await axios.post(url, params, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    return result.data as ManageVMResponse
+  } catch (error: unknown) {
+    console.error(`Delete VM error:`, error instanceof Error ? error.message : 'Unknown error')
+
+    // Enhanced error handling with more specific error messages
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        // Server responded with an error status
+        const statusCode = error.response.status
+        const errorMessage = error.response.data?.message || `Failed to delete instance`
+
+        if (statusCode === 400) {
+          throw new Error(`Invalid request: ${errorMessage}`)
+        } else if (statusCode === 401) {
+          throw new Error('Authentication required. Please log in again.')
+        } else if (statusCode === 403) {
+          throw new Error("You don't have permission to perform this action.")
+        } else if (statusCode === 404) {
+          throw new Error('Instance not found or already deleted.')
+        } else if (statusCode === 409) {
+          throw new Error(`Operation conflict: ${errorMessage}`)
+        } else if (statusCode >= 500) {
+          throw new Error('Server error. Please try again later.')
+        } else {
+          throw new Error(errorMessage)
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        throw new Error('No response from server. Please check your connection.')
+      } else {
+        // Something happened in setting up the request
+        throw new Error(`Request error: ${error.message}`)
+      }
+    } else if (error instanceof Error) {
+      throw new Error(error.message || `Failed to delete instance`)
+    } else {
+      throw new Error(`Failed to delete instance`)
+    }
+  }
+}
+
 // Update the function to match the actual response structure
 export const getGpuAction = async (): Promise<ActiveGpuResponse> => {
   try {
@@ -231,6 +289,57 @@ export const getGpuAction = async (): Promise<ActiveGpuResponse> => {
       throw new Error(error.message || 'Failed to fetch active GPU')
     } else {
       throw new Error('An unexpected error occurred while fetching active GPU')
+    }
+  }
+}
+
+// Add this function to get the VNC URL for a VM
+export const getVncUrl = async (vmId: number | string): Promise<{ url: string }> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/vm/${vmId}/vnc-url`
+    const token = sessionStorage.getItem('authToken')
+
+    const result = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    return result.data
+  } catch (error: unknown) {
+    console.error(`Get VNC URL error:`, error instanceof Error ? error.message : 'Unknown error')
+
+    // Enhanced error handling with more specific error messages
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        // Server responded with an error status
+        const statusCode = error.response.status
+        const errorMessage = error.response.data?.message || `Failed to get VNC URL`
+
+        if (statusCode === 400) {
+          throw new Error(`Invalid request: ${errorMessage}`)
+        } else if (statusCode === 401) {
+          throw new Error('Authentication required. Please log in again.')
+        } else if (statusCode === 403) {
+          throw new Error("You don't have permission to access this console.")
+        } else if (statusCode === 404) {
+          throw new Error('VM not found or console not available.')
+        } else if (statusCode >= 500) {
+          throw new Error('Server error. Please try again later.')
+        } else {
+          throw new Error(errorMessage)
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        throw new Error('No response from server. Please check your connection.')
+      } else {
+        // Something happened in setting up the request
+        throw new Error(`Request error: ${error.message}`)
+      }
+    } else if (error instanceof Error) {
+      throw new Error(error.message || `Failed to get VNC URL`)
+    } else {
+      throw new Error(`Failed to get VNC URL`)
     }
   }
 }

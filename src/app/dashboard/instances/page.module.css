@@ -404,3 +404,28 @@
   background-color: #e5e7eb;
   margin: 4px 0;
 }
+
+/* Add these styles for the balance display */
+.balanceContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 7px;
+  height: 40px;
+  padding: 0 16px;
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+
+.balanceAmount {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.balanceLoading {
+  font-size: 14px;
+  color: var(--textSoft);
+  font-style: italic;
+}

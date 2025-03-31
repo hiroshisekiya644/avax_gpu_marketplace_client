@@ -223,7 +223,7 @@
   composes: buttonBase;
   background-color: var(--bg);
   border: 2px solid var(--border);
-  font-size: 10px;
+  font-size: 14px;
 }
 
 .selectGPUButton:hover {

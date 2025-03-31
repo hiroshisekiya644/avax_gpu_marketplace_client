@@ -1,15 +1,17 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import type React from 'react'
 
 import * as Tabs from '@radix-ui/react-tabs'
 import { Flex, Button, Table, Link } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
-import { getGpuAction, manageVM } from '@/api/GpuProvider'
+import { getGpuAction, manageVM, deleteVM } from '@/api/GpuProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
 import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
+import { getBalance } from '@/api/Payment'
+import { io, type Socket } from 'socket.io-client'
 
 // Define the flavor features interface
 interface FlavorFeatures {
@@ -47,6 +49,7 @@ const GpuIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconN
 const HistoryIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="history-icon" />
 const RefreshIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="refresh-icon" />
 const ExternalLink = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="external-link" />
+const WalletIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="wallet-icon" />
 
 type TabValue = 'instances' | 'history'
 const tabValues: TabValue[] = ['instances', 'history']
@@ -70,6 +73,9 @@ const Instances = () => {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [processingInstances, setProcessingInstances] = useState<Record<number, boolean>>({})
+  const [userBalance, setUserBalance] = useState<number>(0)
+  const [isBalanceLoading, setIsBalanceLoading] = useState<boolean>(true)
+  const socketRef = useRef<Socket | null>(null)
 
   const handleTabChange = (value: TabValue) => {
     setActiveTab(value)
@@ -174,32 +180,48 @@ const Instances = () => {
 
   // Get console URL for an instance
   const getConsoleUrl = (instance: GpuInstance) => {
-    // This is a placeholder - replace with actual console URL logic
-    return `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/vm/console/${instance.instance_id}`
+    return `/dashboard/instances/${instance.instance_id}/console`
   }
 
   // Get action items for an instance
   const getActionItems = (instance: GpuInstance): SelectItem[] => {
     // Check if the instance is being processed
     const isProcessing = processingInstances[instance.id] === true
+    const isActive = instance.status.toUpperCase() === 'ACTIVE'
 
-    // Base items with disabled state based on processing status
-    const items: SelectItem[] = [
-      { label: 'Actions', name: 'placeholder', disabled: true },
-      { label: 'Start', name: 'start', disabled: isProcessing || instance.status.toUpperCase() === 'ACTIVE' },
-      {
+    // Start with the placeholder item
+    const items: SelectItem[] = [{ label: 'Actions', name: 'placeholder', disabled: true }]
+
+    // Only add start button if instance is not active
+    if (!isActive) {
+      items.push({
+        label: 'Start',
+        name: 'start',
+        disabled: isProcessing
+      })
+    } else {
+      // Add stop button if instance is active
+      items.push({
+        label: 'Stop',
+        name: 'stop',
+        disabled: isProcessing
+      })
+    }
+
+    // Add hard-reboot only for active instances
+    if (isActive) {
+      items.push({
         label: 'Hard Reboot',
         name: 'hard-reboot',
-        disabled: isProcessing || instance.status.toUpperCase() !== 'ACTIVE'
-      }
-    ]
+        disabled: isProcessing
+      })
+    }
 
     // Always add hibernate option, but disable it if no_hibernation is true or instance is not active
     items.push({
       label: 'Hibernate',
       name: 'hibernate',
-      disabled:
-        isProcessing || instance.flavor_features?.no_hibernation === true || instance.status.toUpperCase() !== 'ACTIVE'
+      disabled: isProcessing || instance.flavor_features?.no_hibernation === true || !isActive
     })
 
     // Add divider and delete option
@@ -214,9 +236,9 @@ const Instances = () => {
   // Map UI action names to API action parameters
   const ACTION_MAP: Record<string, string> = {
     start: 'start',
+    stop: 'stop',
     'hard-reboot': 'hard-reboot',
-    hibernate: 'hibernate',
-    delete: 'delete'
+    hibernate: 'hibernate'
   }
 
   // Map action names to user-friendly messages
@@ -225,6 +247,11 @@ const Instances = () => {
       pending: 'Starting',
       success: 'Started',
       error: 'Failed to start'
+    },
+    stop: {
+      pending: 'Stopping',
+      success: 'Stopped',
+      error: 'Failed to stop'
     },
     'hard-reboot': {
       pending: 'Rebooting',
@@ -245,17 +272,65 @@ const Instances = () => {
 
   // Handle instance actions
   const handleInstanceAction = async (action: string, instance: GpuInstance) => {
-    const apiAction = ACTION_MAP[action]
-    if (!apiAction) {
-      Snackbar({ message: `Unknown action: ${action}`, type: 'error' })
-      return
-    }
-
-    // For delete action, show confirmation dialog
+    // Special handling for delete action
     if (action === 'delete') {
       if (!window.confirm(`Are you sure you want to delete ${instance.gpu_name}?`)) {
         return
       }
+
+      try {
+        // Mark this instance as processing
+        setProcessingInstances((prev) => ({ ...prev, [instance.id]: true }))
+
+        // Show pending message
+        const actionMessages = ACTION_MESSAGES[action]
+        Snackbar({
+          message: `${actionMessages.pending} ${instance.gpu_name}...`,
+          type: 'info'
+        })
+
+        // Call the dedicated delete API function
+        const response = await deleteVM(instance.id, { force: true })
+
+        if (response.status === 'success') {
+          // Show success message
+          Snackbar({
+            message: `${actionMessages.success} ${instance.gpu_name} successfully`,
+            type: 'success'
+          })
+
+          // Refresh the instances list after a short delay
+          setTimeout(() => {
+            fetchGpuInstances()
+          }, 1000)
+        } else {
+          // Show error message from the API
+          Snackbar({
+            message: response.message || `${actionMessages.error} ${instance.gpu_name}`,
+            type: 'error'
+          })
+        }
+      } catch (error) {
+        console.error(`Error during ${action}:`, error)
+
+        // Show error message
+        const actionMessages = ACTION_MESSAGES[action]
+        Snackbar({
+          message: error instanceof Error ? error.message : `${actionMessages.error} ${instance.gpu_name}`,
+          type: 'error'
+        })
+      } finally {
+        // Unmark this instance as processing
+        setProcessingInstances((prev) => ({ ...prev, [instance.id]: false }))
+      }
+
+      return
+    }
+
+    const apiAction = ACTION_MAP[action]
+    if (!apiAction) {
+      Snackbar({ message: `Unknown action: ${action}`, type: 'error' })
+      return
     }
 
     try {
@@ -271,9 +346,7 @@ const Instances = () => {
 
       // Call the API with the appropriate action and parameters
       const response = await manageVM(apiAction, {
-        instanceId: instance.instance_id,
-        // Add force parameter for certain actions if needed
-        ...(action === 'delete' ? { force: true } : {})
+        vmId: instance.instance_id
       })
 
       if (response.status === 'success') {
@@ -309,8 +382,22 @@ const Instances = () => {
     }
   }
 
+  // Add this function to fetch initial balance
+  const fetchInitialBalance = async () => {
+    try {
+      setIsBalanceLoading(true)
+      const balance = await getBalance()
+      setUserBalance(balance)
+    } catch (error) {
+      console.error('Error fetching initial balance:', error)
+    } finally {
+      setIsBalanceLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchGpuInstances(true)
+    fetchInitialBalance()
 
     // Set up polling to refresh the instances list every 30 seconds
     const intervalId = setInterval(() => {
@@ -319,6 +406,38 @@ const Instances = () => {
 
     // Clean up the interval when the component unmounts
     return () => clearInterval(intervalId)
+  }, [])
+
+  // Add this useEffect for socket connection after the other useEffect
+  useEffect(() => {
+    // Initialize socket connection
+    socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:8081', {
+      withCredentials: true,
+      transports: ['websocket']
+    })
+
+    // Handle connection events
+    socketRef.current.on('connect', () => {
+      console.log('Socket connected:', socketRef.current?.id)
+      setIsBalanceLoading(false)
+    })
+
+    socketRef.current.on('connect_error', (err) => {
+      console.error('Socket connection error:', err.message)
+      setIsBalanceLoading(false)
+    })
+
+    // Listen for balance updates
+    socketRef.current.on('balance-update', (data: { balance: number }) => {
+      console.log('Received balance update:', data)
+      setUserBalance(data.balance)
+      setIsBalanceLoading(false)
+    })
+
+    // Clean up on unmount
+    return () => {
+      socketRef.current?.disconnect()
+    }
   }, [])
 
   // Filter active instances for the Instances tab
@@ -399,7 +518,15 @@ const Instances = () => {
                         onChange={handleSearch}
                       />
                     </div>
-                    <Flex gap="2">
+                    <Flex gap="2" align="center">
+                      <div className={styles.balanceContainer}>
+                        <WalletIcon />
+                        {isBalanceLoading ? (
+                          <span className={styles.balanceLoading}>Loading...</span>
+                        ) : (
+                          <span className={styles.balanceAmount}>${userBalance.toFixed(2)}</span>
+                        )}
+                      </div>
                       <Button className={styles.refreshButton} onClick={() => fetchGpuInstances()}>
                         <RefreshIcon />
                         Refresh
@@ -457,17 +584,19 @@ const Instances = () => {
                               </Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>
                                 <Link
-                                  href={getConsoleUrl(instance)}
-                                  target="_blank"
+                                  href="#"
                                   className={styles.consoleLink}
                                   onClick={(e) => {
+                                    e.preventDefault()
                                     // Prevent navigation if instance is not active
                                     if (instance.status.toUpperCase() !== 'ACTIVE') {
-                                      e.preventDefault()
                                       Snackbar({
                                         message: 'Console is only available for active instances',
                                         type: 'info'
                                       })
+                                    } else {
+                                      // Use router to navigate to the console page
+                                      router.push(getConsoleUrl(instance))
                                     }
                                   }}
                                 >
