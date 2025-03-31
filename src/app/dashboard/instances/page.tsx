@@ -1,17 +1,18 @@
 'use client'
-import { useEffect, useState, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type React from 'react'
-
+import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
 import { Flex, Button, Table, Link } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
 import { getGpuAction, manageVM, deleteVM } from '@/api/GpuProvider'
-import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
-import { Snackbar } from '@/components/snackbar/SnackBar'
-import styles from './page.module.css'
-import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
 import { getBalance } from '@/api/Payment'
-import { io, type Socket } from 'socket.io-client'
+import { getUserData } from '@/api/User'
+import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
+import { Snackbar } from '@/components/snackbar/SnackBar'
+import { initializeSocket, joinUserRoom } from '@/utils/socket'
+import styles from './page.module.css'
 
 // Define the flavor features interface
 interface FlavorFeatures {
@@ -40,10 +41,7 @@ interface GpuInstance {
 }
 
 // Update the GpuResponse interface to correctly define gpu as an array
-interface GpuResponse {
-  status: string
-  gpu: GpuInstance[]
-}
+// Remove the unused GpuResponse interface
 
 const GpuIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="gpu-icon" />
 const HistoryIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="history-icon" />
@@ -75,7 +73,11 @@ const Instances = () => {
   const [processingInstances, setProcessingInstances] = useState<Record<number, boolean>>({})
   const [userBalance, setUserBalance] = useState<number>(0)
   const [isBalanceLoading, setIsBalanceLoading] = useState<boolean>(true)
-  const socketRef = useRef<Socket | null>(null)
+  const [userId, setUserId] = useState<number | null>(null)
+
+  // Add state for delete confirmation modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false)
+  const [instanceToDelete, setInstanceToDelete] = useState<GpuInstance | null>(null)
 
   const handleTabChange = (value: TabValue) => {
     setActiveTab(value)
@@ -113,34 +115,60 @@ const Instances = () => {
     }
   }
 
-  // Render feature badges for the instance
-  const renderFeatureBadges = (features: FlavorFeatures) => {
-    const badges = []
+  // Removing the unused renderFeatureBadges function
+  // This functionality will be implemented in the future when we add feature badges to the UI
 
-    if (features.no_hibernation) {
-      badges.push(
-        <span key="no-hibernation" className={styles.restrictionBadge}>
-          No Hibernation
-        </span>
-      )
+  // Fetch user data to get the user ID
+  const fetchUserData = useCallback(async () => {
+    try {
+      const response = await getUserData()
+      if (response && response.user) {
+        setUserId(response.user.id)
+        return response.user.id
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error)
     }
+    return null
+  }, [])
 
-    if (features.local_storage_only) {
-      badges.push(
-        <span key="local-storage" className={styles.restrictionBadge}>
-          Local Storage Only
-        </span>
-      )
+  // Initialize socket connection and join user room
+  const setupSocket = useCallback(async () => {
+    try {
+      // Get user ID if not already set
+      const currentUserId = userId || (await fetchUserData())
+      if (!currentUserId) return undefined
+
+      // Initialize socket and join user room
+      const socket = initializeSocket()
+      joinUserRoom(currentUserId)
+
+      // Listen for balance updates with proper typing
+      socket.on('balance:update', (data: { balance: number }) => {
+        console.log('Received balance update:', data)
+        if (data && typeof data.balance === 'number') {
+          setUserBalance(data.balance)
+          setIsBalanceLoading(false)
+        }
+      })
+
+      // Listen for GPU status updates
+      socket.on('gpuStatusUpdate', (data) => {
+        console.log('Received GPU status update:', data)
+        // Refresh instances list when a status update is received
+        fetchGpuInstances()
+      })
+
+      // Return a cleanup function
+      return () => {
+        socket.off('balance:update')
+        socket.off('gpuStatusUpdate')
+      }
+    } catch (error) {
+      console.error('Error setting up socket:', error)
+      return undefined
     }
-
-    return badges.length > 0 ? (
-      <Flex gap="1" wrap="wrap">
-        {badges}
-      </Flex>
-    ) : (
-      <span className={styles.noFeatures}>None</span>
-    )
-  }
+  }, [userId, fetchUserData])
 
   // Then update the fetchGpuInstances function to handle the array properly
   const fetchGpuInstances = async (initialLoad = false) => {
@@ -178,9 +206,18 @@ const Instances = () => {
     }
   }
 
-  // Get console URL for an instance
-  const getConsoleUrl = (instance: GpuInstance) => {
-    return `/dashboard/instances/${instance.instance_id}/console`
+  // Navigate to console page for an instance
+  const navigateToConsole = (instance: GpuInstance) => {
+    if (instance.status.toUpperCase() !== 'ACTIVE') {
+      Snackbar({
+        message: 'Console is only available for active instances',
+        type: 'info'
+      })
+      return
+    }
+
+    // Navigate to the console page with the instance ID
+    router.push(`/dashboard/instances/${instance.instance_id}/console`)
   }
 
   // Get action items for an instance
@@ -270,60 +307,67 @@ const Instances = () => {
     }
   }
 
+  // Handle confirmed deletion
+  const handleConfirmDelete = async () => {
+    if (!instanceToDelete) return
+
+    try {
+      // Mark this instance as processing
+      setProcessingInstances((prev) => ({ ...prev, [instanceToDelete.id]: true }))
+
+      // Show pending message
+      const actionMessages = ACTION_MESSAGES['delete']
+      Snackbar({
+        message: `${actionMessages.pending} ${instanceToDelete.gpu_name}...`,
+        type: 'info'
+      })
+
+      // Call the dedicated delete API function
+      const response = await deleteVM(instanceToDelete.id, { force: true })
+
+      if (response.status === 'success') {
+        // Show success message
+        Snackbar({
+          message: `${actionMessages.success} ${instanceToDelete.gpu_name} successfully`,
+          type: 'success'
+        })
+
+        // Refresh the instances list after a short delay
+        setTimeout(() => {
+          fetchGpuInstances()
+        }, 1000)
+      } else {
+        // Show error message from the API
+        Snackbar({
+          message: response.message || `${actionMessages.error} ${instanceToDelete.gpu_name}`,
+          type: 'error'
+        })
+      }
+    } catch (error) {
+      console.error(`Error during delete:`, error)
+
+      // Show error message
+      const actionMessages = ACTION_MESSAGES['delete']
+      Snackbar({
+        message: error instanceof Error ? error.message : `${actionMessages.error} ${instanceToDelete.gpu_name}`,
+        type: 'error'
+      })
+    } finally {
+      // Unmark this instance as processing
+      setProcessingInstances((prev) => ({ ...prev, [instanceToDelete.id]: false }))
+      // Close the modal and reset the instance to delete
+      setIsDeleteModalOpen(false)
+      setInstanceToDelete(null)
+    }
+  }
+
   // Handle instance actions
   const handleInstanceAction = async (action: string, instance: GpuInstance) => {
     // Special handling for delete action
     if (action === 'delete') {
-      if (!window.confirm(`Are you sure you want to delete ${instance.gpu_name}?`)) {
-        return
-      }
-
-      try {
-        // Mark this instance as processing
-        setProcessingInstances((prev) => ({ ...prev, [instance.id]: true }))
-
-        // Show pending message
-        const actionMessages = ACTION_MESSAGES[action]
-        Snackbar({
-          message: `${actionMessages.pending} ${instance.gpu_name}...`,
-          type: 'info'
-        })
-
-        // Call the dedicated delete API function
-        const response = await deleteVM(instance.id, { force: true })
-
-        if (response.status === 'success') {
-          // Show success message
-          Snackbar({
-            message: `${actionMessages.success} ${instance.gpu_name} successfully`,
-            type: 'success'
-          })
-
-          // Refresh the instances list after a short delay
-          setTimeout(() => {
-            fetchGpuInstances()
-          }, 1000)
-        } else {
-          // Show error message from the API
-          Snackbar({
-            message: response.message || `${actionMessages.error} ${instance.gpu_name}`,
-            type: 'error'
-          })
-        }
-      } catch (error) {
-        console.error(`Error during ${action}:`, error)
-
-        // Show error message
-        const actionMessages = ACTION_MESSAGES[action]
-        Snackbar({
-          message: error instanceof Error ? error.message : `${actionMessages.error} ${instance.gpu_name}`,
-          type: 'error'
-        })
-      } finally {
-        // Unmark this instance as processing
-        setProcessingInstances((prev) => ({ ...prev, [instance.id]: false }))
-      }
-
+      // Open the confirmation modal instead of using window.confirm
+      setInstanceToDelete(instance)
+      setIsDeleteModalOpen(true)
       return
     }
 
@@ -399,46 +443,26 @@ const Instances = () => {
     fetchGpuInstances(true)
     fetchInitialBalance()
 
+    // Set up socket connection
+    let cleanupFn: (() => void) | undefined
+
+    setupSocket().then((cleanup) => {
+      cleanupFn = cleanup
+    })
+
     // Set up polling to refresh the instances list every 30 seconds
     const intervalId = setInterval(() => {
       fetchGpuInstances()
     }, 30000)
 
-    // Clean up the interval when the component unmounts
-    return () => clearInterval(intervalId)
-  }, [])
-
-  // Add this useEffect for socket connection after the other useEffect
-  useEffect(() => {
-    // Initialize socket connection
-    socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:8081', {
-      withCredentials: true,
-      transports: ['websocket']
-    })
-
-    // Handle connection events
-    socketRef.current.on('connect', () => {
-      console.log('Socket connected:', socketRef.current?.id)
-      setIsBalanceLoading(false)
-    })
-
-    socketRef.current.on('connect_error', (err) => {
-      console.error('Socket connection error:', err.message)
-      setIsBalanceLoading(false)
-    })
-
-    // Listen for balance updates
-    socketRef.current.on('balance-update', (data: { balance: number }) => {
-      console.log('Received balance update:', data)
-      setUserBalance(data.balance)
-      setIsBalanceLoading(false)
-    })
-
-    // Clean up on unmount
+    // Clean up the interval and socket listeners when the component unmounts
     return () => {
-      socketRef.current?.disconnect()
+      clearInterval(intervalId)
+      if (cleanupFn) {
+        cleanupFn()
+      }
     }
-  }, [])
+  }, [setupSocket])
 
   // Filter active instances for the Instances tab
   const activeInstances = gpuInstances
@@ -588,16 +612,7 @@ const Instances = () => {
                                   className={styles.consoleLink}
                                   onClick={(e) => {
                                     e.preventDefault()
-                                    // Prevent navigation if instance is not active
-                                    if (instance.status.toUpperCase() !== 'ACTIVE') {
-                                      Snackbar({
-                                        message: 'Console is only available for active instances',
-                                        type: 'info'
-                                      })
-                                    } else {
-                                      // Use router to navigate to the console page
-                                      router.push(getConsoleUrl(instance))
-                                    }
+                                    navigateToConsole(instance)
                                   }}
                                 >
                                   <Flex align="center" gap="1">
@@ -654,10 +669,20 @@ const Instances = () => {
                         onChange={handleSearch}
                       />
                     </div>
-                    <Button className={styles.refreshButton} onClick={() => fetchGpuInstances()}>
-                      <RefreshIcon />
-                      Refresh
-                    </Button>
+                    <Flex gap="2" align="center">
+                      <div className={styles.balanceContainer}>
+                        <WalletIcon />
+                        {isBalanceLoading ? (
+                          <span className={styles.balanceLoading}>Loading...</span>
+                        ) : (
+                          <span className={styles.balanceAmount}>${userBalance.toFixed(2)}</span>
+                        )}
+                      </div>
+                      <Button className={styles.refreshButton} onClick={() => fetchGpuInstances()}>
+                        <RefreshIcon />
+                        Refresh
+                      </Button>
+                    </Flex>
                   </Flex>
 
                   {deletedInstances.length === 0 ? (
@@ -729,6 +754,34 @@ const Instances = () => {
           </Tabs.Root>
         </Flex>
       </Flex>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog.Root open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className={styles.dialogOverlay} />
+          <Dialog.Content className={styles.dialogContent}>
+            <Dialog.Title className={styles.modalTitle}>Confirm Delete</Dialog.Title>
+            <Dialog.Description className={styles.modalDescription}>
+              Are you sure you want to delete {instanceToDelete?.gpu_name}? This action cannot be undone.
+            </Dialog.Description>
+
+            <Flex justify="end" gap="3" mt="4">
+              <Button
+                className={styles.cancelButton}
+                onClick={() => {
+                  setIsDeleteModalOpen(false)
+                  setInstanceToDelete(null)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button className={styles.deleteButton} onClick={handleConfirmDelete}>
+                Delete
+              </Button>
+            </Flex>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </Flex>
   )
 }

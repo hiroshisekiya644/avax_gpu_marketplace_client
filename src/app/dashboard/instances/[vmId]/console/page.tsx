@@ -8,7 +8,7 @@ import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
 
-const BackIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="arrow-left" />
+const BackIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="left-arrow" />
 
 const ConsolePage = () => {
   const router = useRouter()
@@ -32,7 +32,11 @@ const ConsolePage = () => {
         setError(null)
 
         const response = await getVncUrl(vmId)
-        setVncUrl(response.url)
+        if (response.status === 'success' && response.vnc_url) {
+          setVncUrl(response.vnc_url)
+        } else {
+          throw new Error(response.message || 'Failed to load console')
+        }
       } catch (err) {
         console.error('Error fetching VNC URL:', err)
         setError(err instanceof Error ? err.message : 'Failed to load console. Please try again.')
@@ -53,7 +57,11 @@ const ConsolePage = () => {
 
     getVncUrl(vmId)
       .then((response) => {
-        setVncUrl(response.url)
+        if (response.status === 'success' && response.vnc_url) {
+          setVncUrl(response.vnc_url)
+        } else {
+          throw new Error(response.message || 'Failed to load console')
+        }
       })
       .catch((err) => {
         console.error('Error fetching VNC URL:', err)

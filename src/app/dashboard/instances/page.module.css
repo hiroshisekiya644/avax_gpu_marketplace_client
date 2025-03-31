@@ -417,15 +417,149 @@
   padding: 0 16px;
   color: var(--text);
   transition: all 0.2s ease;
+  position: relative;
+}
+
+.balanceContainer:hover {
+  border-color: var(--border);
 }
 
 .balanceAmount {
   font-weight: 600;
   font-size: 14px;
+  color: var(--text);
 }
 
 .balanceLoading {
   font-size: 14px;
   color: var(--textSoft);
   font-style: italic;
+}
+
+/* Add animation for balance updates */
+@keyframes balancePulse {
+  0% {
+    background-color: var(--bgSoft);
+  }
+  50% {
+    background-color: rgba(153, 69, 252, 0.2);
+  }
+  100% {
+    background-color: var(--bgSoft);
+  }
+}
+
+.balanceUpdated {
+  animation: balancePulse 1s ease;
+}
+
+/* Dialog styles for delete confirmation */
+.dialogOverlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  inset: 0;
+  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 50;
+}
+
+.dialogContent {
+  background-color: var(--bgSoftDark);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 450px;
+  max-height: 85vh;
+  padding: 25px;
+  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 51;
+}
+
+.modalTitle {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 1.25rem;
+}
+
+.modalDescription {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  color: var(--textSoft);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.cancelButton {
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background-color: var(--bgSoft);
+  border-color: var(--textSoft);
+}
+
+.deleteButton {
+  background-color: rgba(239, 68, 68, 0.2);
+  border: 1px solid var(--error-color, #ef4444);
+  color: var(--error-color, #ef4444);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deleteButton:hover {
+  background-color: rgba(239, 68, 68, 0.3);
+}
+
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Processing indicator for actions in progress */
+.processingIndicator {
+  position: absolute;
+  top: 0;
+  right: -30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.processingSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--textSoftDark);
+  border-radius: 50%;
+  border-top-color: var(--text);
+  animation: spin 1s linear infinite;
 }

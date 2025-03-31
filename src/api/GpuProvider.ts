@@ -86,11 +86,11 @@ interface DeployVMResponse {
   }
 }
 
-// Define interface for VM management response
+// Define proper interfaces for the data structures
 interface ManageVMResponse {
   status: string
   message: string
-  data?: any
+  data?: unknown
 }
 
 // Define interface for VM management parameters
@@ -103,6 +103,13 @@ interface ManageVMParams {
 // Define interface for VM delete parameters
 interface DeleteVMParams {
   force?: boolean
+}
+
+// Define interface for VNC URL response
+interface VncUrlResponse {
+  status: string
+  vnc_url?: string
+  message?: string
 }
 
 // Update the interface based on the actual response structure
@@ -183,7 +190,9 @@ export const manageVM = async (action: string, params: ManageVMParams): Promise<
       if (error.response) {
         // Server responded with an error status
         const statusCode = error.response.status
-        const errorMessage = error.response.data?.message || `Failed to ${action} instance`
+        // Add type assertion for error response data
+        const errorData = error.response.data as { message?: string }
+        const errorMessage = errorData?.message || `Failed to ${action} instance`
 
         if (statusCode === 400) {
           throw new Error(`Invalid request: ${errorMessage}`)
@@ -236,7 +245,9 @@ export const deleteVM = async (rentalId: number | string, params: DeleteVMParams
       if (error.response) {
         // Server responded with an error status
         const statusCode = error.response.status
-        const errorMessage = error.response.data?.message || `Failed to delete instance`
+        // Add type assertion for error response data
+        const errorData = error.response.data as { message?: string }
+        const errorMessage = errorData?.message || `Failed to delete instance`
 
         if (statusCode === 400) {
           throw new Error(`Invalid request: ${errorMessage}`)
@@ -293,8 +304,8 @@ export const getGpuAction = async (): Promise<ActiveGpuResponse> => {
   }
 }
 
-// Add this function to get the VNC URL for a VM
-export const getVncUrl = async (vmId: number | string): Promise<{ url: string }> => {
+// Replace the existing getVncUrl function with a properly typed version
+export const getVncUrl = async (vmId: number | string): Promise<VncUrlResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/vm/${vmId}/vnc-url`
     const token = sessionStorage.getItem('authToken')
@@ -305,7 +316,7 @@ export const getVncUrl = async (vmId: number | string): Promise<{ url: string }>
       }
     })
 
-    return result.data
+    return result.data as VncUrlResponse
   } catch (error: unknown) {
     console.error(`Get VNC URL error:`, error instanceof Error ? error.message : 'Unknown error')
 
@@ -314,7 +325,9 @@ export const getVncUrl = async (vmId: number | string): Promise<{ url: string }>
       if (error.response) {
         // Server responded with an error status
         const statusCode = error.response.status
-        const errorMessage = error.response.data?.message || `Failed to get VNC URL`
+        // Add type assertion for error response data
+        const errorData = error.response.data as { message?: string }
+        const errorMessage = errorData?.message || `Failed to get VNC URL`
 
         if (statusCode === 400) {
           throw new Error(`Invalid request: ${errorMessage}`)
