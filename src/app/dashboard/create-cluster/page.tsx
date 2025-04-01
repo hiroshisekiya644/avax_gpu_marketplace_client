@@ -9,12 +9,12 @@ import { useRouter } from 'next/navigation'
 import { getAvailableGPUAction, deployVM } from '@/api/GpuProvider'
 import { getImageAction } from '@/api/ImageProvider'
 import { getUserKeyPairs, type KeyPair } from '@/api/KeyPair'
-import { getBalance } from '@/api/Payment'
 import { getPriceBook } from '@/api/PriceBook'
 import { getRegionAction } from '@/api/RegionProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
 import { Snackbar } from '@/components/snackbar/SnackBar'
+import { useBalance } from '@/context/BalanceContext'
 import { useResize } from '@/utils/Helper'
 import styles from './page.module.css'
 
@@ -166,6 +166,9 @@ const CreateCluster = () => {
   const { isResponsive } = useResize()
   const router = useRouter()
 
+  // Use the balance context instead of local state
+  const { balance, isLoading: balanceLoading } = useBalance()
+
   // UI state
   const [modalOpen, setModalOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -191,42 +194,6 @@ const CreateCluster = () => {
   const [priceBook, setPriceBook] = useState<PriceItem[]>([])
   const [sshKeys, setSshKeys] = useState<KeyPair[]>([])
   const [isDeploying, setIsDeploying] = useState(false)
-  const [userBalance, setUserBalance] = useState<number>(0)
-  const [isBalanceLoading, setIsBalanceLoading] = useState(true)
-
-  /**
-   * Fetch user balance
-   */
-  const fetchUserBalance = useCallback(async () => {
-    try {
-      setIsBalanceLoading(true)
-      const balance = await getBalance()
-      setUserBalance(Number(balance) || 0)
-    } catch (error) {
-      console.error('Error fetching user balance:', error)
-    } finally {
-      setIsBalanceLoading(false)
-    }
-  }, [])
-
-  // Calculate how many hours the user can run with current balance
-  const calculateRuntime = useCallback(
-    (hourlyPrice: number) => {
-      if (!hourlyPrice || hourlyPrice <= 0) return Number.POSITIVE_INFINITY
-      return userBalance / hourlyPrice
-    },
-    [userBalance]
-  )
-
-  // Format runtime in a human-readable way
-  const formatRuntime = useCallback((hours: number) => {
-    if (!isFinite(hours)) return '∞'
-    if (hours < 1) return `${Math.round(hours * 60)} minutes`
-    if (hours < 24) return `${Math.floor(hours)} hours ${Math.round((hours % 1) * 60)} minutes`
-    const days = Math.floor(hours / 24)
-    const remainingHours = Math.floor(hours % 24)
-    return `${days} days ${remainingHours} hours`
-  }, [])
 
   /**
    * Fetch all required data on component mount
@@ -236,15 +203,13 @@ const CreateCluster = () => {
       try {
         setIsLoading(true)
         setIsImagesLoading(true)
-        setIsBalanceLoading(true)
 
         const results = await Promise.allSettled([
           getAvailableGPUAction(),
           getImageAction(),
           getRegionAction(),
           getPriceBook(),
-          getUserKeyPairs(),
-          getBalance()
+          getUserKeyPairs()
         ])
 
         if (results[0].status === 'fulfilled') {
@@ -281,26 +246,17 @@ const CreateCluster = () => {
         } else {
           console.error('Error fetching SSH keys:', results[4].reason)
         }
-
-        if (results[5].status === 'fulfilled') {
-          setUserBalance(Number(results[5].value) || 0)
-        } else {
-          console.error('Error fetching user balance:', results[5].reason)
-          // Try to fetch balance again if it failed
-          fetchUserBalance()
-        }
       } catch (error) {
         console.error('Error in data fetching:', error)
         Snackbar({ message: 'Failed to load data. Please check your connection and try again.', type: 'error' })
       } finally {
         setIsLoading(false)
         setIsImagesLoading(false)
-        setIsBalanceLoading(false)
       }
     }
 
     fetchData()
-  }, [fetchUserBalance])
+  }, [])
 
   /**
    * Generate region list with appropriate icons
@@ -535,6 +491,25 @@ const CreateCluster = () => {
   const totalPrice = useMemo(() => {
     return calculateTotalPrice(selectedGpuPrice)
   }, [selectedGpuPrice, calculateTotalPrice])
+
+  // Calculate how many hours the user can run with current balance
+  const calculateRuntime = useCallback(
+    (hourlyPrice: number) => {
+      if (!hourlyPrice || hourlyPrice <= 0) return Number.POSITIVE_INFINITY
+      return balance / hourlyPrice
+    },
+    [balance]
+  )
+
+  // Format runtime in a human-readable way
+  const formatRuntime = useCallback((hours: number) => {
+    if (!isFinite(hours)) return '∞'
+    if (hours < 1) return `${Math.round(hours * 60)} minutes`
+    if (hours < 24) return `${Math.floor(hours)} hours ${Math.round((hours % 1) * 60)} minutes`
+    const days = Math.floor(hours / 24)
+    const remainingHours = Math.floor(hours % 24)
+    return `${days} days ${remainingHours} hours`
+  }, [])
 
   // Event handlers
   const handleChangeRegion = useCallback(
@@ -1346,11 +1321,11 @@ const CreateCluster = () => {
             {selectedGpu && (
               <div className={styles.balanceInfo}>
                 <div className={styles.balanceTitle}>Your Balance</div>
-                {isBalanceLoading ? (
+                {balanceLoading ? (
                   <div className={styles.balanceLoading}>Loading...</div>
                 ) : (
                   <>
-                    <div className={styles.balanceAmount}>${userBalance.toFixed(2)}</div>
+                    <div className={styles.balanceAmount}>${balance.toFixed(2)}</div>
                     <div className={styles.runtimeEstimate}>
                       Estimated runtime with current balance:
                       <span

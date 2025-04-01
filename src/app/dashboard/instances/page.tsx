@@ -6,11 +6,11 @@ import * as Tabs from '@radix-ui/react-tabs'
 import { Flex, Button, Table, Link } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
 import { getGpuAction, manageVM, deleteVM } from '@/api/GpuProvider'
-import { getBalance } from '@/api/Payment'
 import { getUserData } from '@/api/User'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
 import { Snackbar } from '@/components/snackbar/SnackBar'
+import { useBalance } from '@/context/BalanceContext'
 import { initializeSocket, joinUserRoom } from '@/utils/socket'
 import styles from './page.module.css'
 
@@ -71,9 +71,10 @@ const Instances = () => {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [processingInstances, setProcessingInstances] = useState<Record<number, boolean>>({})
-  const [userBalance, setUserBalance] = useState<number>(0)
-  const [isBalanceLoading, setIsBalanceLoading] = useState<boolean>(true)
   const [userId, setUserId] = useState<number | null>(null)
+
+  // Use the balance context instead of local state
+  const { balance, isLoading: balanceLoading } = useBalance()
 
   // Add state for delete confirmation modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false)
@@ -143,15 +144,6 @@ const Instances = () => {
       const socket = initializeSocket()
       joinUserRoom(currentUserId)
 
-      // Listen for balance updates with proper typing
-      socket.on('balance:update', (data: { balance: number }) => {
-        console.log('Received balance update:', data)
-        if (data && typeof data.balance === 'number') {
-          setUserBalance(data.balance)
-          setIsBalanceLoading(false)
-        }
-      })
-
       // Listen for GPU status updates
       socket.on('gpuStatusUpdate', (data) => {
         console.log('Received GPU status update:', data)
@@ -161,7 +153,6 @@ const Instances = () => {
 
       // Return a cleanup function
       return () => {
-        socket.off('balance:update')
         socket.off('gpuStatusUpdate')
       }
     } catch (error) {
@@ -426,22 +417,8 @@ const Instances = () => {
     }
   }
 
-  // Add this function to fetch initial balance
-  const fetchInitialBalance = async () => {
-    try {
-      setIsBalanceLoading(true)
-      const balance = await getBalance()
-      setUserBalance(balance)
-    } catch (error) {
-      console.error('Error fetching initial balance:', error)
-    } finally {
-      setIsBalanceLoading(false)
-    }
-  }
-
   useEffect(() => {
     fetchGpuInstances(true)
-    fetchInitialBalance()
 
     // Set up socket connection
     let cleanupFn: (() => void) | undefined
@@ -545,10 +522,10 @@ const Instances = () => {
                     <Flex gap="2" align="center">
                       <div className={styles.balanceContainer}>
                         <WalletIcon />
-                        {isBalanceLoading ? (
+                        {balanceLoading ? (
                           <span className={styles.balanceLoading}>Loading...</span>
                         ) : (
-                          <span className={styles.balanceAmount}>${userBalance.toFixed(2)}</span>
+                          <span className={styles.balanceAmount}>${balance.toFixed(2)}</span>
                         )}
                       </div>
                       <Button className={styles.refreshButton} onClick={() => fetchGpuInstances()}>
@@ -672,10 +649,10 @@ const Instances = () => {
                     <Flex gap="2" align="center">
                       <div className={styles.balanceContainer}>
                         <WalletIcon />
-                        {isBalanceLoading ? (
+                        {balanceLoading ? (
                           <span className={styles.balanceLoading}>Loading...</span>
                         ) : (
-                          <span className={styles.balanceAmount}>${userBalance.toFixed(2)}</span>
+                          <span className={styles.balanceAmount}>${balance.toFixed(2)}</span>
                         )}
                       </div>
                       <Button className={styles.refreshButton} onClick={() => fetchGpuInstances()}>

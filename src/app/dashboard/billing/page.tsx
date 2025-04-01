@@ -5,9 +5,10 @@ import type React from 'react'
 import { useCallback, useState, useEffect } from 'react'
 import { Flex, Button, TextField } from '@radix-ui/themes'
 import Image from 'next/image'
-import { getBalance, createDeposit, getPaymentHistory } from '@/api/Payment'
+import { createDeposit, getPaymentHistory } from '@/api/Payment'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { Snackbar } from '@/components/snackbar/SnackBar'
+import { useBalance } from '@/context/BalanceContext'
 import styles from './page.module.css'
 
 const WalletIcon = () => <DynamicSvgIcon height={22} className="wallet-none" iconName="wallet-icon" />
@@ -29,7 +30,6 @@ interface Transaction {
  */
 const Billing = () => {
   const [credit, setCredit] = useState<number | ''>('')
-  const [balance, setBalance] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -37,30 +37,13 @@ const Billing = () => {
   const [transactionsError, setTransactionsError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview')
 
-  // Fetch initial balance and data on component mount
-  useEffect(() => {
-    fetchBalance()
-    fetchTransactionHistory()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // Use the balance context instead of local state
+  const { balance, isLoading: balanceLoading, refreshBalance } = useBalance()
 
-  /**
-   * Fetch user balance from the API
-   */
-  const fetchBalance = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const fetchedBalance = await getBalance()
-      setBalance(fetchedBalance)
-    } catch (err) {
-      console.error('Balance fetch error:', err)
-      setError('Failed to fetch balance')
-      Snackbar({ message: 'Failed to fetch balance. Please try again.' })
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Fetch transaction history on component mount
+  useEffect(() => {
+    fetchTransactionHistory()
+  }, [])
 
   /**
    * Fetch transaction history from the API
@@ -126,8 +109,7 @@ const Billing = () => {
       window.open(invoiceUrl, '_self')
 
       // After successful deposit, update the balance
-      const updatedBalance = await getBalance()
-      setBalance(updatedBalance)
+      await refreshBalance()
       setCredit('')
 
       // Refresh transaction history
@@ -181,7 +163,7 @@ const Billing = () => {
                   <WalletIcon />
                   <h2>Current Balance</h2>
                 </div>
-                <div className={styles.balanceAmount}>${balance.toFixed(2)}</div>
+                <div className={styles.balanceAmount}>${balanceLoading ? 'Loading...' : balance.toFixed(2)}</div>
                 <div className={styles.balanceDescription}>Your available funds for GPU compute resources</div>
               </div>
 

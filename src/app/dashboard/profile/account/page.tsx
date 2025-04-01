@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { getUserData, updateUser, deleteUserAccount, type User } from '@/api/User'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { Snackbar } from '@/components/snackbar/SnackBar'
+import { useBalance } from '@/context/BalanceContext'
 import styles from '../page.module.css'
 
 // Icons
@@ -23,6 +24,7 @@ const WarningIcon = () => <DynamicSvgIcon height={18} className="rounded-none" i
 
 const AccountPage = () => {
   const router = useRouter()
+  const { balance, isLoading: balanceLoading } = useBalance()
 
   // User data state
   const [userData, setUserData] = useState<User | null>(null)
@@ -214,7 +216,7 @@ const AccountPage = () => {
                       </div>
                       <h2 className={styles.cardTitle}>Account Balance</h2>
                     </div>
-                    <p className={styles.cardValue}>${userData?.balance.toFixed(2) || '0.00'}</p>
+                    <p className={styles.cardValue}>${balanceLoading ? 'Loading...' : balance.toFixed(2)}</p>
                     <p className={styles.cardNote}>Your current account balance</p>
                     <Flex justify="end" mt="3">
                       <Link href="/dashboard/billing" className={styles.addFundsButton}>
