@@ -1,7 +1,9 @@
+import type React from 'react'
 import { Suspense } from 'react'
 import { IBM_Plex_Sans } from 'next/font/google'
 import '../styles/globals.css'
 import { Toaster } from 'react-hot-toast'
+import { BalanceProvider } from '@/context/BalanceContext'
 import { WalletProvider } from '@/context/Web3Context'
 import type { Metadata } from 'next'
 
@@ -24,7 +26,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${ibm_plex_sans.className} antialiased`}>
         <WalletProvider>
-          <Suspense>{children}</Suspense>
+          <BalanceProvider>
+            <Suspense>{children}</Suspense>
+          </BalanceProvider>
         </WalletProvider>
         <Toaster />
       </body>
