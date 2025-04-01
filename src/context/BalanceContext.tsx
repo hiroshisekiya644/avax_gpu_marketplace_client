@@ -2,8 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import { getBalance } from '@/api/Payment'
-import { getUserData } from '@/api/User'
-import { initializeSocket, joinUserRoom } from '@/utils/socket'
 
 interface BalanceContextType {
   balance: number
@@ -30,21 +28,6 @@ export function BalanceProvider({ children }: BalanceProviderProps) {
   const [balance, setBalance] = useState<number>(0)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  const [userId, setUserId] = useState<number | null>(null)
-
-  // Fetch user data to get the user ID
-  const fetchUserData = useCallback(async () => {
-    try {
-      const response = await getUserData()
-      if (response && response.user) {
-        setUserId(response.user.id)
-        return response.user.id
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error)
-    }
-    return null
-  }, [])
 
   // Function to fetch balance
   const fetchBalance = useCallback(async () => {
@@ -66,42 +49,24 @@ export function BalanceProvider({ children }: BalanceProviderProps) {
     await fetchBalance()
   }, [fetchBalance])
 
-  // Setup socket connection for real-time balance updates
+  // Refresh balance when tab becomes visible
   useEffect(() => {
-    const setupSocket = async () => {
-      try {
-        // Get user ID if not already set
-        const currentUserId = userId || (await fetchUserData())
-        if (!currentUserId) return
-
-        // Initialize socket and join user room
-        const socket = initializeSocket()
-        joinUserRoom(currentUserId)
-
-        // Listen for balance updates
-        socket.on('balance:update', (data: { balance: number }) => {
-          console.log('Received balance update:', data)
-          if (data && typeof data.balance === 'number') {
-            setBalance(data.balance)
-            setIsLoading(false)
-          }
-        })
-
-        // Return a cleanup function
-        return () => {
-          socket.off('balance:update')
-        }
-      } catch (error) {
-        console.error('Error setting up socket:', error)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchBalance()
       }
     }
 
-    setupSocket()
-  }, [userId, fetchUserData])
+    // Add event listener for visibility change
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
-  // Initial balance fetch
-  useEffect(() => {
+    // Initial balance fetch
     fetchBalance()
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [fetchBalance])
 
   const value = {
