@@ -472,7 +472,13 @@ const CreateCluster = () => {
     const gpuName = selectedGpu.slice(0, lastDash)
     const index = selectedGpu.slice(lastDash + 1)
     const searchGpuName = gpuName === 'cpu' ? '' : gpuName
-    const gpuCard = gpuCards.find((card, idx) => card.gpu === searchGpuName && idx === Number(index))
+
+    // First filter gpuCards by region if a region is selected
+    const regionFilteredCards =
+      selectedRegion !== DEFAULT_REGION ? gpuCards.filter((card) => card.region_name === selectedRegion) : gpuCards
+
+    // Then find the matching GPU card by name and index
+    const gpuCard = regionFilteredCards.find((card, idx) => card.gpu === searchGpuName && idx === Number(index))
     if (!gpuCard) return 0
 
     const selectedFlavorId = selectedFlavors[selectedGpu]
@@ -483,7 +489,7 @@ const CreateCluster = () => {
 
     const selectedFlavor = gpuCard.flavors[flavorIndex]
     return calculateGpuPrice(searchGpuName, flavorIndex, selectedFlavor)
-  }, [selectedGpu, gpuCards, selectedFlavors, calculateGpuPrice])
+  }, [selectedGpu, gpuCards, selectedFlavors, calculateGpuPrice, selectedRegion])
 
   /**
    * Calculate total price including all selected options
@@ -607,7 +613,13 @@ const CreateCluster = () => {
       const gpuName = selectedGpu.slice(0, lastDash)
       const index = selectedGpu.slice(lastDash + 1)
       const searchGpuName = gpuName === 'cpu' ? '' : gpuName
-      const gpuCard = gpuCards.find((card, idx) => card.gpu === searchGpuName && idx === Number(index))
+
+      // First filter gpuCards by region if a region is selected
+      const regionFilteredCards =
+        selectedRegion !== DEFAULT_REGION ? gpuCards.filter((card) => card.region_name === selectedRegion) : gpuCards
+
+      // Then find the matching GPU card by name and index
+      const gpuCard = regionFilteredCards.find((card, idx) => card.gpu === searchGpuName && idx === Number(index))
 
       // Get the selected SSH key
       const selectedKeyPair = sshKeys.find((key) => String(key.id) === selectedSshKey)
@@ -681,7 +693,8 @@ const CreateCluster = () => {
     router,
     sshKeys,
     clusterName,
-    selectedFlavors
+    selectedFlavors,
+    selectedRegion
   ])
 
   const toggleGpuSelection = useCallback(
