@@ -65,10 +65,10 @@ const tabListItems = [
 ]
 
 // Headers for the instances tab
-const instancesTableHeaderItems = ['NAME', 'GPU', 'REGION', 'STATUS', 'CREATED', 'CONSOLE', 'ACTIONS']
+const instancesTableHeaderItems = ['NAME', 'GPU', 'REGION', 'STATUS', 'CREATED', 'IP ADDRESS', 'CONSOLE', 'ACTIONS']
 
-// Headers for the history tab (with DELETED DATE instead of CONSOLE)
-const historyTableHeaderItems = ['NAME', 'GPU', 'REGION', 'STATUS', 'CREATED', 'DELETED DATE', 'ACTIONS']
+// Headers for the history tab (with DELETED DATE instead of CONSOLE, and no ACTIONS)
+const historyTableHeaderItems = ['NAME', 'GPU', 'REGION', 'STATUS', 'CREATED', 'DELETED DATE', 'IP ADDRESS']
 
 const Instances = () => {
   const router = useRouter()
@@ -87,6 +87,9 @@ const Instances = () => {
   // Add state for delete confirmation modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false)
   const [instanceToDelete, setInstanceToDelete] = useState<GpuInstance | null>(null)
+
+  // Add a new state to track the FormSelect values
+  const [actionSelections, setActionSelections] = useState<Record<number, string>>({})
 
   const handleTabChange = (value: TabValue) => {
     setActiveTab(value)
@@ -121,6 +124,8 @@ const Instances = () => {
         return styles.statusPending
       case 'ERROR':
         return styles.statusError
+      case 'HIBERNATED':
+        return styles.statusHibernated
       default:
         return styles.statusDefault
     }
@@ -262,27 +267,37 @@ const Instances = () => {
     router.push(`/dashboard/instances/${instance.instance_id}/console`)
   }
 
-  // Get action items for an instance
+  // Update the getActionItems function to include the restore action for hibernated instances
   const getActionItems = (instance: GpuInstance): SelectItem[] => {
     // Check if the instance is being processed
     const isProcessing = processingInstances[instance.id] === true
     const isActive = instance.status.toUpperCase() === 'ACTIVE'
+    const isHibernated = instance.status.toUpperCase() === 'HIBERNATED'
 
     // Start with the placeholder item
     const items: SelectItem[] = [{ label: 'Actions', name: 'placeholder', disabled: true }]
 
-    // Only add start button if instance is not active
-    if (!isActive) {
+    // Only add start button if instance is not active and not hibernated
+    if (!isActive && !isHibernated) {
       items.push({
         label: 'Start',
         name: 'start',
         disabled: isProcessing
       })
-    } else {
+    } else if (isActive) {
       // Add stop button if instance is active
       items.push({
         label: 'Stop',
         name: 'stop',
+        disabled: isProcessing
+      })
+    }
+
+    // Add restore option only for hibernated instances
+    if (isHibernated) {
+      items.push({
+        label: 'Restore',
+        name: 'restore',
         disabled: isProcessing
       })
     }
@@ -312,15 +327,16 @@ const Instances = () => {
     return items
   }
 
-  // Map UI action names to API action parameters
+  // Update the ACTION_MAP to include the restore action
   const ACTION_MAP: Record<string, string> = {
     start: 'start',
     stop: 'stop',
     'hard-reboot': 'hard-reboot',
-    hibernate: 'hibernate'
+    hibernate: 'hibernate',
+    restore: 'hibernate-restore'
   }
 
-  // Map action names to user-friendly messages
+  // Update the ACTION_MESSAGES to include messages for the restore action
   const ACTION_MESSAGES: Record<string, { pending: string; success: string; error: string }> = {
     start: {
       pending: 'Starting',
@@ -342,6 +358,11 @@ const Instances = () => {
       success: 'Hibernated',
       error: 'Failed to hibernate'
     },
+    restore: {
+      pending: 'Restoring',
+      success: 'Restored',
+      error: 'Failed to restore'
+    },
     delete: {
       pending: 'Deleting',
       success: 'Deleted',
@@ -349,13 +370,90 @@ const Instances = () => {
     }
   }
 
-  // Handle confirmed deletion
+  // Update the handleInstanceAction function to reset the FormSelect after successful action
+  const handleInstanceAction = async (action: string, instance: GpuInstance) => {
+    // Skip if placeholder is selected
+    if (action === 'placeholder') return
+
+    // Special handling for delete action
+    if (action === 'delete') {
+      // Open the confirmation modal instead of using window.confirm
+      setInstanceToDelete(instance)
+      setIsDeleteModalOpen(true)
+      return
+    }
+
+    const apiAction = ACTION_MAP[action]
+    if (!apiAction) {
+      Snackbar({ message: `Unknown action: ${action}`, type: 'error' })
+      return
+    }
+
+    try {
+      // Mark this instance as processing
+      setProcessingInstances((prev) => ({ ...prev, [instance.id]: true }))
+
+      // Store the current action
+      setActionSelections((prev) => ({ ...prev, [instance.id]: action }))
+
+      // Show pending message
+      const actionMessages = ACTION_MESSAGES[action]
+      Snackbar({
+        message: `${actionMessages.pending} ${instance.gpu_name}...`,
+        type: 'info'
+      })
+
+      // Call the API with the appropriate action and parameters
+      const response = await manageVM(apiAction, {
+        vmId: instance.instance_id
+      })
+
+      if (response.status === 'success') {
+        // Show success message
+        Snackbar({
+          message: `${actionMessages.success} ${instance.gpu_name} successfully`,
+          type: 'success'
+        })
+
+        // Reset the FormSelect to placeholder
+        setActionSelections((prev) => ({ ...prev, [instance.id]: 'placeholder' }))
+
+        // Refresh the instances list after a short delay
+        setTimeout(() => {
+          fetchGpuInstances()
+        }, 1000)
+      } else {
+        // Show error message from the API
+        Snackbar({
+          message: response.message || `${actionMessages.error} ${instance.gpu_name}`,
+          type: 'error'
+        })
+      }
+    } catch (error) {
+      console.error(`Error during ${action}:`, error)
+
+      // Show error message
+      const actionMessages = ACTION_MESSAGES[action]
+      Snackbar({
+        message: error instanceof Error ? error.message : `${actionMessages.error} ${instance.gpu_name}`,
+        type: 'error'
+      })
+    } finally {
+      // Unmark this instance as processing
+      setProcessingInstances((prev) => ({ ...prev, [instance.id]: false }))
+    }
+  }
+
+  // Update the handleConfirmDelete function to reset the FormSelect after successful deletion
   const handleConfirmDelete = async () => {
     if (!instanceToDelete) return
 
     try {
       // Mark this instance as processing
       setProcessingInstances((prev) => ({ ...prev, [instanceToDelete.id]: true }))
+
+      // Store the current action
+      setActionSelections((prev) => ({ ...prev, [instanceToDelete.id]: 'delete' }))
 
       // Show pending message
       const actionMessages = ACTION_MESSAGES['delete']
@@ -373,6 +471,9 @@ const Instances = () => {
           message: `${actionMessages.success} ${instanceToDelete.gpu_name} successfully`,
           type: 'success'
         })
+
+        // Reset the FormSelect to placeholder
+        setActionSelections((prev) => ({ ...prev, [instanceToDelete.id]: 'placeholder' }))
 
         // Refresh the instances list after a short delay
         setTimeout(() => {
@@ -400,71 +501,6 @@ const Instances = () => {
       // Close the modal and reset the instance to delete
       setIsDeleteModalOpen(false)
       setInstanceToDelete(null)
-    }
-  }
-
-  // Handle instance actions
-  const handleInstanceAction = async (action: string, instance: GpuInstance) => {
-    // Special handling for delete action
-    if (action === 'delete') {
-      // Open the confirmation modal instead of using window.confirm
-      setInstanceToDelete(instance)
-      setIsDeleteModalOpen(true)
-      return
-    }
-
-    const apiAction = ACTION_MAP[action]
-    if (!apiAction) {
-      Snackbar({ message: `Unknown action: ${action}`, type: 'error' })
-      return
-    }
-
-    try {
-      // Mark this instance as processing
-      setProcessingInstances((prev) => ({ ...prev, [instance.id]: true }))
-
-      // Show pending message
-      const actionMessages = ACTION_MESSAGES[action]
-      Snackbar({
-        message: `${actionMessages.pending} ${instance.gpu_name}...`,
-        type: 'info'
-      })
-
-      // Call the API with the appropriate action and parameters
-      const response = await manageVM(apiAction, {
-        vmId: instance.instance_id
-      })
-
-      if (response.status === 'success') {
-        // Show success message
-        Snackbar({
-          message: `${actionMessages.success} ${instance.gpu_name} successfully`,
-          type: 'success'
-        })
-
-        // Refresh the instances list after a short delay
-        setTimeout(() => {
-          fetchGpuInstances()
-        }, 1000)
-      } else {
-        // Show error message from the API
-        Snackbar({
-          message: response.message || `${actionMessages.error} ${instance.gpu_name}`,
-          type: 'error'
-        })
-      }
-    } catch (error) {
-      console.error(`Error during ${action}:`, error)
-
-      // Show error message
-      const actionMessages = ACTION_MESSAGES[action]
-      Snackbar({
-        message: error instanceof Error ? error.message : `${actionMessages.error} ${instance.gpu_name}`,
-        type: 'error'
-      })
-    } finally {
-      // Unmark this instance as processing
-      setProcessingInstances((prev) => ({ ...prev, [instance.id]: false }))
     }
   }
 
@@ -498,17 +534,15 @@ const Instances = () => {
         instance.status.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
-  // Filter deleted instances for the History tab
-  const deletedInstances = gpuInstances
-    .filter((instance) => instance.is_deleted || instance.status === 'DELETED')
-    .filter(
-      (instance) =>
-        searchTerm === '' ||
-        instance.gpu_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        instance.flavor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        instance.region.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        instance.status.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+  // Show all instances in the History tab (not just deleted ones)
+  const historyInstances = gpuInstances.filter(
+    (instance) =>
+      searchTerm === '' ||
+      instance.gpu_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      instance.flavor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      instance.region.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      instance.status.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   return (
     <Flex className={styles.bg} direction="column">
@@ -630,6 +664,7 @@ const Instances = () => {
                               <Table.Cell className={styles.historyTableCell}>
                                 {formatDate(instance.createdAt)}
                               </Table.Cell>
+                              <Table.Cell className={styles.historyTableCell}>{instance.public_ip || '-'}</Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>
                                 <Link
                                   href="#"
@@ -649,7 +684,7 @@ const Instances = () => {
                                   items={getActionItems(instance)}
                                   onChange={(value: string) => handleInstanceAction(value, instance)}
                                   className={styles.actionSelect}
-                                  defaultValue="placeholder"
+                                  value={actionSelections[instance.id] || 'placeholder'}
                                   disabled={processingInstances[instance.id]}
                                 />
                                 {processingInstances[instance.id] && (
@@ -709,7 +744,7 @@ const Instances = () => {
                     </Flex>
                   </Flex>
 
-                  {deletedInstances.length === 0 ? (
+                  {historyInstances.length === 0 ? (
                     <Flex
                       p="8"
                       direction="column"
@@ -720,7 +755,7 @@ const Instances = () => {
                       className={styles.emptyStateContainer}
                     >
                       <div className={styles.instanceTitle}>No Data</div>
-                      <div className={styles.instanceContent}>You haven&apos;t terminated any instances yet.</div>
+                      <div className={styles.instanceContent}>No instances found matching your search criteria.</div>
                     </Flex>
                   ) : (
                     <div className={styles.tableContainer}>
@@ -742,7 +777,7 @@ const Instances = () => {
                           </Table.Row>
                         </Table.Header>
                         <Table.Body>
-                          {deletedInstances.map((instance) => (
+                          {historyInstances.map((instance) => (
                             <Table.Row key={instance.id}>
                               <Table.Cell className={styles.historyTableCell}>{instance.gpu_name}</Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>{instance.flavor_name}</Table.Cell>
@@ -758,14 +793,7 @@ const Instances = () => {
                               <Table.Cell className={styles.historyTableCell}>
                                 {formatDate(instance.deleted_at)}
                               </Table.Cell>
-                              <Table.Cell className={styles.historyTableCell}>
-                                <Button
-                                  className={styles.instanceButton}
-                                  onClick={() => router.push('/dashboard/create-cluster')}
-                                >
-                                  Redeploy
-                                </Button>
-                              </Table.Cell>
+                              <Table.Cell className={styles.historyTableCell}>{instance.public_ip || '-'}</Table.Cell>
                             </Table.Row>
                           ))}
                         </Table.Body>
