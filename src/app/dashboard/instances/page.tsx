@@ -108,6 +108,8 @@ const Instances = () => {
       case 'DELETED':
         return styles.statusDeleted
       case 'PENDING':
+      case 'BUILD':
+      case 'CREATING':
         return styles.statusPending
       case 'ERROR':
         return styles.statusError
@@ -147,8 +149,26 @@ const Instances = () => {
       // Listen for GPU status updates
       socket.on('gpuStatusUpdate', (data) => {
         console.log('Received GPU status update:', data)
-        // Refresh instances list when a status update is received
-        fetchGpuInstances()
+
+        // Update the specific instance in the state without refetching everything
+        setGpuInstances((prevInstances) => {
+          return prevInstances.map((instance) => {
+            if (instance.instance_id === data.instance_id) {
+              // Create updated instance with new status
+              const updatedInstance = {
+                ...instance,
+                // Update any other fields that might be in the data
+                ...(data.public_ip && { public_ip: data.public_ip })
+              }
+
+              // Set status, converting BUILD to CREATING for display purposes
+              updatedInstance.status = data.status === 'BUILD' ? 'CREATING' : data.status
+
+              return updatedInstance
+            }
+            return instance
+          })
+        })
       })
 
       // Return a cleanup function
@@ -161,7 +181,7 @@ const Instances = () => {
     }
   }, [userId, fetchUserData])
 
-  // Then update the fetchGpuInstances function to handle the array properly
+  // Also update the initial data processing to convert BUILD to CREATING
   const fetchGpuInstances = async (initialLoad = false) => {
     try {
       // Only set the main loading state on initial load
@@ -179,8 +199,14 @@ const Instances = () => {
         // Handle both array and single object responses
         const gpuData = Array.isArray(response.gpu) ? response.gpu : [response.gpu]
 
+        // Process the data to convert BUILD status to CREATING
+        const processedData = gpuData.map((instance) => ({
+          ...instance,
+          status: instance.status === 'BUILD' ? 'CREATING' : instance.status
+        }))
+
         // Sort instances by creation date (newest first)
-        const sortedInstances = [...gpuData].sort(
+        const sortedInstances = [...processedData].sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
         setGpuInstances(sortedInstances)
@@ -427,14 +453,8 @@ const Instances = () => {
       cleanupFn = cleanup
     })
 
-    // Set up polling to refresh the instances list every 30 seconds
-    const intervalId = setInterval(() => {
-      fetchGpuInstances()
-    }, 30000)
-
-    // Clean up the interval and socket listeners when the component unmounts
+    // Clean up the socket listeners when the component unmounts
     return () => {
-      clearInterval(intervalId)
       if (cleanupFn) {
         cleanupFn()
       }
@@ -523,7 +543,7 @@ const Instances = () => {
                       <div className={styles.balanceContainer}>
                         <WalletIcon />
                         {balanceLoading ? (
-                          <span className={styles.balanceLoading}>Loading...</span>
+                          <div className={styles.balanceSpinner}></div>
                         ) : (
                           <span className={styles.balanceAmount}>${balance.toFixed(2)}</span>
                         )}
@@ -577,7 +597,9 @@ const Instances = () => {
                               <Table.Cell className={styles.historyTableCell}>{instance.region}</Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>
                                 <span className={`${styles.statusBadge} ${getStatusColor(instance.status)}`}>
-                                  {instance.status}
+                                  {instance.status === 'BUILD' || instance.status === 'CREATING'
+                                    ? 'CREATING'
+                                    : instance.status}
                                 </span>
                               </Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>
@@ -650,7 +672,7 @@ const Instances = () => {
                       <div className={styles.balanceContainer}>
                         <WalletIcon />
                         {balanceLoading ? (
-                          <span className={styles.balanceLoading}>Loading...</span>
+                          <div className={styles.balanceSpinner}></div>
                         ) : (
                           <span className={styles.balanceAmount}>${balance.toFixed(2)}</span>
                         )}
