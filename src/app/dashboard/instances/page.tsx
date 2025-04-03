@@ -38,6 +38,14 @@ interface GpuInstance {
   deleted_at: string | null
   createdAt: string
   updatedAt: string
+  public_ip?: string | null // Make public_ip optional
+}
+
+// Define the structure of the data received from the socket
+interface GpuStatusUpdate {
+  instance_id: number | string
+  status: string
+  public_ip?: string | null // Make public_ip optional
 }
 
 // Update the GpuResponse interface to correctly define gpu as an array
@@ -147,22 +155,39 @@ const Instances = () => {
       joinUserRoom(currentUserId)
 
       // Listen for GPU status updates
-      socket.on('gpuStatusUpdate', (data) => {
-        console.log('Received GPU status update:', data)
+      socket.on('gpuStatusUpdate', (rawData: unknown) => {
+        console.log('Received GPU status update:', rawData)
+
+        // Type guard function to validate the data structure
+        const isValidStatusUpdate = (data: unknown): data is GpuStatusUpdate => {
+          return (
+            typeof data === 'object' &&
+            data !== null &&
+            'instance_id' in data &&
+            'status' in data &&
+            typeof (data as GpuStatusUpdate).status === 'string'
+          )
+        }
+
+        // Validate the data before processing
+        if (!isValidStatusUpdate(rawData)) {
+          console.error('Invalid GPU status update data:', rawData)
+          return
+        }
+
+        // Now TypeScript knows data is a GpuStatusUpdate
+        const data: GpuStatusUpdate = rawData
 
         // Update the specific instance in the state without refetching everything
         setGpuInstances((prevInstances) => {
           return prevInstances.map((instance) => {
             if (instance.instance_id === data.instance_id) {
               // Create updated instance with new status
-              const updatedInstance = {
+              const updatedInstance: GpuInstance = {
                 ...instance,
-                // Update any other fields that might be in the data
-                ...(data.public_ip && { public_ip: data.public_ip })
+                status: data.status === 'BUILD' ? 'CREATING' : data.status,
+                ...(data.public_ip !== undefined && { public_ip: data.public_ip })
               }
-
-              // Set status, converting BUILD to CREATING for display purposes
-              updatedInstance.status = data.status === 'BUILD' ? 'CREATING' : data.status
 
               return updatedInstance
             }
