@@ -167,14 +167,14 @@ export const Sidebar = () => {
                 <WalletButton />
               </div>
             </Flex> */}
-            <Flex justify="center" gap="4">
+            {/* <Flex justify="center" gap="4">
               <Link href="/termsOfService" className={styles.textButton}>
                 Terms of Service
               </Link>
               <Link href="/privacy" className={styles.textButton}>
                 Privacy and Policy
               </Link>
-            </Flex>
+            </Flex> */}
             <Popover.Root>
               <Popover.Trigger asChild>
                 <div className={styles.userLinkGroup}>
