@@ -436,6 +436,16 @@
   font-style: italic;
 }
 
+.balanceSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--textSoftDark);
+  border-radius: 50%;
+  border-top-color: var(--text);
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
 /* Add animation for balance updates */
 @keyframes balancePulse {
   0% {
@@ -562,4 +572,23 @@
   border-radius: 50%;
   border-top-color: var(--text);
   animation: spin 1s linear infinite;
+}
+
+/* Add a CSS class for the status spinner */
+.statusSpinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(245, 158, 11, 0.3);
+  border-top-color: #f59e0b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* Make sure we have the spin animation defined */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
