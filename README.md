@@ -24,7 +24,7 @@ This is the frontend for the AVAX GPU Marketplace built with **Next.js**, **Tail
 ### Installation
 
 ```bash
-git clone https://github.com/your-repo/avax_gpu_marketplace_client.git
+git clone https://github.com/hiroshisekiya644/avax_gpu_marketplace_client.git
 cd avax_gpu_marketplace_client
 npm install
 ```
@@ -58,7 +58,7 @@ src/
 Create a `.env.local` file with:
 
 ```
-NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
-NEXT_PUBLIC_SOCKET_URL=http://localhost:3002
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
+NEXT_PUBLIC_SOCKET_URL=http://localhost:8081
 NEXT_PUBLIC_NOWPAYMENTS_KEY=...
 ```
