@@ -303,6 +303,40 @@
   opacity: 1;
 }
 
+/* Add styles for radio button options */
+.radioOption {
+  position: relative;
+}
+
+.radioCheckbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(153, 69, 252, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  background-color: transparent;
+}
+
+.radioInner {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #9945fc;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.optionItem.selected .radioInner {
+  opacity: 1;
+}
+
+.optionItem.selected .radioCheckbox {
+  border-color: #9945fc;
+}
+
 .customInput {
   flex: 1;
   padding: 0.5rem;

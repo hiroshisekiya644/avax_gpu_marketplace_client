@@ -9,15 +9,16 @@ import { useRouter } from 'next/navigation'
 import { getAvailableGPUAction } from '@/api/GpuProvider'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
+import { createReservation as createReservationAction } from '@/api/GpuProvider'
 
-// Define the form data structure
+// Update the FormData interface to make rentDuration and rentTiming single strings instead of arrays
 interface FormData {
   email: string
   gpuTypes: string[]
   customGpuType: string
   gpuCount: string
-  rentDuration: string[] // Changed from string to string[]
-  rentTiming: string[]
+  rentDuration: string // Changed from string[] to string
+  rentTiming: string // Changed from string[] to string
   otherRequirements: string
 }
 
@@ -118,14 +119,14 @@ const ReservedInstances = () => {
     customGpuType: useRef<HTMLInputElement>(null)
   }
 
-  // Initialize form data
+  // Initialize form data with empty strings for rentDuration and rentTiming
   const [formData, setFormData] = useState<FormData>({
     email: '',
     gpuTypes: [],
     customGpuType: '',
     gpuCount: '',
-    rentDuration: [], // Changed from '' to []
-    rentTiming: [],
+    rentDuration: '', // Changed from [] to ""
+    rentTiming: '', // Changed from [] to ""
     otherRequirements: ''
   })
 
@@ -255,15 +256,12 @@ const ReservedInstances = () => {
     }
   }
 
-  // Handle checkbox changes for rent timing
-  const handleRentTimingToggle = (id: string) => {
-    setFormData((prev) => {
-      const newRentTiming = prev.rentTiming.includes(id)
-        ? prev.rentTiming.filter((timing) => timing !== id)
-        : [...prev.rentTiming, id]
-
-      return { ...prev, rentTiming: newRentTiming }
-    })
+  // Update the handleRentTimingToggle function to set a single value instead of toggling in an array
+  const handleRentTimingToggle = (id: string, label: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      rentTiming: id // Set the single value instead of managing an array
+    }))
 
     // Clear error when user selects
     if (formErrors.rentTiming) {
@@ -272,14 +270,12 @@ const ReservedInstances = () => {
   }
 
   // Add a handler for rent duration toggle after the handleRentTimingToggle function
-  const handleRentDurationToggle = (id: string) => {
-    setFormData((prev) => {
-      const newRentDuration = prev.rentDuration.includes(id)
-        ? prev.rentDuration.filter((duration) => duration !== id)
-        : [...prev.rentDuration, id]
-
-      return { ...prev, rentDuration: newRentDuration }
-    })
+  // Update the handleRentDurationToggle function to set a single value instead of toggling in an array
+  const handleRentDurationToggle = (id: string, label: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      rentDuration: id // Set the single value instead of managing an array
+    }))
 
     // Clear error when user selects
     if (formErrors.rentDuration) {
@@ -288,6 +284,7 @@ const ReservedInstances = () => {
   }
 
   // Validate the current step
+  // Update the validateStep function for steps 4 and 5
   const validateStep = (): boolean => {
     const errors: Partial<Record<keyof FormData, string>> = {}
 
@@ -313,13 +310,13 @@ const ReservedInstances = () => {
         }
         break
       case 4:
-        if (formData.rentDuration.length === 0) {
-          errors.rentDuration = 'Please select at least one rental duration option'
+        if (!formData.rentDuration) {
+          errors.rentDuration = 'Please select a rental duration option'
         }
         break
       case 5:
-        if (formData.rentTiming.length === 0) {
-          errors.rentTiming = 'Please select at least one timing option'
+        if (!formData.rentTiming) {
+          errors.rentTiming = 'Please select a timing option'
         }
         break
       case 6:
@@ -350,22 +347,56 @@ const ReservedInstances = () => {
   }
 
   // Handle form submission
+  // Update the handleSubmit function to send labels instead of IDs
   const handleSubmit = async () => {
     setIsSubmitting(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Get the selected GPU type labels instead of IDs
+      const gpuTypeLabels = formData.gpuTypes.map((typeId) => {
+        if (typeId === 'G') return formData.customGpuType
+        const option = gpuOptions().find((opt) => opt.id === typeId)
+        return option ? option.label : typeId
+      })
+
+      // Get the selected flavor labels instead of IDs
+      const flavorLabels = formData.gpuCount
+        .split(',')
+        .filter(Boolean)
+        .map((flavorId) => {
+          const flavor = selectedGpuFlavors.find((f) => String(f.id) === flavorId)
+          return flavor ? flavor.name : flavorId
+        })
+
+      // Get the duration label
+      const durationLabel =
+        rentDurationOptions.find((opt) => opt.id === formData.rentDuration)?.label || formData.rentDuration
+
+      // Get the timing label
+      const timingLabel = rentTimingOptions.find((opt) => opt.id === formData.rentTiming)?.label || formData.rentTiming
+
+      // Prepare the data for the API request
+      const reservationData = {
+        contact_email: formData.email,
+        gpu_types: gpuTypeLabels,
+        flavor_name: flavorLabels,
+        duration: durationLabel,
+        timing: timingLabel,
+        requirement: formData.otherRequirements || undefined
+      }
+
+      // Call the API to create the reservation
+      await createReservationAction(reservationData)
 
       // Show success message
       Snackbar({ message: 'Your GPU reservation request has been submitted successfully!' })
 
       // Reset form and go to success step
       setCurrentStep(8)
-    } catch (error) {
-      console.error('Reservation error:', error)
+    } catch (err) {
+      console.error('Error submitting reservation:', err)
       Snackbar({
-        message: 'There was an error submitting your request. Please try again.',
+        message: err instanceof Error ? err.message : 'There was an error submitting your request. Please try again.',
         type: 'error'
       })
     } finally {
@@ -538,7 +569,7 @@ const ReservedInstances = () => {
                           >
                             <div className={styles.optionId}>{index + 1}</div>
                             <div className={styles.optionLabel}>
-                              {flavor.name} - {flavor.gpu || 'CPU'} x{flavor.gpu_count || 1} ({flavor.region_name})
+                              {flavor.name} ({flavor.region_name})
                               <div className={styles.flavorDetails}>
                                 CPU: {flavor.cpu} cores | RAM: {flavor.ram} GB | Disk: {flavor.disk} GB
                               </div>
@@ -569,18 +600,18 @@ const ReservedInstances = () => {
               <div className={styles.stepNumber}>4</div>
               How long do you want to rent them? <span className={styles.required}>*</span>
             </div>
-            <div className={styles.stepDescription}>Select all rental durations that would work for your needs.</div>
+            <div className={styles.stepDescription}>Select the rental duration that would work for your needs.</div>
             <div className={styles.optionsContainer}>
               {rentDurationOptions.map((option) => (
                 <div
                   key={option.id}
-                  className={`${styles.optionItem} ${formData.rentDuration.includes(option.id) ? styles.selected : ''}`}
-                  onClick={() => handleRentDurationToggle(option.id)}
+                  className={`${styles.optionItem} ${formData.rentDuration === option.id ? styles.selected : ''} ${styles.radioOption}`}
+                  onClick={() => handleRentDurationToggle(option.id, option.label)}
                 >
                   <div className={styles.optionId}>{option.id}</div>
                   <div className={styles.optionLabel}>{option.label}</div>
-                  <div className={styles.optionCheckbox}>
-                    <CheckIcon className={styles.checkIcon} />
+                  <div className={styles.radioCheckbox}>
+                    <div className={styles.radioInner}></div>
                   </div>
                 </div>
               ))}
@@ -596,18 +627,18 @@ const ReservedInstances = () => {
               <div className={styles.stepNumber}>5</div>
               When do you want to have the GPUs? <span className={styles.required}>*</span>
             </div>
-            <div className={styles.stepDescription}>Select all timeframes that would work for your needs.</div>
+            <div className={styles.stepDescription}>Select the timeframe that would work for your needs.</div>
             <div className={styles.optionsContainer}>
               {rentTimingOptions.map((option) => (
                 <div
                   key={option.id}
-                  className={`${styles.optionItem} ${formData.rentTiming.includes(option.id) ? styles.selected : ''}`}
-                  onClick={() => handleRentTimingToggle(option.id)}
+                  className={`${styles.optionItem} ${formData.rentTiming === option.id ? styles.selected : ''} ${styles.radioOption}`}
+                  onClick={() => handleRentTimingToggle(option.id, option.label)}
                 >
                   <div className={styles.optionId}>{option.id}</div>
                   <div className={styles.optionLabel}>{option.label}</div>
-                  <div className={styles.optionCheckbox}>
-                    <CheckIcon className={styles.checkIcon} />
+                  <div className={styles.radioCheckbox}>
+                    <div className={styles.radioInner}></div>
                   </div>
                 </div>
               ))}
@@ -685,7 +716,7 @@ const ReservedInstances = () => {
                         const flavor = selectedGpuFlavors.find((f) => String(f.id) === flavorId)
                         return flavor ? (
                           <div key={flavorId} className={styles.summaryTag}>
-                            {flavor.name} - {flavor.gpu || 'CPU'} x{flavor.gpu_count || 1} ({flavor.region_name})
+                            {flavor.name} ({flavor.region_name})
                           </div>
                         ) : null
                       })}
@@ -696,32 +727,14 @@ const ReservedInstances = () => {
               <div className={styles.summaryItem}>
                 <div className={styles.summaryLabel}>Rental Duration:</div>
                 <div className={styles.summaryValue}>
-                  <div className={styles.summaryList}>
-                    {formData.rentDuration.map((durationId) => {
-                      const option = rentDurationOptions.find((opt) => opt.id === durationId)
-                      return (
-                        <div key={durationId} className={styles.summaryTag}>
-                          {option?.label}
-                        </div>
-                      )
-                    })}
-                  </div>
+                  {rentDurationOptions.find((opt) => opt.id === formData.rentDuration)?.label || 'Not specified'}
                 </div>
               </div>
 
               <div className={styles.summaryItem}>
                 <div className={styles.summaryLabel}>Preferred Timing:</div>
                 <div className={styles.summaryValue}>
-                  <div className={styles.summaryList}>
-                    {formData.rentTiming.map((timingId) => {
-                      const option = rentTimingOptions.find((opt) => opt.id === timingId)
-                      return (
-                        <div key={timingId} className={styles.summaryTag}>
-                          {option?.label}
-                        </div>
-                      )
-                    })}
-                  </div>
+                  {rentTimingOptions.find((opt) => opt.id === formData.rentTiming)?.label || 'Not specified'}
                 </div>
               </div>
 

@@ -356,3 +356,100 @@ export const getVncUrl = async (vmId: number | string): Promise<VncUrlResponse> 
     }
   }
 }
+
+// Update the ReservationRequest interface
+interface ReservationRequest {
+  contact_email: string
+  gpu_types: string[] // This will now contain the actual GPU names
+  flavor_name: string[] // This will now contain the actual flavor names
+  duration: string // Changed from string[] to string
+  timing: string // Changed from string[] to string
+  requirement?: string
+  user?: any // Added user field to include the whole user content
+}
+
+// Update the ReservationResponse interface
+interface ReservationResponse {
+  status: string
+  reservation: {
+    id: number
+    user_id: number
+    contact_email: string
+    gpu_types: string[]
+    flavor_name: string[]
+    duration: string // Changed from string[] to string
+    timing: string // Changed from string[] to string
+    requirement?: string
+    createdAt: string
+    updatedAt: string
+    user?: any // Added user field in the response
+  }
+}
+
+// Add this function to create a GPU reservation
+export const createReservation = async (params: ReservationRequest): Promise<ReservationResponse> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/reserve`
+    const token = sessionStorage.getItem('authToken')
+
+    // Get user data if not provided
+    if (!params.user) {
+      try {
+        const userResponse = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/user`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        params.user = userResponse.data.user
+      } catch (userError) {
+        console.error('Failed to fetch user data:', userError)
+        // Continue with the request even if user data fetch fails
+      }
+    }
+
+    const result = await axios.post(url, params, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    return result.data as ReservationResponse
+  } catch (err) {
+    console.error('Create reservation error:', err instanceof Error ? err.message : 'Unknown error')
+
+    // Enhanced error handling with more specific error messages
+    if (axios.isAxiosError(err)) {
+      if (err.response) {
+        // Server responded with an error status
+        const statusCode = err.response.status
+        // Add type assertion for error response data
+        const errorData = err.response.data as { message?: string }
+        const errorMessage = errorData?.message || 'Failed to create reservation'
+
+        if (statusCode === 400) {
+          throw new Error(`Invalid request: ${errorMessage}`)
+        } else if (statusCode === 401) {
+          throw new Error('Authentication required. Please log in again.')
+        } else if (statusCode === 403) {
+          throw new Error("You don't have permission to perform this action.")
+        } else if (statusCode === 404) {
+          throw new Error('Resource not found.')
+        } else if (statusCode >= 500) {
+          throw new Error('Server error. Please try again later.')
+        } else {
+          throw new Error(errorMessage)
+        }
+      } else if (err.request) {
+        // Request was made but no response received
+        throw new Error('No response from server. Please check your connection.')
+      } else {
+        // Something happened in setting up the request
+        throw new Error(`Request error: ${err.message}`)
+      }
+    } else if (err instanceof Error) {
+      throw new Error(err.message || 'Failed to create reservation')
+    } else {
+      throw new Error('Failed to create reservation')
+    }
+  }
+}
