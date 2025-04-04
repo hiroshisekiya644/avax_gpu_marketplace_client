@@ -1,4 +1,6 @@
+// Add the import for User type at the top of the file
 import axios, { type AxiosResponse } from 'axios'
+import type { User } from '@/api/User'
 
 interface GpuResponse {
   data: {
@@ -365,7 +367,7 @@ interface ReservationRequest {
   duration: string // Changed from string[] to string
   timing: string // Changed from string[] to string
   requirement?: string
-  user?: any // Added user field to include the whole user content
+  user?: User // Changed from any to User type
 }
 
 // Update the ReservationResponse interface
@@ -382,7 +384,7 @@ interface ReservationResponse {
     requirement?: string
     createdAt: string
     updatedAt: string
-    user?: any // Added user field in the response
+    user?: User // Changed from any to User type
   }
 }
 
@@ -400,7 +402,9 @@ export const createReservation = async (params: ReservationRequest): Promise<Res
             Authorization: `Bearer ${token}`
           }
         })
-        params.user = userResponse.data.user
+        // Add a more comprehensive type assertion for the entire response structure
+        const userData = userResponse.data as { message: string; user: User }
+        params.user = userData.user
       } catch (userError) {
         console.error('Failed to fetch user data:', userError)
         // Continue with the request even if user data fetch fails
