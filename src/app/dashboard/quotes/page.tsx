@@ -6,10 +6,9 @@ import type React from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { Flex } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
-import { getAvailableGPUAction } from '@/api/GpuProvider'
+import { getAvailableGPUAction, createReservation as createReservationAction } from '@/api/GpuProvider'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
-import { createReservation as createReservationAction } from '@/api/GpuProvider'
 
 // Update the FormData interface to make rentDuration and rentTiming single strings instead of arrays
 interface FormData {
@@ -257,7 +256,7 @@ const ReservedInstances = () => {
   }
 
   // Update the handleRentTimingToggle function to set a single value instead of toggling in an array
-  const handleRentTimingToggle = (id: string, label: string) => {
+  const handleRentTimingToggle = (id: string) => {
     setFormData((prev) => ({
       ...prev,
       rentTiming: id // Set the single value instead of managing an array
@@ -271,7 +270,7 @@ const ReservedInstances = () => {
 
   // Add a handler for rent duration toggle after the handleRentTimingToggle function
   // Update the handleRentDurationToggle function to set a single value instead of toggling in an array
-  const handleRentDurationToggle = (id: string, label: string) => {
+  const handleRentDurationToggle = (id: string) => {
     setFormData((prev) => ({
       ...prev,
       rentDuration: id // Set the single value instead of managing an array
@@ -606,7 +605,7 @@ const ReservedInstances = () => {
                 <div
                   key={option.id}
                   className={`${styles.optionItem} ${formData.rentDuration === option.id ? styles.selected : ''} ${styles.radioOption}`}
-                  onClick={() => handleRentDurationToggle(option.id, option.label)}
+                  onClick={() => handleRentDurationToggle(option.id)}
                 >
                   <div className={styles.optionId}>{option.id}</div>
                   <div className={styles.optionLabel}>{option.label}</div>
@@ -633,7 +632,7 @@ const ReservedInstances = () => {
                 <div
                   key={option.id}
                   className={`${styles.optionItem} ${formData.rentTiming === option.id ? styles.selected : ''} ${styles.radioOption}`}
-                  onClick={() => handleRentTimingToggle(option.id, option.label)}
+                  onClick={() => handleRentTimingToggle(option.id)}
                 >
                   <div className={styles.optionId}>{option.id}</div>
                   <div className={styles.optionLabel}>{option.label}</div>
