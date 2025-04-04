@@ -2,164 +2,673 @@
   background-color: var(--bg);
   height: 100%;
   min-height: 100vh;
-  color: var(--text)
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  color: var(--text);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.formContainer {
+  width: 100%;
+  max-width: 800px;
+  padding: 2rem;
+  margin-top: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .header {
-  height: 110px;
-  border-bottom: 1px solid rgb(61 61 61);
-  width: 100%;
-}
-
-@media screen and (max-width: 768px) {
-  .header {
-    height: 110px;
-  }
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .headerTitle {
-  color: var(--text);
-  font-size: 1.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(90deg, #fff, #9945fc, #fff);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 3s linear infinite;
 }
 
-.subTitle {
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.headerSubtitle {
   color: var(--textSoft);
-  font-size: 12px;
+  font-size: 1rem;
 }
 
-.label {
+/* Progress bar styles */
+.progressContainer {
+  width: 100%;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.progressBar {
+  height: 4px;
+  background-color: rgba(153, 69, 252, 0.2);
+  border-radius: 2px;
+  position: relative;
+  margin: 0 auto;
+  margin-bottom: 1.5rem;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #9945fc, #51a8ff);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.progressSteps {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  border: 2px solid var(--text);
-  border-radius: 4px;
-  padding: 6px;
-  max-width: 300px;
-  width: 300px;
+  justify-content: space-between;
+  position: relative;
+  margin-top: -12px;
+}
+
+.progressStep {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   background-color: var(--bgSoft);
-}
-
-.label:hover {
-  background-color: var(--textSoftDark);
-}
-
-.labelChecked {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  border: 2px solid var(--text);
-  border-radius: 4px;
-  padding: 6px;
-  max-width: 250px;
-}
-
-.checkboxRoot {
-  all: unset;
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  border: 2px solid black;
+  border: 2px solid rgba(153, 69, 252, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 12px;
+  color: var(--textSoft);
+  position: relative;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.progressStep.active {
+  background-color: #9945fc;
+  border-color: #9945fc;
+  color: white;
+  transform: scale(1.2);
+  box-shadow: 0 0 15px rgba(153, 69, 252, 0.5);
+}
+
+.progressStep.completed {
+  background-color: #9945fc;
+  border-color: #9945fc;
   color: white;
 }
 
-.checkboxRootSelected {
-  background-color: black;
+.progressStepLabel {
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--textSoft);
+  white-space: nowrap;
+  transition: all 0.3s ease;
 }
 
-.checkboxRootUnselected {
-  background-color: white;
+.progressStep.active .progressStepLabel {
+  color: var(--text);
+  font-weight: 500;
 }
 
-.checkboxInput {
-  padding: 5px;
-  border-radius: 4px;
-  border: 1px solid gray;
-  flex: 1;
-  color: var(--bg);
-  max-width: 150px;
-  width: 150px;
-  height: 25px;
+/* Form step styles */
+.formStep {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: fadeIn 0.5s ease;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.optionId {
-  padding: 4px 10px;
-  border: 1px solid var(--textSoft);
-  border-radius: 5px;
-  width: 30px;
-} 
-
-.optionIdChecked {
-  padding: 4px 10px;
-  border: 1px solid var(--textSoft);
-  border-radius: 5px;
-  background-color: var(--text);
-  color: var(--bg);
-  width: 30px;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.submitButton {
-  background-color: var(--button);
-  width: 100%;
-  cursor: pointer;
-  width: 100px;
+.stepTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.submitButton:hover {
-  background-color: var(--border);
+.stepNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #9945fc;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
-.progressRoot {
+.stepDescription {
+  color: var(--textSoft);
+  margin-bottom: 1.5rem;
+}
+
+.required {
+  color: #9945fc;
+  margin-left: 0.25rem;
+}
+
+/* Input styles */
+.inputContainer {
   position: relative;
-  overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.1); 
-  border-radius: 9999px;
-  width: 100%;
-  height: 10px;
-  margin-top: 10px;
-}
-
-.progressIndicator {
-  background: linear-gradient(to right, #8e2de2, #4a00e0); 
-  height: 100%;
-  border-radius: 9999px;
-  transition: width 3000ms ease; 
-}
-
-.textFieldContainer {
   width: 100%;
 }
 
 .textField {
   width: 100%;
-  padding: 12px 16px;
-  font-size: 24px;
-  border: 1px solid #555;
-  border-radius: 4px;
-  background-color: #1a1a1a;
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  border: 1px solid rgba(153, 69, 252, 0.3);
+  border-radius: 8px;
+  background-color: rgba(23, 23, 23, 0.8);
   color: white;
-  outline: none;
-  transition: border-color 0.2s ease;
-}
-
-.textField::placeholder {
-  color: #777; 
+  transition: all 0.3s ease;
 }
 
 .textField:focus {
-  border-color: #6200ee; 
+  outline: none;
+  border-color: #9945fc;
+  box-shadow: 0 0 0 2px rgba(153, 69, 252, 0.2);
 }
 
-.iconButton {
-  background-color: var(--button);
-  border: 1px solid var(--border);
+.textField::placeholder {
+  color: var(--textSoftDark);
+}
+
+/* Option styles */
+.optionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(153, 69, 252, 0.3);
+  background-color: rgba(23, 23, 23, 0.8);
   cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.iconButton:hover {
-  background-color: var(--border);
+.optionItem:hover {
+  border-color: #9945fc;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.optionItem.selected {
+  border-color: #9945fc;
+  background-color: rgba(153, 69, 252, 0.1);
+}
+
+.optionItem::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(153, 69, 252, 0.1), transparent);
+  transition: 0.5s;
+  z-index: 1;
+}
+
+.optionItem:hover::before {
+  left: 100%;
+}
+
+.optionId {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background-color: rgba(153, 69, 252, 0.1);
+  color: var(--textSoft);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-right: 1rem;
+  transition: all 0.3s ease;
+}
+
+.optionItem.selected .optionId {
+  background-color: #9945fc;
+  color: white;
+}
+
+.optionLabel {
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.optionCheckbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid rgba(153, 69, 252, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  background-color: transparent;
+}
+
+.optionItem.selected .optionCheckbox {
+  background-color: #9945fc;
+  border-color: #9945fc;
+}
+
+.checkIcon {
+  color: white;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.optionItem.selected .checkIcon {
+  opacity: 1;
+}
+
+.customInput {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(153, 69, 252, 0.3);
+  background-color: rgba(23, 23, 23, 0.8);
+  color: white;
+  font-size: 0.875rem;
+  margin-right: 1rem;
+  transition: all 0.3s ease;
+}
+
+.customInput:focus {
+  outline: none;
+  border-color: #9945fc;
+}
+
+/* Navigation buttons */
+.navigationButtons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.navButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.prevButton {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+.prevButton:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.nextButton {
+  background: linear-gradient(45deg, #9945fc, #51a8ff);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.nextButton::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0)
+  );
+  transform: rotate(30deg);
+  transition: 0.5s;
+  opacity: 0;
+}
+
+.nextButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(153, 69, 252, 0.3);
+}
+
+.nextButton:hover::after {
+  animation: shine 1.5s ease;
+}
+
+.nextButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+    opacity: 0.7;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+/* Success page styles */
+.successContainer {
+  text-align: center;
+  padding: 2rem;
+  animation: fadeIn 0.5s ease;
+}
+
+.successIcon {
+  font-size: 5rem;
+  color: #9945fc;
+  margin-bottom: 1.5rem;
+  animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.successTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.successMessage {
+  color: var(--textSoft);
+  font-size: 1.125rem;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.homeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  background: linear-gradient(45deg, #9945fc, #51a8ff);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.homeButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(153, 69, 252, 0.3);
+}
+
+/* Summary styles */
+.summaryContainer {
+  background-color: rgba(23, 23, 23, 0.8);
+  border-radius: 8px;
+  border: 1px solid rgba(153, 69, 252, 0.3);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.summaryTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+}
+
+.summaryItem {
+  display: flex;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(153, 69, 252, 0.1);
+}
+
+.summaryItem:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.summaryLabel {
+  width: 40%;
+  font-weight: 500;
+  color: var(--textSoft);
+}
+
+.summaryValue {
+  width: 60%;
+  color: var(--text);
+}
+
+.summaryList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.summaryTag {
+  background-color: rgba(153, 69, 252, 0.1);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  color: #9945fc;
+}
+
+/* Loading spinner */
+.loadingSpinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .formContainer {
+    padding: 1.5rem;
+  }
+
+  .headerTitle {
+    font-size: 1.5rem;
+  }
+
+  .stepTitle {
+    font-size: 1.25rem;
+  }
+
+  .progressStepLabel {
+    display: none;
+  }
+
+  .navigationButtons {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .navButton {
+    width: 100%;
+  }
+
+  .summaryItem {
+    flex-direction: column;
+  }
+
+  .summaryLabel,
+  .summaryValue {
+    width: 100%;
+  }
+
+  .summaryLabel {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Background animation */
+.bgAnimation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.bgCircle {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(45deg, rgba(153, 69, 252, 0.05), rgba(81, 168, 255, 0.03));
+  animation: float 15s infinite ease-in-out;
+}
+
+.bgCircle:nth-child(1) {
+  width: 300px;
+  height: 300px;
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.bgCircle:nth-child(2) {
+  width: 200px;
+  height: 200px;
+  top: 60%;
+  left: 80%;
+  animation-delay: 2s;
+}
+
+.bgCircle:nth-child(3) {
+  width: 150px;
+  height: 150px;
+  top: 80%;
+  left: 20%;
+  animation-delay: 4s;
+}
+
+.bgCircle:nth-child(4) {
+  width: 250px;
+  height: 250px;
+  top: 30%;
+  left: 70%;
+  animation-delay: 6s;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-20px, 20px) rotate(180deg);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(0, 0) rotate(360deg);
+    opacity: 0.5;
+  }
+}
+
+/* Tooltip styles */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltipText {
+  visibility: hidden;
+  width: 200px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltipText {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Error message styles */
+.errorMessage {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
 }
