@@ -1,10 +1,12 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
-import type React from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useRef } from 'react'
 
-import { CheckIcon, ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
+import type React from 'react'
+import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { Flex } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
+import { getAvailableGPUAction } from '@/api/GpuProvider'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
 
@@ -18,17 +20,6 @@ interface FormData {
   rentTiming: string[]
   otherRequirements: string
 }
-
-// Define the options for GPU types
-const gpuOptions = [
-  { id: 'A', label: 'Nvidia H100s' },
-  { id: 'B', label: 'Nvidia A100s' },
-  { id: 'C', label: 'Nvidia B100s' },
-  { id: 'D', label: 'Nvidia GH200s' },
-  { id: 'E', label: 'Nvidia 3090/4090s' },
-  { id: 'F', label: 'AMD MI300X' },
-  { id: 'G', label: 'Other' }
-]
 
 // Define the options for rent timing
 const rentTimingOptions = [
@@ -55,12 +46,58 @@ const rentDurationOptions = [
 const formSteps = [
   { id: 1, title: 'Contact', description: 'Your email address' },
   { id: 2, title: 'GPU Types', description: 'Select GPU types you need' },
-  { id: 3, title: 'Quantity', description: 'How many GPUs' },
+  { id: 3, title: 'Flavor', description: 'Select GPU configurations' }, // Changed from "Quantity" to "Flavor"
   { id: 4, title: 'Duration', description: 'Rental period' },
   { id: 5, title: 'Timing', description: 'When you need them' },
   { id: 6, title: 'Requirements', description: 'Additional details' },
   { id: 7, title: 'Review', description: 'Confirm your request' }
 ]
+
+// Define interfaces for the API response
+interface FlavorFeatures {
+  network_optimised: boolean
+  no_hibernation: boolean
+  no_snapshot: boolean
+  local_storage_only: boolean
+}
+
+interface Label {
+  id: number
+  label: string
+}
+
+// Update the Flavor interface to make additional properties optional
+interface Flavor {
+  id: number | string
+  name: string
+  cpu: number
+  ram: number
+  disk: number
+  ephemeral: number | null
+  stock_available: boolean
+  // Make all additional properties optional
+  display_name?: string | null
+  region_name?: string
+  gpu?: string
+  gpu_count?: number
+  created_at?: string
+  labels?: Label[]
+  features?: FlavorFeatures
+}
+
+interface GpuCard {
+  gpu: string
+  region_name: string
+  flavors: Flavor[]
+}
+
+// Define a proper type for the GPU options
+interface GpuOption {
+  id: string
+  label: string
+  region: string
+  originalData?: GpuCard // Make originalData optional
+}
 
 const ReservedInstances = () => {
   const router = useRouter()
@@ -68,6 +105,9 @@ const ReservedInstances = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof FormData, string>>>({})
   const [animationReady, setAnimationReady] = useState<boolean>(false)
+  const [gpuCards, setGpuCards] = useState<GpuCard[]>([])
+  const [isLoadingGpuData, setIsLoadingGpuData] = useState<boolean>(true)
+  const [selectedGpuFlavors, setSelectedGpuFlavors] = useState<Flavor[]>([])
 
   // Create refs for input focus
   const inputRefs = {
@@ -88,6 +128,70 @@ const ReservedInstances = () => {
     rentTiming: [],
     otherRequirements: ''
   })
+
+  // Fetch GPU data from API
+  // Update the fetchGpuData function to handle type casting
+  const fetchGpuData = async () => {
+    try {
+      setIsLoadingGpuData(true)
+      const response = await getAvailableGPUAction()
+      if (response && response.data && response.data.data) {
+        // Cast the response data to GpuCard[] to ensure type compatibility
+        setGpuCards(response.data.data as GpuCard[])
+      }
+    } catch (err) {
+      console.error('Error fetching GPU data:', err)
+      Snackbar({ message: 'Failed to load GPU data', type: 'error' })
+    } finally {
+      setIsLoadingGpuData(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchGpuData()
+  }, [])
+
+  // Generate GPU options based on API data
+  // Update the gpuOptions function to use the new type
+  const gpuOptions = useCallback((): GpuOption[] => {
+    // Filter GPU data to only include GPUs with at least one flavor where stock_available is false
+    const unavailableGpus = gpuCards
+      .filter((item) => item.flavors.some((flavor) => !flavor.stock_available))
+      .map((item, index) => ({
+        id: `${index}`,
+        label: item.gpu || 'CPU only',
+        region: item.region_name,
+        originalData: item
+      }))
+
+    // Add "Other" option at the end
+    return [...unavailableGpus, { id: 'G', label: 'Other', region: '' }]
+  }, [gpuCards])
+
+  // Update selected GPU flavors when gpuTypes changes
+  // Update the useEffect that uses gpuOptions to handle the optional originalData
+  useEffect(() => {
+    if (formData.gpuTypes.length > 0 && gpuCards.length > 0) {
+      const flavors: Flavor[] = []
+
+      formData.gpuTypes.forEach((gpuTypeId) => {
+        // Skip the "Other" option
+        if (gpuTypeId === 'G') return
+
+        const gpuOption = gpuOptions().find((option) => option.id === gpuTypeId)
+        // Check if originalData exists before accessing it
+        if (gpuOption && gpuOption.originalData) {
+          // Add only flavors where stock_available is false
+          const unavailableFlavors = gpuOption.originalData.flavors.filter((flavor) => !flavor.stock_available)
+          flavors.push(...unavailableFlavors)
+        }
+      })
+
+      setSelectedGpuFlavors(flavors)
+    } else {
+      setSelectedGpuFlavors([])
+    }
+  }, [formData.gpuTypes, gpuCards, gpuOptions])
 
   // Set animation ready after a short delay for a smoother entry
   useEffect(() => {
@@ -122,7 +226,7 @@ const ReservedInstances = () => {
     // Small delay to ensure the DOM is ready
     const timer = setTimeout(focusInput, 100)
     return () => clearTimeout(timer)
-  }, [currentStep])
+  }, [currentStep, inputRefs.email, inputRefs.gpuCount, inputRefs.rentDuration, inputRefs.otherRequirements])
 
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,6 +363,7 @@ const ReservedInstances = () => {
       // Reset form and go to success step
       setCurrentStep(8)
     } catch (error) {
+      console.error('Reservation error:', error)
       Snackbar({
         message: 'There was an error submitting your request. Please try again.',
         type: 'error'
@@ -314,7 +419,7 @@ const ReservedInstances = () => {
               Your Email Address <span className={styles.required}>*</span>
             </div>
             <div className={styles.stepDescription}>
-              We'll use this to contact you about your GPU reservation request.
+              We&apos;ll use this to contact you about your GPU reservation request.
             </div>
             <div className={styles.inputContainer}>
               <input
@@ -340,39 +445,48 @@ const ReservedInstances = () => {
               Which GPUs are you interested in? <span className={styles.required}>*</span>
             </div>
             <div className={styles.stepDescription}>Select all GPU types that would meet your requirements.</div>
-            <div className={styles.optionsContainer}>
-              {gpuOptions.map((option) => (
-                <div
-                  key={option.id}
-                  className={`${styles.optionItem} ${formData.gpuTypes.includes(option.id) ? styles.selected : ''}`}
-                  onClick={() => handleGpuTypeToggle(option.id)}
-                >
-                  <div className={styles.optionId}>{option.id}</div>
-                  <div className={styles.optionLabel}>{option.label}</div>
-                  {option.id === 'G' && formData.gpuTypes.includes('G') && (
-                    <input
-                      ref={inputRefs.customGpuType}
-                      type="text"
-                      className={styles.customInput}
-                      placeholder="Please specify"
-                      value={formData.customGpuType}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          customGpuType: e.target.value
-                        }))
-                      }
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  )}
-                  <div className={styles.optionCheckbox}>
-                    <CheckIcon className={styles.checkIcon} />
+            {isLoadingGpuData ? (
+              <div className={styles.loadingContainer}>
+                <div className={styles.loadingSpinner}></div>
+                <div className={styles.loadingText}>Loading available GPU types...</div>
+              </div>
+            ) : (
+              <div className={styles.optionsContainer}>
+                {gpuOptions().map((option) => (
+                  <div
+                    key={option.id}
+                    className={`${styles.optionItem} ${formData.gpuTypes.includes(option.id) ? styles.selected : ''}`}
+                    onClick={() => handleGpuTypeToggle(option.id)}
+                  >
+                    <div className={styles.optionId}>{option.id}</div>
+                    <div className={styles.optionLabel}>
+                      {option.label} {option.region && `(${option.region})`}
+                    </div>
+                    {option.id === 'G' && formData.gpuTypes.includes('G') && (
+                      <input
+                        ref={inputRefs.customGpuType}
+                        type="text"
+                        className={styles.customInput}
+                        placeholder="Please specify"
+                        value={formData.customGpuType}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            customGpuType: e.target.value
+                          }))
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    )}
+                    <div className={styles.optionCheckbox}>
+                      <CheckIcon className={styles.checkIcon} />
+                    </div>
                   </div>
-                </div>
-              ))}
-              {formErrors.gpuTypes && <div className={styles.errorMessage}>{formErrors.gpuTypes}</div>}
-              {formErrors.customGpuType && <div className={styles.errorMessage}>{formErrors.customGpuType}</div>}
-            </div>
+                ))}
+                {formErrors.gpuTypes && <div className={styles.errorMessage}>{formErrors.gpuTypes}</div>}
+                {formErrors.customGpuType && <div className={styles.errorMessage}>{formErrors.customGpuType}</div>}
+              </div>
+            )}
           </div>
         )
 
@@ -381,22 +495,70 @@ const ReservedInstances = () => {
           <div className={styles.formStep}>
             <div className={styles.stepTitle}>
               <div className={styles.stepNumber}>3</div>
-              How many GPUs do you need? <span className={styles.required}>*</span>
+              Which GPU configurations do you need? <span className={styles.required}>*</span>
             </div>
-            <div className={styles.stepDescription}>Specify the number of GPUs you're looking to reserve.</div>
-            <div className={styles.inputContainer}>
-              <input
-                ref={inputRefs.gpuCount}
-                type="text"
-                name="gpuCount"
-                className={styles.textField}
-                placeholder="e.g., 4, 8, 16, etc."
-                value={formData.gpuCount}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-              />
-              {formErrors.gpuCount && <div className={styles.errorMessage}>{formErrors.gpuCount}</div>}
+            <div className={styles.stepDescription}>
+              Select the specific configurations you&apos;re interested in reserving.
             </div>
+
+            {selectedGpuFlavors.length > 0 ? (
+              <div className={styles.optionsContainer}>
+                {/* Group flavors by GPU type */}
+                {formData.gpuTypes
+                  .filter((typeId) => typeId !== 'G') // Exclude "Other" option
+                  .map((gpuTypeId) => {
+                    const gpuOption = gpuOptions().find((option) => option.id === gpuTypeId)
+                    if (!gpuOption || !gpuOption.originalData) return null
+
+                    // Get flavors for this GPU type
+                    const flavorsForThisGpu = selectedGpuFlavors.filter(
+                      (flavor) => flavor.gpu === gpuOption.originalData?.gpu
+                    )
+
+                    if (flavorsForThisGpu.length === 0) return null
+
+                    return (
+                      <div key={gpuTypeId} className={styles.gpuFlavorGroup}>
+                        <h3 className={styles.gpuFlavorGroupTitle}>
+                          {gpuOption.label} ({gpuOption.region})
+                        </h3>
+                        {flavorsForThisGpu.map((flavor, index) => (
+                          <div
+                            key={`${flavor.id}-${index}`}
+                            className={`${styles.optionItem} ${formData.gpuCount.includes(String(flavor.id)) ? styles.selected : ''}`}
+                            onClick={() => {
+                              const flavorId = String(flavor.id)
+                              setFormData((prev) => ({
+                                ...prev,
+                                gpuCount: prev.gpuCount.includes(flavorId)
+                                  ? prev.gpuCount.replace(flavorId, '')
+                                  : prev.gpuCount + flavorId + ','
+                              }))
+                            }}
+                          >
+                            <div className={styles.optionId}>{index + 1}</div>
+                            <div className={styles.optionLabel}>
+                              {flavor.name} - {flavor.gpu || 'CPU'} x{flavor.gpu_count || 1} ({flavor.region_name})
+                              <div className={styles.flavorDetails}>
+                                CPU: {flavor.cpu} cores | RAM: {flavor.ram} GB | Disk: {flavor.disk} GB
+                              </div>
+                            </div>
+                            <div className={styles.optionCheckbox}>
+                              <CheckIcon className={styles.checkIcon} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  })}
+              </div>
+            ) : (
+              <div className={styles.noOptionsMessage}>
+                Please select at least one GPU type in the previous step to see available configurations.
+              </div>
+            )}
+
+            {formErrors.gpuCount && <div className={styles.errorMessage}>{formErrors.gpuCount}</div>}
           </div>
         )
 
@@ -500,10 +662,11 @@ const ReservedInstances = () => {
                 <div className={styles.summaryValue}>
                   <div className={styles.summaryList}>
                     {formData.gpuTypes.map((typeId) => {
-                      const option = gpuOptions.find((opt) => opt.id === typeId)
+                      const option = gpuOptions().find((opt) => opt.id === typeId)
                       return (
                         <div key={typeId} className={styles.summaryTag}>
-                          {typeId === 'G' ? formData.customGpuType : option?.label}
+                          {typeId === 'G' ? formData.customGpuType : option?.label}{' '}
+                          {option?.region && `(${option.region})`}
                         </div>
                       )
                     })}
@@ -512,8 +675,22 @@ const ReservedInstances = () => {
               </div>
 
               <div className={styles.summaryItem}>
-                <div className={styles.summaryLabel}>Number of GPUs:</div>
-                <div className={styles.summaryValue}>{formData.gpuCount}</div>
+                <div className={styles.summaryLabel}>GPU Configurations:</div>
+                <div className={styles.summaryValue}>
+                  <div className={styles.summaryList}>
+                    {formData.gpuCount
+                      .split(',')
+                      .filter(Boolean)
+                      .map((flavorId) => {
+                        const flavor = selectedGpuFlavors.find((f) => String(f.id) === flavorId)
+                        return flavor ? (
+                          <div key={flavorId} className={styles.summaryTag}>
+                            {flavor.name} - {flavor.gpu || 'CPU'} x{flavor.gpu_count || 1} ({flavor.region_name})
+                          </div>
+                        ) : null
+                      })}
+                  </div>
+                </div>
               </div>
 
               <div className={styles.summaryItem}>
@@ -564,8 +741,8 @@ const ReservedInstances = () => {
             <div className={styles.successIcon}>✓</div>
             <div className={styles.successTitle}>Thank You!</div>
             <div className={styles.successMessage}>
-              Your GPU reservation request has been submitted successfully. We'll review your submission and be in touch
-              soon via the email address you provided.
+              Your GPU reservation request has been submitted successfully. We&apos;ll review your submission and be in
+              touch soon via the email address you provided.
             </div>
             <button className={styles.homeButton} onClick={() => router.push('/dashboard')}>
               Return to Dashboard
@@ -644,5 +821,23 @@ const ReservedInstances = () => {
     </Flex>
   )
 }
+
+// CheckIcon component for the progress steps and option checkboxes
+const CheckIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
 
 export default ReservedInstances
