@@ -2,71 +2,132 @@
 .bg {
   background-color: var(--bg);
   height: 100%;
-  min-height: 100vh; 
-  display: flex; 
+  min-height: 100vh;
+  display: flex;
   justify-content: center !important;
-  align-items: center; 
-  background-image: url('/assets/background.png');
+  align-items: center;
+  background-image: linear-gradient(to bottom right, rgba(10, 10, 10, 0.9), rgba(20, 20, 20, 0.95)),
+    url('/assets/background.png');
   background-position: center;
   background-size: cover;
-  margin: 0; 
-  padding: 0; 
+  margin: 0;
+  padding: 0;
   overflow-y: auto;
 }
 
 .card {
-  width: 400px;
+  width: 450px;
   padding: 40px;
-  background-color: var(--bg);
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: rgba(23, 23, 23, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   text-align: center;
-  border: 2px solid #9945FC;
-  border-radius: 8px;
+  border: 1px solid rgba(153, 69, 252, 0.3);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 12px 40px rgba(153, 69, 252, 0.2);
+  border: 1px solid rgba(153, 69, 252, 0.5);
 }
 
 @media screen and (max-width: 768px) {
   .card {
-    width: 350px;
+    width: 90%;
+    max-width: 400px;
+    padding: 30px;
   }
 }
 
 .title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   color: var(--text);
+  margin-bottom: 8px;
 }
 
 .text {
-  font-size: 14px;
+  font-size: 24px;
   color: var(--text);
   font-weight: bold;
+  margin-bottom: 8px;
 }
 
 .subText {
   font-size: 14px;
-  color: var(--textSoftDark);
+  color: var(--textSoft);
+  margin-bottom: 24px;
+  line-height: 1.5;
 }
 
 .submitButton {
   cursor: pointer !important;
   background-color: var(--border) !important;
   width: 100% !important;
-  height: 45px !important;
+  height: 50px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+  margin-top: 8px !important;
 }
 
 .submitButton:hover {
   background-color: var(--button) !important;
+  transform: translateY(-2px);
+}
+
+.submitButton:active {
+  transform: translateY(0);
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed !important;
+  transform: none !important;
 }
 
 .subTextButton {
   font-size: 14px;
   font-weight: bold;
-  color: var(--text);
+  color: var(--border);
   cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.subTextButton:hover {
+  color: var(--text);
+  text-decoration: underline;
 }
 
 .imageButton {
   cursor: pointer;
   border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  transition: transform 0.2s ease;
+}
+
+.imageButton:hover {
+  transform: scale(1.1);
+}
+
+.formContainer {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.footerLinks {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logoContainer {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
