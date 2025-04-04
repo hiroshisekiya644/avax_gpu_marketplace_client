@@ -81,7 +81,7 @@ const SignUp = () => {
       <div className={styles.card}>
         <div className={styles.logoContainer}>
           <Image src="/logo/logo.jpg" alt="Logo" width={48} height={48} className={styles.imageButton} priority />
-          <Flex className={styles.title}>rLoop GPU MARKETPLACE</Flex>
+          <Flex className={styles.title}>rLoop GPU Marketplace</Flex>
         </div>
 
         <Flex direction="column" gap="4" justify="center" align="center">
