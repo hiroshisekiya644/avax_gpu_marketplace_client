@@ -672,3 +672,36 @@
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }
+
+/* Add these styles for the flavor details and no options message */
+.flavorDetails {
+  font-size: 0.8rem;
+  color: var(--textSoft);
+  margin-top: 4px;
+}
+
+.noOptionsMessage {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  margin: 1rem 0;
+  color: var(--textSoft);
+}
+
+/* Add styles for the GPU flavor grouping */
+.gpuFlavorGroup {
+  margin-bottom: 1.5rem;
+  border-left: 3px solid rgba(153, 69, 252, 0.5);
+  padding-left: 1rem;
+}
+
+.gpuFlavorGroupTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+  background: linear-gradient(90deg, rgba(153, 69, 252, 0.2), transparent);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
