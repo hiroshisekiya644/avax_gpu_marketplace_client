@@ -106,7 +106,6 @@ const SSHKeysPage = () => {
     try {
       setIsLoadingRegions(true)
       const response = await getRegionAction()
-      console.log('Regions response:', response)
       if (response.data && response.data.regions) {
         setRegions(response.data.regions)
       } else {
