@@ -102,14 +102,12 @@ export function BalanceProvider({ children }: BalanceProviderProps) {
 
     // Listen for balance updates
     socket.on('balance-update', (data: { newBalance: number }) => {
-      console.log('Received balance update:', data)
       setBalance(data.newBalance)
       setIsLoading(false)
     })
 
     // Listen for low balance warnings
     socket.on('low-balance-warning', (data: { warning: string; currentBalance: number }) => {
-      console.log('Received low balance warning:', data)
       setBalance(data.currentBalance)
       Snackbar({
         message: data.warning,
@@ -123,7 +121,6 @@ export function BalanceProvider({ children }: BalanceProviderProps) {
     socket.on(
       'gpu-low-balance',
       (data: { instance_id: string | number; time_remaining_seconds: number; warning: string }) => {
-        console.log('Received critical low balance warning:', data)
 
         // Format the remaining time in a human-readable format
         const minutes = Math.floor(data.time_remaining_seconds / 60)

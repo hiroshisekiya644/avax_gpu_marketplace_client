@@ -161,8 +161,6 @@ const Instances = () => {
 
       // Listen for GPU status updates
       socket.on('gpuStatusUpdate', (rawData: unknown) => {
-        console.log('Received GPU status update:', rawData)
-
         // Type guard function to validate the data structure
         const isValidStatusUpdate = (data: unknown): data is GpuStatusUpdate => {
           return (
