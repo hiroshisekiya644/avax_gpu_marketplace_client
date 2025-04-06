@@ -197,11 +197,11 @@
   align-items: center;
   justify-content: center;
   z-index: 10;
-  background-image: url("/path-to-your-unchecked-icon.svg");
+  background-image: url('/path-to-your-unchecked-icon.svg');
 }
 
 .selectedIndicator {
-  background-image: url("/path-to-your-checked-icon.svg");
+  background-image: url('/path-to-your-checked-icon.svg');
 }
 
 /* Button styles */
@@ -437,7 +437,7 @@
   box-shadow: 0 0 0 2px var(--border);
 }
 
-.switchRoot[data-state="checked"] {
+.switchRoot[data-state='checked'] {
   background-color: var(--border);
 }
 
@@ -454,7 +454,7 @@
   cursor: pointer;
 }
 
-.switchThumb[data-state="checked"] {
+.switchThumb[data-state='checked'] {
   transform: translateX(18px);
 }
 
@@ -477,7 +477,9 @@
 .dialogContent {
   background-color: var(--bg);
   border-radius: 6px;
-  box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px, hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  box-shadow:
+    hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
+    hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -785,4 +787,3 @@
   white-space: nowrap;
   font-weight: 500;
 }
-
