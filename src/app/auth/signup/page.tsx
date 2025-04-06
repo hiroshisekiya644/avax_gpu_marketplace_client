@@ -10,7 +10,7 @@ import { authenticateAction, type AuthData, type AuthResponse } from '@/api/Auth
 import { AuthInput } from '@/components/input/AuthInput'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import { EMAIL_REGEX, PASSWORD_REGEX } from '@/utils/Regex'
-import styles from './../login/page.module.css'
+import styles from '../login/page.module.css'
 
 const SignUp = () => {
   const router = useRouter()
