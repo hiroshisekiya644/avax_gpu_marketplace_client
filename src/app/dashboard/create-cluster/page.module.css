@@ -221,10 +221,8 @@
 
 .selectGPUButton {
   composes: buttonBase;
-  /* background-color: var(--bg);
-  border: 2px solid var(--border); */
-  background-color: #6409d0;
-  border: 2px solid #6409d0;
+  background-color: var(--bg);
+  border: 2px solid var(--border);
   font-size: 14px;
 }
 
