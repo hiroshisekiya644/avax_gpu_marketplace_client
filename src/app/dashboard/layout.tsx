@@ -1,8 +1,7 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import { Theme } from '@radix-ui/themes'
+import type React from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname, redirect } from 'next/navigation'
-import '@radix-ui/themes/styles.css'
 import ClientWrapper from '@/components/section/ClientWrapper'
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -25,18 +24,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }, [authToken, pathname])
 
   if (pathname === '/auth/login' || pathname === '/auth/signup') {
-    return (
-      <Theme>
-        <ClientWrapper>{children}</ClientWrapper>
-      </Theme>
-    )
+    return <ClientWrapper>{children}</ClientWrapper>
   }
 
-  return (
-    <Theme>
-      <ClientWrapper>{children}</ClientWrapper>
-    </Theme>
-  )
+  return <ClientWrapper>{children}</ClientWrapper>
 }
 
 export default Layout

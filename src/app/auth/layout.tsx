@@ -1,14 +1,8 @@
-import React from 'react'
-import { Theme } from '@radix-ui/themes'
-import '@radix-ui/themes/styles.css'
+import type React from 'react'
 import styles from './layout.module.css'
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <Theme>
-      <main className={styles.main}>{children}</main>
-    </Theme>
-  )
+  return <main className={styles.main}>{children}</main>
 }
 
 export default Layout
