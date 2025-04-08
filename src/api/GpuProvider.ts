@@ -169,8 +169,12 @@ export const deployVM = async (params: DeployVMParams): Promise<DeployVMResponse
     console.error('Deploy GPU error:', error instanceof Error ? error.message : 'Unknown error')
 
     // Extract specific error message from the backend response if available
-    if (axios.isAxiosError(error) && error.response?.data?.message) {
-      throw new Error(error.response.data.message)
+    if (axios.isAxiosError(error) && error.response?.data) {
+      // Type assertion for the error response data
+      const errorData = error.response.data as { message?: string }
+      if (errorData.message) {
+        throw new Error(errorData.message)
+      }
     }
 
     throw new Error('Failed to deploy GPU')
@@ -311,6 +315,8 @@ export const getGpuAction = async (): Promise<ActiveGpuResponse> => {
     }
   }
 }
+
+// Update the getVncUrl function with proper type assertions
 
 // Replace the existing getVncUrl function with a properly typed version
 export const getVncUrl = async (vmId: number | string): Promise<VncUrlResponse> => {
