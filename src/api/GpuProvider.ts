@@ -152,7 +152,7 @@ interface ActiveGpuResponse {
       }
 }
 
-// Update the deployVM function with proper types
+// Update the deployVM function to better handle error messages from the backend
 export const deployVM = async (params: DeployVMParams): Promise<DeployVMResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/vm/deploy`
@@ -167,7 +167,13 @@ export const deployVM = async (params: DeployVMParams): Promise<DeployVMResponse
     return result.data as DeployVMResponse
   } catch (error: unknown) {
     console.error('Deploy GPU error:', error instanceof Error ? error.message : 'Unknown error')
-    throw new Error('Failed to deploy gpu')
+
+    // Extract specific error message from the backend response if available
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message)
+    }
+
+    throw new Error('Failed to deploy GPU')
   }
 }
 
