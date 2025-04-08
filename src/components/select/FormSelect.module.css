@@ -2,16 +2,18 @@
   width: 100%;
   cursor: pointer;
   font-size: 12px;
-  background-color: var(--bgSoft);
+  background-color: #ffffff1a;
   color: var(--text);
+  border-radius: 100px;
 }
 
 .disabledStatusSelect {
   width: 100%;
   cursor: not-allowed;
   font-size: 12px;
-  background-color: var(--bgSoft);
+  background-color: #ffffff1a;
   color: var(--text);
+  border-radius: 100px;
 }
 
 .error {
@@ -32,7 +34,7 @@
 }
 
 .selectContent {
-  background-color: var(--bgSoft);
+  background-color: #2a2a2a;
   color: var(--text);
   z-index: 1000;
   max-height: 300px;

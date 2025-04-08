@@ -6,26 +6,38 @@
   color: var(--text);
 }
 
-/* Typography */
+/* Update the header title styling to match the design */
 .headerTitle {
   color: var(--text);
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 600;
   margin-top: 10px;
+  letter-spacing: -0.02em;
+  font-family: var(--font-heading);
 }
 
 .subTitle {
   color: var(--textSoft);
-  font-size: 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-top: 4px;
 }
 
 .contentTitle {
   color: var(--text);
   font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  font-family: var(--font-heading);
+}
+
+.accent {
+  color: var(--button);
 }
 
 .contentText {
   color: var(--textSoft);
-  font-size: 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .contentTextWhite {
@@ -67,6 +79,7 @@
   color: var(--text);
   border-radius: 8px;
   font-size: 12px;
+  border-radius: 100px;
 }
 
 .iconSlot {
@@ -98,24 +111,36 @@
   transition: all 0.2s ease;
 }
 
+/* Update card styling */
 .gpuCard {
-  background-color: var(--bgSoft) !important;
+  background-color: var(--bgSoft);
   width: 100%;
-  padding: 12px;
-  border: 2px solid var(--bgSoft);
-  border-radius: 10px;
+  padding: 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 27px;
 }
 
 .gpuCard:hover {
-  border: 2px solid var(--button);
+  border-color: var(--button);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(31, 239, 238, 0.08);
 }
 
 .selectedGpuCard {
-  border: 2px solid var(--button);
+  border: 1px solid var(--button);
+  background-color: rgba(31, 239, 238, 0.05);
 }
 
 .gpuCardContent {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* Updated clusterCard styles */
@@ -184,11 +209,40 @@
 .nvidiaTitle {
   background-color: var(--bgSoftDark);
   align-items: center;
-  padding-right: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .gpuStatus {
   background-color: var(--bgSoftDark);
+  border-radius: 6px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #ffffff1a;
+}
+
+.regionInfo {
+  background-color: var(--bgSoftDark);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.regionLabel {
+  color: var(--textSoft);
+  margin-right: 4px;
+  font-size: 12px;
+}
+
+.regionName {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.greenBadge {
+  margin-left: 4px;
+  font-size: 12px;
 }
 
 .selectionIndicator {
@@ -223,23 +277,35 @@
   transition: all 0.2s ease;
 }
 
+/* Update the select button styling */
 .selectGPUButton {
-  composes: buttonBase;
-  background-color: var(--bg);
-  border: 2px solid var(--border);
-  font-size: 14px;
+  background-color: var(--bgSoft);
+  color: var(--button);
+  border: 1px solid var(--button);
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .selectGPUButton:hover {
-  background-color: var(--button);
+  background-color: rgba(31, 239, 238, 0.2);
+  transform: translateY(-1px);
 }
 
 .selectedGPUButton {
-  background-color: var(--border);
+  background-color: var(--button);
+  color: var(--bg);
 }
 
 .selectedGPUButton:hover {
-  background-color: var(--border);
+  background-color: var(--button);
   opacity: 0.9;
 }
 
@@ -499,7 +565,7 @@
   justify-content: center;
   text-align: center;
   padding: 2rem;
-  border: 1px dashed var(--textSoftDark);
+  border: 1px dashed var(--border);
   border-radius: 8px;
   grid-column: 1 / -1;
   background-color: var(--bgSoft);
@@ -583,14 +649,15 @@
   object-fit: contain;
 }
 
-/* Add styles for the GPU price display */
 .gpuPrice {
-  font-weight: bold;
-  color: var(--button);
-  font-size: 14px;
-  background-color: var(--bgSoftDark);
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-weight: 600;
+  color: var(--soft);
+  font-size: 0.875rem;
+  background-color: var(--button);
+  padding: 4px 8px;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .summaryPrice {
@@ -765,8 +832,8 @@
   background-color: var(--button);
   color: var(--bg);
   cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 0.875rem;
+  font-weight: 600;
   text-align: center;
   flex: 1;
   max-width: 100%;
@@ -774,12 +841,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
   height: 40px;
-  border-radius: 8px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .deployButton:hover {
-  background-color: var(--border);
   opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 /* Update the next  */
@@ -793,4 +865,16 @@ button .nextButton {
 .nextButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(31, 239, 238, 0.3);
+}
+
+.specLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.specValue {
+  font-weight: 500;
+  color: var(--text);
+  margin-left: auto;
 }
