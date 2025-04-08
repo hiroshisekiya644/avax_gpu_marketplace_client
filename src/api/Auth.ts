@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios'
+import axios, { type AxiosResponse } from 'axios'
 import { redirect } from 'next/navigation'
 
 export type AuthData = {
@@ -22,7 +22,10 @@ export const authenticateAction = async (action: AuthAction, data: AuthData): Pr
     return result.data
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      const errorMessage = 'An Axios error occurred'
+      // Type assertion for the error response data
+      const errorData = error.response?.data as { message?: string } | undefined
+      // Extract the error message from the response if available
+      const errorMessage = errorData?.message || 'An Axios error occurred'
       throw new Error(errorMessage)
     } else if (error instanceof Error) {
       throw new Error(error.message || 'An unknown error occurred')
