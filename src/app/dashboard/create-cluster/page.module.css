@@ -40,6 +40,7 @@
 
 .priceTitle {
   font-weight: bold;
+  color: var(--button);
 }
 
 /* Layout components */
@@ -98,16 +99,19 @@
 }
 
 .gpuCard {
-  composes: cardBase;
-  border: 2px solid var(--textSoftDark);
+  background-color: var(--bgSoft) !important;
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--bgSoft);
+  border-radius: 10px;
 }
 
 .gpuCard:hover {
-  border: 2px solid var(--border);
+  border: 2px solid var(--button);
 }
 
 .selectedGpuCard {
-  border: 2px solid var(--border);
+  border: 2px solid var(--button);
 }
 
 .gpuCardContent {
@@ -252,17 +256,25 @@
 }
 
 .headerButton {
-  composes: buttonBase;
   background-color: var(--button);
-  border: 2px solid var(--border);
-  min-width: 100px;
+  color: var(--bg);
+  cursor: pointer;
+  border: none;
   font-size: 14px;
-  border-radius: 7px;
+  font-weight: bold;
+  text-align: center;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  border-radius: 20px;
   height: 40px;
+  padding: 0 20px;
 }
 
 .headerButton:hover {
-  background-color: var(--border);
+  opacity: 0.9;
 }
 
 .invalidGPUButton {
@@ -289,7 +301,7 @@
 
 /* Summary section */
 .summary {
-  background-color: var(--bgSoftDark);
+  background-color: var(--bgSoft);
   border-radius: 8px;
 }
 
@@ -363,7 +375,7 @@
 }
 
 .instanceArea {
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   border-radius: 4px;
   margin-bottom: 8px;
 }
@@ -574,7 +586,7 @@
 /* Add styles for the GPU price display */
 .gpuPrice {
   font-weight: bold;
-  color: var(--text);
+  color: var(--button);
   font-size: 14px;
   background-color: var(--bgSoftDark);
   padding: 2px 6px;
@@ -746,4 +758,39 @@
   margin-bottom: 4px;
   white-space: nowrap;
   font-weight: 500;
+}
+
+/* Update the button styles to match the Figma design  */
+.deployButton {
+  background-color: var(--button);
+  color: var(--bg);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  flex: 1;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 40px;
+  border-radius: 8px;
+}
+
+.deployButton:hover {
+  background-color: var(--border);
+  opacity: 0.9;
+}
+
+/* Update the next  */
+button .nextButton {
+  background: var(--button);
+  color: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.nextButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(31, 239, 238, 0.3);
 }

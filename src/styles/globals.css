@@ -6,16 +6,16 @@
   --background: #ffffff;
   --foreground: #171717;
   --bg: #0a0a0a;
-  --bgSoft: rgb(39 39 39);
-  --bgSoftDark: rgb(23 23 23);
-  --text: #fff;
-  --textSoft: #b7bac1;
-  --textSoftDark: rgb(113 113 113);
-  --soft: rgb(23 23 23);
-  --button: rgb(81 8 167);
-  --border: rgb(100 9 208);
-  --cardDarkPurple: rgb(8 29 87);
-  --buttonDarkPurple: rgb(47 6 98);
+  --bgSoft: #0b1515;
+  --bgSoftDark: #0b1515;
+  --text: #ffffff;
+  --textSoft: #d9d9d9;
+  --textSoftDark: #d9d9d9;
+  --soft: #0b1515;
+  --button: #1fefee;
+  --border: #1fefee;
+  --cardDarkPurple: #0b1515;
+  --buttonDarkPurple: #0b1515;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -87,4 +87,3 @@ dl {
   margin: 0;
   padding: 0;
 }
-
