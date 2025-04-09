@@ -277,6 +277,10 @@
   transition: all 0.2s ease;
 }
 
+.sectionBase {
+  border-bottom: 1px solid #ffffff1a;
+}
+
 /* Update the select button styling */
 .selectGPUButton {
   background-color: var(--bgSoft);
@@ -344,8 +348,9 @@
 }
 
 .invalidGPUButton {
-  background-color: var(--bgSoft);
-  border-radius: 4px;
+  background-color: #ffffff1a;
+  border-radius: 17px;
+  padding: 7px;
 }
 
 /* Add a style for the disabled button */
@@ -363,6 +368,7 @@
 
 .link {
   text-decoration: underline;
+  color: var(--button);
 }
 
 /* Summary section */

@@ -1026,7 +1026,7 @@ const CreateCluster = () => {
       </Flex>
 
       {/* GPU Selection Section */}
-      <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2">
+      <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2" className={styles.gpuSection}>
         <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '25%' }} gap="2">
           <div className={styles.contentTitle}>
             Select Your <span className={styles.accent}>GPU Type</span>
