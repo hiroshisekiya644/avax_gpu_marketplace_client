@@ -145,21 +145,29 @@
 
 /* Updated clusterCard styles */
 .clusterCard {
-  composes: cardBase;
-  border: 2px solid var(--bgSoft);
+  background-color: var(--bgSoft);
+  width: 100%;
+  padding: 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 27px;
   cursor: pointer;
-  position: relative;
-  height: 100%; /* Ensure full height */
 }
 
 .clusterCard:hover {
-  border: 2px solid var(--border);
+  border-color: var(--button);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(31, 239, 238, 0.08);
 }
 
 /* Updated selectedClusterCard styles */
 .selectedClusterCard {
-  border: 2px solid var(--border);
-  background-color: var(--bgSoft) !important;
+  border: 1px solid var(--button);
+  background-color: rgba(31, 239, 238, 0.05);
 }
 
 /* Updated and new styles for image cards */
@@ -175,6 +183,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border-bottom: 1px solid #ffffff1a;
 }
 
 .imageName {
@@ -192,14 +201,14 @@
   -webkit-box-orient: vertical;
   color: var(--textSoft);
   font-size: 12px;
-  margin-bottom: 8px; /* Add space below the description */
+  margin-top: 8px; /* Add space below the description */
   background-color: var(--bgSoftDark);
   padding: 2px;
 }
 
 .imageRegion {
   font-size: 12px;
-  color: var(--textSoft);
+  color: var(--button);
   margin-top: auto; /* Push the region to the bottom */
   background-color: var(--bgSoftDark);
   padding: 2px;
@@ -744,9 +753,6 @@
 }
 
 .checkboxContainer {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   z-index: 1;
 }
 

@@ -929,16 +929,17 @@ const CreateCluster = () => {
           key={image.id}
           direction="column"
           onClick={() => toggleImageSelection(image.id)}
-          style={{ position: 'relative' }} // Add relative positioning to the card
         >
-          <div className={styles.checkboxContainer}>{isSelected ? <Icons.Check /> : <Icons.Uncheck />}</div>
+          <Flex justify="end" className={styles.checkboxContainer}>
+            {isSelected ? <Icons.Check /> : <Icons.Uncheck />}
+          </Flex>
           <Flex className={styles.imageCardContent} direction="column">
             <div className={styles.imageName}>{image.name}</div>
             <div className={styles.imageDescription}>
               {image.description || `${image.type} ${image.version} - ${image.display_size}`}
             </div>
-            <div className={styles.imageRegion}>Region: {image.region_name}</div>
           </Flex>
+          <Flex className={styles.imageRegion}>Region: {image.region_name}</Flex>
         </Flex>
       )
     },
@@ -1078,7 +1079,9 @@ const CreateCluster = () => {
       {/* Cluster Base Image Section */}
       <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2">
         <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '25%' }} gap="2">
-          <div className={styles.contentTitle}>Cluster <span className={styles.accent}>Base Image</span></div>
+          <div className={styles.contentTitle}>
+            Cluster <span className={styles.accent}>Base Image</span>
+          </div>
           <div className={styles.contentText}>
             Select a pre-configured cluster setup tailored to your specific needs, requiring no extra configurations and
             ready to integrate with your codebase immediately.
