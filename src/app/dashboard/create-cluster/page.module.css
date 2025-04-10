@@ -75,7 +75,7 @@
 /* Form elements */
 .searchPad {
   height: 38px;
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   color: var(--text);
   border-radius: 8px;
   font-size: 12px;
@@ -113,7 +113,7 @@
 
 /* Update card styling */
 .gpuCard {
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   width: 100%;
   padding: 16px;
   border-radius: 8px;
@@ -145,7 +145,7 @@
 
 /* Updated clusterCard styles */
 .clusterCard {
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   width: 100%;
   padding: 16px;
   border-radius: 8px;
@@ -183,7 +183,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-bottom: 1px solid #ffffff1a;
+  border-bottom: 1px solid var(--bgSoft);
 }
 
 .imageName {
@@ -228,7 +228,7 @@
   background-color: var(--bgSoftDark);
   border-radius: 6px;
   padding: 6px 8px;
-  border-bottom: 1px solid #ffffff1a;
+  border-bottom: 1px solid var(--bgSoft);
 }
 
 .regionInfo {
@@ -287,12 +287,12 @@
 }
 
 .sectionBase {
-  border-bottom: 1px solid #ffffff1a;
+  border-bottom: 1px solid var(--bgSoft);
 }
 
 /* Update the select button styling */
 .selectGPUButton {
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   color: var(--button);
   border: 1px solid var(--button);
   border-radius: 20px;
@@ -357,7 +357,7 @@
 }
 
 .invalidGPUButton {
-  background-color: #ffffff1a;
+  background-color: var(--bgSoft);
   border-radius: 17px;
   padding: 7px;
 }
@@ -366,7 +366,7 @@
 .disabledButton {
   opacity: 0.5;
   cursor: not-allowed;
-  background-color: var(--bgSoft) !important;
+  background-color: var(--bgSoftDark) !important;
   border: 2px solid var(--textSoftDark) !important;
   color: white;
 }
@@ -382,7 +382,7 @@
 
 /* Summary section */
 .summary {
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   border-radius: 8px;
 }
 
@@ -413,17 +413,18 @@
   font-size: 12px;
   color: var(--textSoft);
   background-color: var(--bgSoft);
-  padding: 8px;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: 20px;
   margin-bottom: 12px;
 }
 
-.summarySpecs div {
-  margin-bottom: 4px;
+.summarySpecsContent {
+  width: 100%;
 }
 
-.summarySpecs div:last-child {
-  margin-bottom: 0;
+.gpuSpecs {
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--bgSoft);
 }
 
 .summaryNoSelection {
@@ -441,7 +442,7 @@
 .summaryImageDetails {
   font-size: 12px;
   color: var(--textSoft);
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   padding: 8px;
   border-radius: 4px;
   margin-bottom: 4px;
@@ -450,7 +451,7 @@
 .summaryImageRegion {
   font-size: 12px;
   color: var(--textSoft);
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   padding: 8px;
   border-radius: 4px;
 }
@@ -466,7 +467,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   padding: 12px;
   border-radius: 4px;
   margin-bottom: 12px;
@@ -583,7 +584,7 @@
   border: 1px dashed var(--border);
   border-radius: 8px;
   grid-column: 1 / -1;
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   margin: 1rem 0;
 }
 
@@ -680,7 +681,7 @@
   color: var(--text);
   margin-top: 8px;
   padding: 4px;
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   border-radius: 4px;
 }
 
@@ -767,7 +768,7 @@
 /* Add styles for the cluster name input */
 .clusterNameInput {
   height: 38px;
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   color: var(--text);
   border-radius: 8px;
   font-size: 14px;
@@ -794,7 +795,7 @@
 /* Add styles for the GPU name input */
 .gpuNameInput {
   height: 38px;
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   color: var(--text);
   border-radius: 8px;
   font-size: 14px;

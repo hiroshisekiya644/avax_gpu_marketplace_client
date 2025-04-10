@@ -1202,11 +1202,20 @@ const CreateCluster = () => {
                       />
                       {selectedFlavor && (
                         <Flex direction="column" className={styles.summarySpecs}>
-                          <Flex justify="between">
+                          <Flex className={styles.summarySpecsContent}>
                             <Flex direction="column" gap="1">
-                              <div>CPUs: {selectedFlavor.cpu}</div>
-                              <div>RAM: {selectedFlavor.ram} GB</div>
-                              <div>Disk: {selectedFlavor.disk} GB</div>
+                              <Flex gap="2" align="center" className={styles.gpuSpecs}>
+                                <Icons.Cpu />
+                                CPUs: {selectedFlavor.cpu}
+                              </Flex>
+                              <Flex gap="2" align="center" className={styles.gpuSpecs}>
+                                <Icons.Vram />
+                                RAM: {selectedFlavor.ram}
+                              </Flex>
+                              <Flex gap="2" align="center" className={styles.gpuSpecs}>
+                                <Icons.Disk />
+                                Disk: {selectedFlavor.disk}
+                              </Flex>
                               {selectedFlavor.ephemeral > 0 && <div>Ephemeral: {selectedFlavor.ephemeral} GB</div>}
                               <div className={styles.summaryRegion}>Region: {gpuCard.region_name}</div>
                               {gpuPrice > 0 && (

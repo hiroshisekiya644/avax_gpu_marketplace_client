@@ -2,7 +2,7 @@
   width: 100%;
   cursor: pointer;
   font-size: 12px;
-  background-color: #ffffff1a;
+  background-color: var(--bgSoft);
   color: var(--text);
   border-radius: 100px;
 }
@@ -11,7 +11,7 @@
   width: 100%;
   cursor: not-allowed;
   font-size: 12px;
-  background-color: #ffffff1a;
+  background-color: var(--bgSoft);
   color: var(--text);
   border-radius: 100px;
 }
