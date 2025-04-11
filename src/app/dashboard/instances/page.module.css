@@ -207,8 +207,8 @@
 }
 
 .deployButton {
-  background-color: #9945fc;
-  color: white;
+  background-color: var(--button);
+  color: var(--bg);
   border: none;
   border-radius: 7px;
   height: 40px;
