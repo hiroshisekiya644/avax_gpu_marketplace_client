@@ -9,25 +9,12 @@
   }
 }
 
-.miniSidebar {
-  max-width: 90px;
-  width: 90px;
-  background-color: var(--bg);
-  border-right: 1px solid var(--border-gray-color);
-  height: 100vh;
-  overflow: auto;
-  border-right: 1px solid rgb(61 61 61);
-  & a {
-    color: var(--text);
-  }
-  overflow-x: hidden;
-}
-
 .menu {
   padding: 8px;
   border-radius: 4px;
   font-size: 14px;
   width: 100%;
+  transition: all 0.2s ease;
 
   &:hover {
     background-color: var(--bgSoft);
@@ -35,7 +22,7 @@
 
   &.current {
     background-color: var(--bgSoft);
-    color: var(--button);
+    border: 1px solid var(--border);
   }
 
   &.child {
@@ -216,12 +203,16 @@
   color: var(--bg);
 }
 
+.createClusterButton:hover {
+  background-color: var(--button);
+}
+
 .createClusterButtonDefault {
-  border: 1px solid var(--bgSoft);
+  border: 2px solid var(--border);
 }
 
 .createClusterButtonDefault:hover {
-  background-color: var(--bgSoft);
+  background-color: var(--button);
 }
 
 .logoText {
