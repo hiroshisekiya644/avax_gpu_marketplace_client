@@ -22,13 +22,39 @@ const Custom404 = () => {
         alignItems: 'center',
         justifyContent: 'center',
         height: '100vh',
-        backgroundColor: '#1a1a1a',
+        backgroundColor: '#0a0a0a',
         color: '#fff',
-        textAlign: 'center'
+        textAlign: 'center',
+        padding: '0 20px'
       }}
     >
-      <h1 style={{ fontSize: '48px' }}>rLoop GPU Marketplace</h1>
-      <p style={{ fontSize: '18px', marginTop: '10px' }}>Comming Soon...</p>
+      <h1
+        style={{
+          fontSize: '48px',
+          fontWeight: '700',
+          color: '#1fefee'
+        }}
+      >
+        rLoop GPU Marketplace
+      </h1>
+      <p
+        style={{
+          fontSize: '18px',
+          marginTop: '16px',
+          color: '#d9d9d9'
+        }}
+      >
+        Coming Soon...
+      </p>
+      <p
+        style={{
+          fontSize: '14px',
+          marginTop: '24px',
+          color: '#999'
+        }}
+      >
+        Redirecting to login page...
+      </p>
     </div>
   )
 }

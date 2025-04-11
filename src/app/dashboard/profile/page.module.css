@@ -1,13 +1,13 @@
 .bg {
-  background-color: var(--bg);
+  background-color: #0a0a0a;
   height: 100%;
   min-height: 100vh;
-  color: var(--text);
+  color: #ffffff;
 }
 
 .header {
   height: 90px;
-  border-bottom: 1px solid rgb(61 61 61);
+  border-bottom: 1px solid rgba(31, 239, 238, 0.2);
   width: 100%;
 }
 
@@ -18,13 +18,17 @@
 }
 
 .headerTitle {
-  color: var(--text);
+  color: #ffffff;
   font-size: 1.5rem;
   margin-top: 10px;
+  background: linear-gradient(90deg, #1fefee, #76b900);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
 }
 
 .subTitle {
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-size: 12px;
 }
 
@@ -35,13 +39,13 @@
 }
 
 .tabList {
-  background-color: var(--white-color);
+  background-color: #0a0a0a;
   display: flex;
   gap: 28px;
   height: fit-content;
   margin-top: 20px;
   align-items: center;
-  border-bottom: 2px solid var(--bgSoft);
+  border-bottom: 2px solid rgba(31, 239, 238, 0.1);
 }
 
 .tabListItem {
@@ -50,23 +54,24 @@
   gap: 8px;
   border-radius: 2px;
   cursor: pointer;
-  color: var(--textSoft);
+  color: #d9d9d9;
   padding: 12px 24px;
-}
-
-.tabListItem:hover {
-  color: var(--text);
   transition: all 0.2s ease;
 }
 
-.tabListItem[data-state='active'] {
-  color: var(--text);
-  border-bottom: 2px solid white;
+.tabListItem:hover {
+  color: #1fefee;
+  transition: all 0.2s ease;
+}
+
+.tabListItem[data-state="active"] {
+  color: #1fefee;
+  border-bottom: 2px solid #1fefee;
 }
 
 .activeTab {
-  border-bottom: 2px solid var(--border);
-  color: var(--text);
+  border-bottom: 2px solid #1fefee;
+  color: #1fefee;
   font-weight: 500;
 }
 
@@ -79,7 +84,7 @@
   width: 100%;
   max-width: 500px;
   padding: 2rem;
-  background-color: var(--bgSoftDark);
+  background-color: #111111;
   border-radius: 12px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
@@ -93,12 +98,12 @@
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
-  color: var(--text);
+  color: #ffffff;
 }
 
 .loadingText {
   margin-top: 1rem;
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-size: 0.9rem;
 }
 
@@ -111,14 +116,14 @@
   padding: 2rem;
   width: 100%;
   text-align: center;
-  background-color: #1a1a1a;
+  background-color: #111111;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .loadingSpinner {
   border: 3px solid transparent;
-  border-top-color: #09f;
+  border-top-color: #1fefee;
   border-radius: 50%;
   width: 30px;
   height: 30px;
@@ -136,7 +141,7 @@
 }
 
 .contentText {
-  color: #a0a0a0;
+  color: #d9d9d9;
   font-size: 0.9rem;
 }
 
@@ -146,24 +151,25 @@
   align-items: center;
   gap: 2rem;
   padding: 2rem;
-  background-color: var(--bgSoftDark);
+  background-color: #111111;
   border-radius: 12px;
   margin-bottom: 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(31, 239, 238, 0.1);
 }
 
 .avatarLarge {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background-color: var(--bgSoft);
+  background-color: #0b1515;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 48px;
-  color: var(--text);
+  color: #ffffff;
   overflow: hidden;
-  border: 4px solid rgba(153, 69, 252, 0.3);
+  border: 4px solid rgba(31, 239, 238, 0.3);
 }
 
 .profileInfo {
@@ -174,13 +180,16 @@
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: var(--text);
+  color: #ffffff;
   text-transform: capitalize;
+  background: linear-gradient(90deg, #1fefee, #76b900);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .profileEmail {
   font-size: 1rem;
-  color: var(--textSoft);
+  color: #d9d9d9;
   margin-bottom: 1rem;
 }
 
@@ -191,8 +200,8 @@
 }
 
 .profileBadge {
-  background-color: rgba(153, 69, 252, 0.2);
-  color: #9945fc;
+  background-color: rgba(31, 239, 238, 0.1);
+  color: #1fefee;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.8rem;
@@ -224,19 +233,19 @@
 
 /* Card styles */
 .card {
-  background-color: var(--bgSoftDark);
+  background-color: #111111;
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(31, 239, 238, 0.1);
 }
 
 .cardHover:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(31, 239, 238, 0.3);
 }
 
 .cardIconHeader {
@@ -250,11 +259,11 @@
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  background-color: rgba(153, 69, 252, 0.2);
+  background-color: rgba(31, 239, 238, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9945fc;
+  color: #1fefee;
 }
 
 .dangerIcon {
@@ -265,12 +274,12 @@
 .cardTitle {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text);
+  color: #ffffff;
   margin: 0;
 }
 
 .cardDescription {
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
 }
@@ -278,23 +287,26 @@
 .cardValue {
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--text);
+  color: #ffffff;
   margin: 0.5rem 0;
+  background: linear-gradient(90deg, #1fefee, #76b900);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .cardNote {
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-size: 0.8rem;
   margin-top: 0.5rem;
 }
 
 .securityCard {
-  background-color: var(--bgSoftDark);
-  border-left: 4px solid #9945fc;
+  background-color: #111111;
+  border-left: 4px solid #1fefee;
 }
 
 .dangerCard {
-  background-color: var(--bgSoftDark);
+  background-color: #111111;
   border-left: 4px solid rgb(220, 38, 38);
 }
 
@@ -317,7 +329,7 @@
 }
 
 .dangerZoneDescription {
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-size: 0.85rem;
   margin: 0;
 }
@@ -333,7 +345,7 @@
 }
 
 .passwordRequirements {
-  background-color: var(--bgSoft);
+  background-color: #0b1515;
   border-radius: 8px;
   padding: 1rem;
   margin: 1rem 0 1.5rem;
@@ -342,7 +354,7 @@
 .requirementTitle {
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--textSoft);
+  color: #d9d9d9;
   margin: 0 0 0.5rem 0;
 }
 
@@ -354,26 +366,26 @@
 
 .requirementList li {
   font-size: 0.85rem;
-  color: var(--textSoft);
+  color: #d9d9d9;
   padding: 0.25rem 0;
   position: relative;
   padding-left: 1.5rem;
 }
 
 .requirementList li:before {
-  content: '○';
+  content: "○";
   position: absolute;
   left: 0;
-  color: var(--textSoft);
+  color: #d9d9d9;
 }
 
 .requirementList li.requirementMet {
-  color: #10b981;
+  color: #76b900;
 }
 
 .requirementList li.requirementMet:before {
-  content: '✓';
-  color: #10b981;
+  content: "✓";
+  color: #76b900;
 }
 
 /* Form elements */
@@ -385,26 +397,24 @@
   display: block;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
-  color: #9945fc;
+  color: #1fefee;
   font-weight: 500;
 }
 
 .formInput {
   width: 100%;
   padding: 0.75rem 1rem;
-  background-color: #2a2a2a;
-  border: 1px solid #3a3a3a;
+  background-color: #0b1515;
+  border: 1px solid rgba(31, 239, 238, 0.3);
   border-radius: 8px;
   color: white;
   font-size: 0.9rem;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .formInput:focus {
-  border-color: #9945fc;
-  box-shadow: 0 0 0 2px rgba(153, 69, 252, 0.2);
+  border-color: #1fefee;
+  box-shadow: 0 0 0 2px rgba(31, 239, 238, 0.2);
   outline: none;
 }
 
@@ -414,21 +424,19 @@
 
 /* Button styles */
 .button {
-  background-color: #9945fc;
-  color: white;
+  background: linear-gradient(90deg, #1fefee, #76b900);
+  color: #000000;
   border: none;
   border-radius: 8px;
   padding: 0.75rem 1.5rem;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition:
-    background-color 0.2s,
-    transform 0.1s;
+  transition: transform 0.1s, opacity 0.2s;
 }
 
 .button:hover {
-  background-color: #8035ec;
+  opacity: 0.9;
   transform: translateY(-2px);
 }
 
@@ -439,20 +447,19 @@
 .buttonSecondary {
   background-color: transparent;
   color: white;
-  border: 1px solid #3a3a3a;
+  border: 1px solid rgba(31, 239, 238, 0.3);
   border-radius: 8px;
   padding: 0.75rem 1.5rem;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition:
-    background-color 0.2s,
-    transform 0.1s;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
 .buttonSecondary:hover {
-  background-color: #2a2a2a;
+  background-color: rgba(31, 239, 238, 0.1);
   transform: translateY(-2px);
+  border-color: #1fefee;
 }
 
 .buttonSecondary:active {
@@ -468,13 +475,13 @@
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition:
-    background-color 0.2s,
-    transform 0.1s;
+  transition: background-color 0.2s, transform 0.1s;
+  background-color: rgba(220, 38, 38, 0.1);
 }
 
 .buttonDanger:hover {
   transform: translateY(-2px);
+  background-color: rgba(220, 38, 38, 0.2);
 }
 
 .buttonDanger:active {
@@ -500,7 +507,7 @@
 .deleteWarning p {
   margin: 0;
   font-size: 0.9rem;
-  color: var(--textSoft);
+  color: #d9d9d9;
 }
 
 /* Add SSH Key modal */
@@ -513,7 +520,7 @@
 }
 
 .modalContent {
-  background-color: #1a1a1a;
+  background-color: #111111;
   border-radius: 12px;
   position: fixed;
   top: 50%;
@@ -527,6 +534,7 @@
   overflow: auto;
   z-index: 51;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(31, 239, 238, 0.2);
 }
 
 .modalTitle {
@@ -534,10 +542,13 @@
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: white;
+  background: linear-gradient(90deg, #1fefee, #76b900);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .modalDescription {
-  color: #a0a0a0;
+  color: #d9d9d9;
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
 }
@@ -546,7 +557,7 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  color: #a0a0a0;
+  color: #d9d9d9;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -559,7 +570,8 @@
 }
 
 .closeButton:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(31, 239, 238, 0.1);
+  color: #1fefee;
 }
 
 .modalFooter {
@@ -599,8 +611,8 @@
 
 /* Required field indicator */
 .requiredField::after {
-  content: ' *';
-  color: #9945fc;
+  content: " *";
+  color: #1fefee;
 }
 
 /* SSH Key list */
@@ -609,28 +621,35 @@
 }
 
 .sshKeyItem {
-  background-color: var(--bgSoft);
+  background-color: #0b1515;
   border-radius: 6px;
   padding: 16px;
   margin-bottom: 12px;
+  border: 1px solid rgba(31, 239, 238, 0.1);
+  transition: all 0.2s ease;
+}
+
+.sshKeyItem:hover {
+  border-color: rgba(31, 239, 238, 0.3);
 }
 
 .sshKeyName {
   font-weight: 600;
   font-size: 16px;
   margin-bottom: 4px;
-  color: var(--text);
+  color: #ffffff;
 }
 
 .sshKeyFingerprint {
   font-family: monospace;
   font-size: 12px;
-  color: var(--textSoft);
-  background-color: var(--bg);
+  color: #d9d9d9;
+  background-color: #0a0a0a;
   padding: 6px;
   border-radius: 4px;
   margin: 8px 0;
   word-break: break-all;
+  border: 1px solid rgba(31, 239, 238, 0.1);
 }
 
 .sshKeyMeta {
@@ -638,7 +657,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
-  color: var(--textSoft);
+  color: #d9d9d9;
 }
 
 .sshKeyActions {
@@ -658,13 +677,14 @@
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background-color: var(--bgSoft);
+  background-color: #0b1515;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 36px;
-  color: var(--text);
+  color: #ffffff;
   overflow: hidden;
+  border: 3px solid rgba(31, 239, 238, 0.3);
 }
 
 .avatarUpload {
@@ -674,9 +694,9 @@
 }
 
 .avatarUploadButton {
-  background-color: var(--bgSoft);
-  color: var(--text);
-  border: 1px solid var(--textSoftDark);
+  background-color: rgba(31, 239, 238, 0.1);
+  color: #1fefee;
+  border: 1px solid rgba(31, 239, 238, 0.3);
   border-radius: 4px;
   padding: 8px 12px;
   font-size: 14px;
@@ -685,33 +705,31 @@
 }
 
 .avatarUploadButton:hover {
-  background-color: var(--button);
+  background-color: rgba(31, 239, 238, 0.2);
 }
 
 .avatarUploadHint {
   font-size: 12px;
-  color: var(--textSoft);
+  color: #d9d9d9;
 }
 
 /* Add styles for the "Add Funds" button */
 .addFundsButton {
   display: inline-block;
-  background-color: var(--button);
-  color: white;
+  background: linear-gradient(90deg, #1fefee, #76b900);
+  color: #000000;
   border: none;
   border-radius: 8px;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition:
-    background-color 0.2s,
-    transform 0.1s;
+  transition: opacity 0.2s, transform 0.1s;
   text-decoration: none;
 }
 
 .addFundsButton:hover {
-  background-color: var(--border);
+  opacity: 0.9;
   transform: translateY(-2px);
 }
 
@@ -734,12 +752,7 @@
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: linear-gradient(
-    90deg,
-    var(--bgSoftDark, #1a1a1a) 25%,
-    var(--bgDark, #222) 50%,
-    var(--bgSoftDark, #1a1a1a) 75%
-  );
+  background: linear-gradient(90deg, #111111 25%, #1a1a1a 50%, #111111 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   margin-right: 1.5rem;
@@ -754,12 +767,7 @@
 .skeletonName {
   width: 180px;
   height: 28px;
-  background: linear-gradient(
-    90deg,
-    var(--bgSoftDark, #1a1a1a) 25%,
-    var(--bgDark, #222) 50%,
-    var(--bgSoftDark, #1a1a1a) 75%
-  );
+  background: linear-gradient(90deg, #111111 25%, #1a1a1a 50%, #111111 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 4px;
@@ -769,12 +777,7 @@
 .skeletonEmail {
   width: 220px;
   height: 20px;
-  background: linear-gradient(
-    90deg,
-    var(--bgSoftDark, #1a1a1a) 25%,
-    var(--bgDark, #222) 50%,
-    var(--bgSoftDark, #1a1a1a) 75%
-  );
+  background: linear-gradient(90deg, #111111 25%, #1a1a1a 50%, #111111 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 4px;
@@ -789,12 +792,7 @@
 .skeletonBadge {
   width: 100px;
   height: 24px;
-  background: linear-gradient(
-    90deg,
-    var(--bgSoftDark, #1a1a1a) 25%,
-    var(--bgDark, #222) 50%,
-    var(--bgSoftDark, #1a1a1a) 75%
-  );
+  background: linear-gradient(90deg, #111111 25%, #1a1a1a 50%, #111111 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 12px;
@@ -809,12 +807,7 @@
 
 .skeletonCard {
   height: 150px;
-  background: linear-gradient(
-    90deg,
-    var(--bgSoftDark, #1a1a1a) 25%,
-    var(--bgDark, #222) 50%,
-    var(--bgSoftDark, #1a1a1a) 75%
-  );
+  background: linear-gradient(90deg, #111111 25%, #1a1a1a 50%, #111111 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 8px;
@@ -827,7 +820,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem 0;
-  color: var(--textSoft, #a0a0a0);
+  color: #d9d9d9;
   font-size: 14px;
 }
 
@@ -841,7 +834,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: var(--textSoft, #a0a0a0);
+  background-color: #1fefee;
   animation: pulse 1.4s infinite ease-in-out;
 }
 
@@ -872,4 +865,17 @@
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* Select box styling */
+.selectBox {
+  background-color: #0b1515;
+  border: 1px solid rgba(31, 239, 238, 0.3);
+  border-radius: 8px;
+  color: #ffffff;
+}
+
+.selectBox:focus {
+  border-color: #1fefee;
+  box-shadow: 0 0 0 2px rgba(31, 239, 238, 0.2);
 }

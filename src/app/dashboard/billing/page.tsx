@@ -253,7 +253,7 @@ const Billing = () => {
                       <div>{transaction.type}</div>
                       <div className={transaction.amount > 0 ? styles.positiveAmount : styles.negativeAmount}>
                         {transaction.amount > 0 ? '+' : ''}
-                        {`$${Math.abs(transaction.amount).toFixed(2)}`}
+                        {`${Math.abs(transaction.amount).toFixed(2)} ${transaction.currency}`}
                       </div>
                       <div className={styles.transactionStatus}>{transaction.status}</div>
                     </div>

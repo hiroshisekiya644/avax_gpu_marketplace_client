@@ -1,11 +1,12 @@
+/* Update the background color to match the dark theme */
 .bg {
-  background-color: var(--bg);
+  background-color: #0a0a0a;
   height: 100%;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  color: var(--text);
+  color: #ffffff;
   position: relative;
   overflow-x: hidden;
 }
@@ -28,7 +29,7 @@
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  background: linear-gradient(90deg, #fff, #9945fc, #fff);
+  background: linear-gradient(90deg, #1fefee, #76b900, #1fefee);
   background-size: 200% auto;
   background-clip: text;
   -webkit-background-clip: text;
@@ -43,7 +44,7 @@
 }
 
 .headerSubtitle {
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-size: 1rem;
 }
 
@@ -56,7 +57,7 @@
 
 .progressBar {
   height: 4px;
-  background-color: rgba(153, 69, 252, 0.2);
+  background-color: rgba(31, 239, 238, 0.2);
   border-radius: 2px;
   position: relative;
   margin: 0 auto;
@@ -65,7 +66,7 @@
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(90deg, #9945fc, #51a8ff);
+  background: linear-gradient(90deg, #1fefee, #76b900);
   border-radius: 2px;
   transition: width 0.5s ease;
 }
@@ -81,30 +82,30 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: var(--bgSoft);
-  border: 2px solid rgba(153, 69, 252, 0.3);
+  background-color: #0b1515;
+  border: 2px solid rgba(31, 239, 238, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  color: var(--textSoft);
+  color: #d9d9d9;
   position: relative;
   transition: all 0.3s ease;
   z-index: 2;
 }
 
 .progressStep.active {
-  background-color: #9945fc;
-  border-color: #9945fc;
-  color: white;
+  background-color: #1fefee;
+  border-color: #1fefee;
+  color: #0a0a0a;
   transform: scale(1.2);
-  box-shadow: 0 0 15px rgba(153, 69, 252, 0.5);
+  box-shadow: 0 0 15px rgba(31, 239, 238, 0.5);
 }
 
 .progressStep.completed {
-  background-color: #9945fc;
-  border-color: #9945fc;
-  color: white;
+  background-color: #1fefee;
+  border-color: #1fefee;
+  color: #0a0a0a;
 }
 
 .progressStepLabel {
@@ -113,13 +114,13 @@
   left: 50%;
   transform: translateX(-50%);
   font-size: 12px;
-  color: var(--textSoft);
+  color: #d9d9d9;
   white-space: nowrap;
   transition: all 0.3s ease;
 }
 
 .progressStep.active .progressStepLabel {
-  color: var(--text);
+  color: #ffffff;
   font-weight: 500;
 }
 
@@ -151,6 +152,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  color: #ffffff;
 }
 
 .stepNumber {
@@ -160,19 +162,19 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: #9945fc;
-  color: white;
+  background-color: #1fefee;
+  color: #0a0a0a;
   font-size: 1rem;
   font-weight: 600;
 }
 
 .stepDescription {
-  color: var(--textSoft);
+  color: #d9d9d9;
   margin-bottom: 1.5rem;
 }
 
 .required {
-  color: #9945fc;
+  color: #1fefee;
   margin-left: 0.25rem;
 }
 
@@ -186,21 +188,21 @@
   width: 100%;
   padding: 1rem 1.25rem;
   font-size: 1rem;
-  border: 1px solid rgba(153, 69, 252, 0.3);
+  border: 1px solid rgba(31, 239, 238, 0.3);
   border-radius: 8px;
-  background-color: rgba(23, 23, 23, 0.8);
+  background-color: rgba(11, 21, 21, 0.8);
   color: white;
   transition: all 0.3s ease;
 }
 
 .textField:focus {
   outline: none;
-  border-color: #9945fc;
-  box-shadow: 0 0 0 2px rgba(153, 69, 252, 0.2);
+  border-color: #1fefee;
+  box-shadow: 0 0 0 2px rgba(31, 239, 238, 0.2);
 }
 
 .textField::placeholder {
-  color: var(--textSoftDark);
+  color: rgba(217, 217, 217, 0.5);
 }
 
 /* Option styles */
@@ -216,8 +218,8 @@
   align-items: center;
   padding: 1rem;
   border-radius: 8px;
-  border: 1px solid rgba(153, 69, 252, 0.3);
-  background-color: rgba(23, 23, 23, 0.8);
+  border: 1px solid rgba(31, 239, 238, 0.3);
+  background-color: rgba(11, 21, 21, 0.8);
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
@@ -225,14 +227,14 @@
 }
 
 .optionItem:hover {
-  border-color: #9945fc;
+  border-color: #1fefee;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .optionItem.selected {
-  border-color: #9945fc;
-  background-color: rgba(153, 69, 252, 0.1);
+  border-color: #1fefee;
+  background-color: rgba(31, 239, 238, 0.1);
 }
 
 .optionItem::before {
@@ -242,7 +244,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(153, 69, 252, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(31, 239, 238, 0.1), transparent);
   transition: 0.5s;
   z-index: 1;
 }
@@ -258,8 +260,8 @@
   width: 28px;
   height: 28px;
   border-radius: 4px;
-  background-color: rgba(153, 69, 252, 0.1);
-  color: var(--textSoft);
+  background-color: rgba(31, 239, 238, 0.1);
+  color: #d9d9d9;
   font-size: 0.875rem;
   font-weight: 500;
   margin-right: 1rem;
@@ -267,8 +269,8 @@
 }
 
 .optionItem.selected .optionId {
-  background-color: #9945fc;
-  color: white;
+  background-color: #1fefee;
+  color: #0a0a0a;
 }
 
 .optionLabel {
@@ -280,7 +282,7 @@
   width: 20px;
   height: 20px;
   border-radius: 4px;
-  border: 2px solid rgba(153, 69, 252, 0.5);
+  border: 2px solid rgba(31, 239, 238, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -289,12 +291,12 @@
 }
 
 .optionItem.selected .optionCheckbox {
-  background-color: #9945fc;
-  border-color: #9945fc;
+  background-color: #1fefee;
+  border-color: #1fefee;
 }
 
 .checkIcon {
-  color: white;
+  color: #0a0a0a;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -312,7 +314,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid rgba(153, 69, 252, 0.5);
+  border: 2px solid rgba(31, 239, 238, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -324,7 +326,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: #9945fc;
+  background-color: #1fefee;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -334,15 +336,15 @@
 }
 
 .optionItem.selected .radioCheckbox {
-  border-color: #9945fc;
+  border-color: #1fefee;
 }
 
 .customInput {
   flex: 1;
   padding: 0.5rem;
   border-radius: 4px;
-  border: 1px solid rgba(153, 69, 252, 0.3);
-  background-color: rgba(23, 23, 23, 0.8);
+  border: 1px solid rgba(31, 239, 238, 0.3);
+  background-color: rgba(11, 21, 21, 0.8);
   color: white;
   font-size: 0.875rem;
   margin-right: 1rem;
@@ -351,7 +353,7 @@
 
 .customInput:focus {
   outline: none;
-  border-color: #9945fc;
+  border-color: #1fefee;
 }
 
 /* Navigation buttons */
@@ -376,7 +378,7 @@
 
 .prevButton {
   background-color: rgba(255, 255, 255, 0.1);
-  color: var(--text);
+  color: #ffffff;
 }
 
 .prevButton:hover {
@@ -384,10 +386,11 @@
 }
 
 .nextButton {
-  background: linear-gradient(45deg, #9945fc, #51a8ff);
-  color: white;
+  background: linear-gradient(45deg, #1fefee, #76b900);
+  color: #0a0a0a;
   position: relative;
   overflow: hidden;
+  font-weight: 600;
 }
 
 .nextButton::after {
@@ -411,7 +414,7 @@
 
 .nextButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(153, 69, 252, 0.3);
+  box-shadow: 0 5px 15px rgba(31, 239, 238, 0.3);
 }
 
 .nextButton:hover::after {
@@ -445,7 +448,7 @@
 
 .successIcon {
   font-size: 5rem;
-  color: #9945fc;
+  color: #1fefee;
   margin-bottom: 1.5rem;
   animation: scaleIn 0.5s ease;
 }
@@ -463,10 +466,11 @@
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 1rem;
+  color: #ffffff;
 }
 
 .successMessage {
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-size: 1.125rem;
   max-width: 600px;
   margin: 0 auto;
@@ -480,10 +484,10 @@
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  background: linear-gradient(45deg, #9945fc, #51a8ff);
-  color: white;
+  background: linear-gradient(45deg, #1fefee, #76b900);
+  color: #0a0a0a;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   margin-top: 2rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -491,14 +495,14 @@
 
 .homeButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(153, 69, 252, 0.3);
+  box-shadow: 0 5px 15px rgba(31, 239, 238, 0.3);
 }
 
 /* Summary styles */
 .summaryContainer {
-  background-color: rgba(23, 23, 23, 0.8);
+  background-color: rgba(11, 21, 21, 0.8);
   border-radius: 8px;
-  border: 1px solid rgba(153, 69, 252, 0.3);
+  border: 1px solid rgba(31, 239, 238, 0.3);
   padding: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -507,14 +511,14 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
-  color: var(--text);
+  color: #ffffff;
 }
 
 .summaryItem {
   display: flex;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(153, 69, 252, 0.1);
+  border-bottom: 1px solid rgba(31, 239, 238, 0.1);
 }
 
 .summaryItem:last-child {
@@ -526,12 +530,12 @@
 .summaryLabel {
   width: 40%;
   font-weight: 500;
-  color: var(--textSoft);
+  color: #d9d9d9;
 }
 
 .summaryValue {
   width: 60%;
-  color: var(--text);
+  color: #ffffff;
 }
 
 .summaryList {
@@ -541,11 +545,11 @@
 }
 
 .summaryTag {
-  background-color: rgba(153, 69, 252, 0.1);
+  background-color: rgba(31, 239, 238, 0.1);
   border-radius: 4px;
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
-  color: #9945fc;
+  color: #1fefee;
 }
 
 /* Loading spinner */
@@ -621,7 +625,7 @@
 .bgCircle {
   position: absolute;
   border-radius: 50%;
-  background: linear-gradient(45deg, rgba(153, 69, 252, 0.05), rgba(81, 168, 255, 0.03));
+  background: linear-gradient(45deg, rgba(31, 239, 238, 0.05), rgba(118, 185, 0, 0.03));
   animation: float 15s infinite ease-in-out;
 }
 
@@ -702,7 +706,7 @@
 
 /* Error message styles */
 .errorMessage {
-  color: #ef4444;
+  color: #ff0000;
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }
@@ -710,32 +714,32 @@
 /* Add these styles for the flavor details and no options message */
 .flavorDetails {
   font-size: 0.8rem;
-  color: var(--textSoft);
+  color: #d9d9d9;
   margin-top: 4px;
 }
 
 .noOptionsMessage {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(11, 21, 21, 0.8);
   padding: 1rem;
   border-radius: 8px;
   text-align: center;
   margin: 1rem 0;
-  color: var(--textSoft);
+  color: #d9d9d9;
 }
 
 /* Add styles for the GPU flavor grouping */
 .gpuFlavorGroup {
   margin-bottom: 1.5rem;
-  border-left: 3px solid rgba(153, 69, 252, 0.5);
+  border-left: 3px solid rgba(31, 239, 238, 0.5);
   padding-left: 1rem;
 }
 
 .gpuFlavorGroupTitle {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text);
+  color: #ffffff;
   margin-bottom: 0.75rem;
-  background: linear-gradient(90deg, rgba(153, 69, 252, 0.2), transparent);
+  background: linear-gradient(90deg, rgba(31, 239, 238, 0.2), transparent);
   padding: 0.5rem 1rem;
   border-radius: 4px;
 }

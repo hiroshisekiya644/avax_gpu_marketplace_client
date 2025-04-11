@@ -1,24 +1,28 @@
 /* Base styles */
 .bg {
-  background-color: var(--bg);
+  background-color: #0a0a0a;
   min-height: 100vh;
-  color: var(--text);
+  color: #ffffff;
 }
 
 .header {
   height: 90px;
-  border-bottom: 1px solid rgb(61 61 61);
+  border-bottom: 1px solid rgba(31, 239, 238, 0.2);
   width: 100%;
 }
 
 .headerTitle {
-  color: var(--text);
+  color: #ffffff;
   font-size: 1.5rem;
   margin-top: 10px;
+  background: linear-gradient(90deg, #1fefee 0%, #76b900 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
 }
 
 .subTitle {
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-size: 12px;
 }
 
@@ -52,7 +56,7 @@
 /* Tab navigation */
 .tabContainer {
   display: flex;
-  border-bottom: 1px solid var(--bgSoft);
+  border-bottom: 1px solid rgba(31, 239, 238, 0.2);
   margin-top: 20px;
 }
 
@@ -60,7 +64,7 @@
   padding: 12px 24px;
   background: none;
   border: none;
-  color: var(--textSoft);
+  color: #d9d9d9;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -69,12 +73,12 @@
 }
 
 .tabButton:hover {
-  color: var(--text);
+  color: #1fefee;
 }
 
 .activeTab {
-  color: var(--text);
-  border-bottom: 2px solid var(--border);
+  color: #1fefee;
+  border-bottom: 2px solid #1fefee;
   font-weight: 500;
 }
 
@@ -85,10 +89,11 @@
 .historyCard,
 .faqCard,
 .supportCard {
-  background-color: var(--bgSoftDark);
+  background-color: #111111;
   border-radius: 10px;
   padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(31, 239, 238, 0.1);
 }
 
 /* Balance card */
@@ -110,17 +115,21 @@
   font-size: 18px;
   font-weight: 600;
   margin: 0;
+  color: #ffffff;
 }
 
 .balanceAmount {
   font-size: 36px;
   font-weight: 700;
   margin: 16px 0;
-  color: var(--text);
+  color: #1fefee;
+  background: linear-gradient(90deg, #1fefee 0%, #76b900 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .balanceDescription {
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-size: 14px;
 }
 
@@ -137,21 +146,22 @@
   display: block;
   margin-bottom: 8px;
   font-size: 14px;
-  color: var(--textSoft);
+  color: #d9d9d9;
 }
 
 .creditInput {
   width: 100%;
   height: 45px;
-  background-color: var(--bgSoft);
-  color: var(--text);
+  background-color: #0b1515;
+  color: #ffffff;
   border-radius: 8px;
   font-size: 16px;
-  border: 1px solid var(--bgSoft);
+  border: 1px solid rgba(31, 239, 238, 0.3);
 }
 
 .creditInput:focus-within {
-  border-color: var(--border);
+  border-color: #1fefee;
+  box-shadow: 0 0 0 2px rgba(31, 239, 238, 0.2);
 }
 
 .suggestedAmounts {
@@ -162,9 +172,9 @@
 }
 
 .amountButton {
-  background-color: var(--bgSoft);
-  border: 1px solid var(--bgSoft);
-  color: var(--text);
+  background-color: #0b1515;
+  border: 1px solid rgba(31, 239, 238, 0.3);
+  color: #ffffff;
   padding: 8px 16px;
   border-radius: 6px;
   font-size: 14px;
@@ -173,15 +183,15 @@
 }
 
 .amountButton:hover {
-  background-color: var(--button);
-  border-color: var(--border);
+  background-color: rgba(31, 239, 238, 0.1);
+  border-color: #1fefee;
 }
 
 .addCreditButton {
   width: 100%;
   height: 45px;
-  background-color: var(--button) !important;
-  color: var(--text);
+  background: linear-gradient(90deg, #1fefee 0%, #76b900 100%) !important;
+  color: #000000 !important;
   border: none;
   border-radius: 8px;
   font-size: 16px;
@@ -191,11 +201,11 @@
 }
 
 .addCreditButton:hover {
-  background-color: var(--border) !important;
+  opacity: 0.9;
 }
 
 .addCreditButton:disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -211,13 +221,13 @@
 .paymentMethods {
   margin-top: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--bgSoft);
+  border-top: 1px solid rgba(31, 239, 238, 0.1);
 }
 
 .paymentMethodsTitle {
   font-weight: 600;
   margin-bottom: 0.75rem;
-  color: var(--textSoft);
+  color: #d9d9d9;
 }
 
 .paymentMethodsIcons {
@@ -230,15 +240,16 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background-color: var(--bgSoft);
+  background-color: #0b1515;
   border-radius: 0.375rem;
   font-weight: 500;
+  border: 1px solid rgba(31, 239, 238, 0.1);
 }
 
 .acceptedCryptoNote {
   margin-top: 0.75rem;
   font-size: 0.875rem;
-  color: var(--textSoft);
+  color: #d9d9d9;
 }
 
 /* Pricing card */
@@ -250,7 +261,7 @@
   display: flex;
   justify-content: space-between;
   padding: 12px 0;
-  border-bottom: 1px solid var(--bgSoft);
+  border-bottom: 1px solid rgba(31, 239, 238, 0.1);
   font-size: 14px;
 }
 
@@ -260,7 +271,7 @@
 
 .pricingNote {
   font-size: 12px;
-  color: var(--textSoft);
+  color: #d9d9d9;
   margin-top: 12px;
 }
 
@@ -270,7 +281,7 @@
   justify-content: center;
   align-items: center;
   padding: 1rem;
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-style: italic;
 }
 
@@ -279,7 +290,7 @@
   justify-content: center;
   align-items: center;
   padding: 1rem;
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-style: italic;
 }
 
@@ -293,17 +304,17 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   padding: 12px 0;
-  border-bottom: 1px solid var(--bgSoft);
+  border-bottom: 1px solid rgba(31, 239, 238, 0.1);
   font-weight: 600;
   font-size: 14px;
-  color: var(--textSoft);
+  color: #d9d9d9;
 }
 
 .transactionRow {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   padding: 16px 0;
-  border-bottom: 1px solid var(--bgSoft);
+  border-bottom: 1px solid rgba(31, 239, 238, 0.1);
   font-size: 14px;
 }
 
@@ -312,7 +323,7 @@
 }
 
 .positiveAmount {
-  color: #52c41a;
+  color: #76b900;
 }
 
 .negativeAmount {
@@ -320,13 +331,13 @@
 }
 
 .transactionStatus {
-  color: var(--textSoft);
+  color: #d9d9d9;
 }
 
 .noTransactions {
   padding: 40px 0;
   text-align: center;
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-size: 14px;
 }
 
@@ -335,7 +346,7 @@
   justify-content: center;
   align-items: center;
   padding: 2rem;
-  color: var(--textSoft);
+  color: #d9d9d9;
   font-style: italic;
 }
 
@@ -348,27 +359,27 @@
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 8px;
-  color: var(--text);
+  color: #ffffff;
 }
 
 .faqItem p {
   font-size: 14px;
-  color: var(--textSoft);
+  color: #d9d9d9;
   line-height: 1.5;
 }
 
 /* Support card */
 .supportCard p {
   font-size: 14px;
-  color: var(--textSoft);
+  color: #d9d9d9;
   margin: 12px 0 20px;
   line-height: 1.5;
 }
 
 .supportButton {
-  background-color: var(--bgSoft) !important;
-  color: var(--text);
-  border: 1px solid var(--border);
+  background-color: #0b1515 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(31, 239, 238, 0.3) !important;
   padding: 10px 20px;
   border-radius: 8px;
   font-size: 14px;
@@ -378,7 +389,8 @@
 }
 
 .supportButton:hover {
-  background-color: var(--button) !important;
+  background-color: rgba(31, 239, 238, 0.1) !important;
+  border-color: #1fefee !important;
 }
 
 /* Responsive adjustments */

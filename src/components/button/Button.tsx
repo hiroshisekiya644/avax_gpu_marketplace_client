@@ -20,7 +20,7 @@ export const Button = (props: Props) => {
 
   const content = (
     <>
-      {variant === 'line' && <Line />}
+      {/* {variant === 'line' && <Line />} */}
       {name}
     </>
   )

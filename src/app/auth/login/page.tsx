@@ -1,40 +1,50 @@
-"use client"
-import type React from "react"
-import { useState } from "react"
-import { EyeOpenIcon, EyeClosedIcon } from "@radix-ui/react-icons"
-import { Flex, Button } from "@radix-ui/themes"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { authenticateAction, type AuthData, type AuthResponse } from "@/api/Auth"
-import { AuthInput } from "@/components/input/AuthInput"
-import { Snackbar } from "@/components/snackbar/SnackBar"
-import styles from "./page.module.css"
+'use client'
+import type React from 'react'
+import { useState } from 'react'
+import { EyeOpenIcon, EyeClosedIcon } from '@radix-ui/react-icons'
+import { Flex, Button } from '@radix-ui/themes'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { authenticateAction, type AuthData, type AuthResponse } from '@/api/Auth'
+import { AuthInput } from '@/components/input/AuthInput'
+import { Snackbar } from '@/components/snackbar/SnackBar'
+import { EMAIL_REGEX } from '@/utils/Regex'
+import styles from './page.module.css'
 
 const Login = () => {
   const router = useRouter()
-  const [email, setEmail] = useState<string>("")
-  const [password, setPassword] = useState<string>("")
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [emailError, setEmailError] = useState<string>('')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setEmailError('')
+
+    if (!EMAIL_REGEX.test(email)) {
+      setEmailError('Please provide a valid email address')
+      Snackbar({ message: 'Please provide valid email address.', type: 'error' })
+      setIsLoading(false)
+      return
+    }
 
     const userData: AuthData = { email, password }
 
     try {
-      const response: AuthResponse = await authenticateAction("signin", userData)
-      Snackbar({ message: "You have successfully logged in!" })
+      const response: AuthResponse = await authenticateAction('signin', userData)
+      Snackbar({ message: 'You have successfully logged in!' })
 
-      sessionStorage.setItem("authToken", response.accessToken)
-      router.push("/dashboard/create-cluster")
+      sessionStorage.setItem('authToken', response.accessToken)
+      router.push('/dashboard/create-cluster')
     } catch (error: unknown) {
       if (error instanceof Error) {
-        Snackbar({ message: error.message, type: "error" })
+        Snackbar({ message: error.message, type: 'error' })
       } else {
-        Snackbar({ message: "An unknown error occurred", type: "error" })
+        Snackbar({ message: 'An unknown error occurred', type: 'error' })
       }
     } finally {
       setIsLoading(false)
@@ -43,6 +53,15 @@ const Login = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword)
+  }
+
+  const validateEmail = (value: string) => {
+    setEmail(value)
+    if (value && !EMAIL_REGEX.test(value)) {
+      setEmailError('Please provide a valid email address')
+    } else {
+      setEmailError('')
+    }
   }
 
   return (
@@ -57,7 +76,7 @@ const Login = () => {
           <Flex className={styles.text}>Welcome Back</Flex>
           <Flex className={styles.subText}>Log in to rLoop GPU marketplace to continue to Compute Platform.</Flex>
 
-          <form onSubmit={handleLogin} style={{ width: "100%" }} className={styles.formContainer}>
+          <form onSubmit={handleLogin} style={{ width: '100%' }} className={styles.formContainer}>
             <Flex direction="column" gap="4">
               <AuthInput
                 id="email"
@@ -65,18 +84,19 @@ const Login = () => {
                 placeholder="Enter your email address"
                 type="text"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => validateEmail(e.target.value)}
+                error={emailError}
               />
               <AuthInput
                 id="password"
                 label="Password"
                 placeholder="Enter your password"
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 icon={
                   showPassword ? (
-                    <EyeClosedIcon onClick={togglePasswordVisibility} style={{ cursor: "pointer" }} />
+                    <EyeClosedIcon onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }} />
                   ) : (
-                    <EyeOpenIcon onClick={togglePasswordVisibility} style={{ cursor: "pointer" }} />
+                    <EyeOpenIcon onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }} />
                   )
                 }
                 value={password}
@@ -86,7 +106,7 @@ const Login = () => {
 
             <Flex width="100%" mt="4">
               <Button className={styles.submitButton} type="submit" disabled={isLoading || !email || !password}>
-                {isLoading ? "Logging in..." : "Sign In"}
+                {isLoading ? 'Logging in...' : 'Sign In'}
               </Button>
             </Flex>
           </form>
@@ -104,4 +124,3 @@ const Login = () => {
 }
 
 export default Login
-
