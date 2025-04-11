@@ -4,6 +4,7 @@
   font-size: 12px;
   background-color: var(--bgSoft);
   color: var(--text);
+  border-radius: 100px;
 }
 
 .disabledStatusSelect {
@@ -12,6 +13,7 @@
   font-size: 12px;
   background-color: var(--bgSoft);
   color: var(--text);
+  border-radius: 100px;
 }
 
 .error {
@@ -32,7 +34,7 @@
 }
 
 .selectContent {
-  background-color: var(--bgSoft);
+  background-color: #2a2a2a;
   color: var(--text);
   z-index: 1000;
   max-height: 300px;

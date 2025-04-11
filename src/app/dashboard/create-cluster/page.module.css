@@ -6,26 +6,38 @@
   color: var(--text);
 }
 
-/* Typography */
+/* Update the header title styling to match the design */
 .headerTitle {
   color: var(--text);
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 600;
   margin-top: 10px;
+  letter-spacing: -0.02em;
+  font-family: var(--font-heading);
 }
 
 .subTitle {
   color: var(--textSoft);
-  font-size: 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-top: 4px;
 }
 
 .contentTitle {
   color: var(--text);
   font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  font-family: var(--font-heading);
+}
+
+.accent {
+  color: var(--button);
 }
 
 .contentText {
   color: var(--textSoft);
-  font-size: 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .contentTextWhite {
@@ -40,6 +52,7 @@
 
 .priceTitle {
   font-weight: bold;
+  color: var(--button);
 }
 
 /* Layout components */
@@ -62,10 +75,11 @@
 /* Form elements */
 .searchPad {
   height: 38px;
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   color: var(--text);
   border-radius: 8px;
   font-size: 12px;
+  border-radius: 100px;
 }
 
 .iconSlot {
@@ -97,40 +111,63 @@
   transition: all 0.2s ease;
 }
 
+/* Update card styling */
 .gpuCard {
-  composes: cardBase;
-  border: 2px solid var(--textSoftDark);
+  background-color: var(--bgSoftDark);
+  width: 100%;
+  padding: 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 27px;
 }
 
 .gpuCard:hover {
-  border: 2px solid var(--border);
+  border-color: var(--button);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(31, 239, 238, 0.08);
 }
 
 .selectedGpuCard {
-  border: 2px solid var(--border);
+  border: 1px solid var(--button);
+  background-color: rgba(31, 239, 238, 0.05);
 }
 
 .gpuCardContent {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* Updated clusterCard styles */
 .clusterCard {
-  composes: cardBase;
-  border: 2px solid var(--bgSoft);
+  background-color: var(--bgSoftDark);
+  width: 100%;
+  padding: 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 27px;
   cursor: pointer;
-  position: relative;
-  height: 100%; /* Ensure full height */
 }
 
 .clusterCard:hover {
-  border: 2px solid var(--border);
+  border-color: var(--button);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(31, 239, 238, 0.08);
 }
 
 /* Updated selectedClusterCard styles */
 .selectedClusterCard {
-  border: 2px solid var(--border);
-  background-color: var(--bgSoft) !important;
+  border: 1px solid var(--button);
+  background-color: rgba(31, 239, 238, 0.05);
 }
 
 /* Updated and new styles for image cards */
@@ -146,6 +183,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border-bottom: 1px solid var(--bgSoft);
 }
 
 .imageName {
@@ -163,14 +201,14 @@
   -webkit-box-orient: vertical;
   color: var(--textSoft);
   font-size: 12px;
-  margin-bottom: 8px; /* Add space below the description */
+  margin-top: 8px; /* Add space below the description */
   background-color: var(--bgSoftDark);
   padding: 2px;
 }
 
 .imageRegion {
   font-size: 12px;
-  color: var(--textSoft);
+  color: var(--button);
   margin-top: auto; /* Push the region to the bottom */
   background-color: var(--bgSoftDark);
   padding: 2px;
@@ -180,11 +218,40 @@
 .nvidiaTitle {
   background-color: var(--bgSoftDark);
   align-items: center;
-  padding-right: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .gpuStatus {
   background-color: var(--bgSoftDark);
+  border-radius: 6px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--bgSoft);
+}
+
+.regionInfo {
+  background-color: var(--bgSoftDark);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.regionLabel {
+  color: var(--textSoft);
+  margin-right: 4px;
+  font-size: 12px;
+}
+
+.regionName {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.greenBadge {
+  margin-left: 4px;
+  font-size: 12px;
 }
 
 .selectionIndicator {
@@ -219,30 +286,47 @@
   transition: all 0.2s ease;
 }
 
+.sectionBase {
+  border-bottom: 1px solid var(--bgSoft);
+}
+
+/* Update the select button styling */
 .selectGPUButton {
-  composes: buttonBase;
-  background-color: var(--bg);
-  border: 2px solid var(--border);
-  font-size: 14px;
+  background-color: var(--bgSoftDark);
+  color: var(--button);
+  border: 1px solid var(--button);
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .selectGPUButton:hover {
-  background-color: var(--button);
+  background-color: rgba(31, 239, 238, 0.2);
+  transform: translateY(-1px);
 }
 
 .selectedGPUButton {
-  background-color: var(--border);
+  background-color: var(--button);
+  color: var(--bg);
 }
 
 .selectedGPUButton:hover {
-  background-color: var(--border);
+  background-color: var(--button);
   opacity: 0.9;
 }
 
 .defaultButton {
   composes: buttonBase;
   background-color: var(--bg);
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
+  color: var(--border);
   min-width: 100px;
   font-size: 14px;
 }
@@ -252,30 +336,39 @@
 }
 
 .headerButton {
-  composes: buttonBase;
   background-color: var(--button);
-  border: 2px solid var(--border);
-  min-width: 100px;
+  color: var(--bg);
+  cursor: pointer;
+  border: none;
   font-size: 14px;
-  border-radius: 7px;
+  font-weight: bold;
+  text-align: center;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  border-radius: 20px;
   height: 40px;
+  padding: 0 20px;
 }
 
 .headerButton:hover {
-  background-color: var(--border);
+  opacity: 0.9;
 }
 
 .invalidGPUButton {
   background-color: var(--bgSoft);
-  border-radius: 4px;
+  border-radius: 17px;
+  padding: 7px;
 }
 
 /* Add a style for the disabled button */
 .disabledButton {
   opacity: 0.5;
   cursor: not-allowed;
-  background-color: var(--bgSoft) !important;
-  border: 2px solid var(--textSoftDark) !important;
+  background-color: var(--bgSoftDark) !important;
+  border: 1px solid var(--textSoftDark) !important;
   color: white;
 }
 
@@ -285,6 +378,7 @@
 
 .link {
   text-decoration: underline;
+  color: var(--button);
 }
 
 /* Summary section */
@@ -320,17 +414,18 @@
   font-size: 12px;
   color: var(--textSoft);
   background-color: var(--bgSoft);
-  padding: 8px;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: 20px;
   margin-bottom: 12px;
 }
 
-.summarySpecs div {
-  margin-bottom: 4px;
+.summarySpecsContent {
+  width: 100%;
 }
 
-.summarySpecs div:last-child {
-  margin-bottom: 0;
+.gpuSpecs {
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--bgSoft);
 }
 
 .summaryNoSelection {
@@ -348,7 +443,7 @@
 .summaryImageDetails {
   font-size: 12px;
   color: var(--textSoft);
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   padding: 8px;
   border-radius: 4px;
   margin-bottom: 4px;
@@ -357,14 +452,14 @@
 .summaryImageRegion {
   font-size: 12px;
   color: var(--textSoft);
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   padding: 8px;
   border-radius: 4px;
 }
 
 .instanceArea {
   background-color: var(--bgSoft);
-  border-radius: 4px;
+  border-radius: 20px;
   margin-bottom: 8px;
 }
 
@@ -375,7 +470,7 @@
   align-items: center;
   background-color: var(--bgSoft);
   padding: 12px;
-  border-radius: 4px;
+  border-radius: 20px;
   margin-bottom: 12px;
 }
 
@@ -487,10 +582,10 @@
   justify-content: center;
   text-align: center;
   padding: 2rem;
-  border: 1px dashed var(--textSoftDark);
+  border: 1px dashed var(--border);
   border-radius: 8px;
   grid-column: 1 / -1;
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   margin: 1rem 0;
 }
 
@@ -571,14 +666,15 @@
   object-fit: contain;
 }
 
-/* Add styles for the GPU price display */
 .gpuPrice {
-  font-weight: bold;
-  color: var(--text);
-  font-size: 14px;
-  background-color: var(--bgSoftDark);
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-weight: 600;
+  color: var(--soft);
+  font-size: 0.875rem;
+  background-color: var(--button);
+  padding: 4px 8px;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .summaryPrice {
@@ -586,7 +682,7 @@
   color: var(--text);
   margin-top: 8px;
   padding: 4px;
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   border-radius: 4px;
 }
 
@@ -659,9 +755,6 @@
 }
 
 .checkboxContainer {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   z-index: 1;
 }
 
@@ -676,7 +769,7 @@
 /* Add styles for the cluster name input */
 .clusterNameInput {
   height: 38px;
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   color: var(--text);
   border-radius: 8px;
   font-size: 14px;
@@ -703,7 +796,7 @@
 /* Add styles for the GPU name input */
 .gpuNameInput {
   height: 38px;
-  background-color: var(--bgSoft);
+  background-color: var(--bgSoftDark);
   color: var(--text);
   border-radius: 8px;
   font-size: 14px;
@@ -746,4 +839,56 @@
   margin-bottom: 4px;
   white-space: nowrap;
   font-weight: 500;
+}
+
+/* Update the button styles to match the Figma design  */
+.deployButton {
+  background-color: var(--button);
+  color: var(--bg);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  flex: 1;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 40px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.deployButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Update the next  */
+button .nextButton {
+  background: var(--button);
+  color: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.nextButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(31, 239, 238, 0.3);
+}
+
+.specLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.specValue {
+  font-weight: 500;
+  color: var(--text);
+  margin-left: auto;
 }

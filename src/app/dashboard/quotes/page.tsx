@@ -821,6 +821,7 @@ const ReservedInstances = () => {
           transition: 'opacity 0.5s ease, transform 0.5s ease'
         }}
       >
+        {/* Update the header title and subtitle to match the design */}
         <div className={styles.header}>
           <h1 className={styles.headerTitle}>Reserved GPU Instances</h1>
           <p className={styles.headerSubtitle}>Request reserved GPU instances for your long-term computing needs</p>
@@ -834,7 +835,7 @@ const ReservedInstances = () => {
   )
 }
 
-// CheckIcon component for the progress steps and option checkboxes
+// Update the CheckIcon component to match the design color scheme
 const CheckIcon = ({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

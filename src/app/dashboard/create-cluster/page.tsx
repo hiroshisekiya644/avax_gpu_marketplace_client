@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import * as Switch from '@radix-ui/react-switch'
 import { Button, Flex, Grid, TextField } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
@@ -91,6 +90,7 @@ const PUBLIC_IP_HOURLY_RATE = 0.00672
  */
 const Icons = {
   Any: () => <DynamicSvgIcon height={22} className="rounded-none" iconName="any" />,
+  Search: () => <DynamicSvgIcon height={22} className="rounded-none" iconName="search" />,
   Norway: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="norway" />,
   US: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="us" />,
   Canada: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="canada" />,
@@ -99,7 +99,10 @@ const Icons = {
   ShowAll: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="show-all" />,
   ShowAvailable: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="show-available" />,
   Nvidia: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="nvidia-logo" />,
+  Cpu: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="cpu" />,
   Vram: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="vram" />,
+  Disk: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="disk" />,
+  Ephemeral: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="ephemeral" />,
   Socket: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="socket" />,
   RightArrow: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="rightArrow" />,
   Check: () => <DynamicSvgIcon height={30} width={30} className="rounded-none" iconName="checked" />,
@@ -830,13 +833,14 @@ const CreateCluster = () => {
           justify="between"
         >
           <Flex className={styles.gpuCardContent} direction="column" gap="2">
-            <Flex width="100%" justify="between">
-              <Flex gap="2" className={styles.nvidiaTitle}>
-                {gpuCard.gpu ? <Icons.Nvidia /> : <Icons.Socket />}
-                <div>{gpuCard.gpu || 'CPU only'}</div>
-              </Flex>
+            <Flex justify="end">
               {gpuPrice > 0 && <div className={styles.gpuPrice}>${gpuPrice.toFixed(2)}/hr</div>}
             </Flex>
+            <Flex gap="2" className={styles.nvidiaTitle}>
+              {gpuCard.gpu ? <Icons.Nvidia /> : <Icons.Socket />}
+              <div>{gpuCard.gpu || 'CPU only'}</div>
+            </Flex>
+
             <Flex width="100%" className={styles.regionInfo} align="center" gap="2">
               {gpuCard.region_name.includes('NORWAY') && (
                 <DynamicSvgIcon height={16} className="rounded-none" iconName="norway" />
@@ -847,7 +851,7 @@ const CreateCluster = () => {
               {gpuCard.region_name.includes('US') && (
                 <DynamicSvgIcon height={16} className="rounded-none" iconName="us" />
               )}
-              <div className={styles.contentText}>
+              <div>
                 <span className={styles.regionLabel}>Region:</span>
                 <span className={styles.regionName}>{gpuCard.region_name}</span>
                 {gpuCard.region_name.includes('NORWAY') || gpuCard.region_name.includes('CANADA') ? (
@@ -871,17 +875,17 @@ const CreateCluster = () => {
 
             {/* Specs display */}
             {[
-              { icon: <Icons.Vram />, label: 'CPUs:', value: cpu },
-              { icon: <Icons.Socket />, label: 'RAM:', value: `${ram} GB` },
-              { icon: <Icons.Socket />, label: 'Disk:', value: `${disk} GB` },
-              ...(ephemeral > 0 ? [{ icon: <Icons.Socket />, label: 'Ephemeral:', value: `${ephemeral} GB` }] : [])
+              { icon: <Icons.Cpu />, label: 'CPUs:', value: cpu },
+              { icon: <Icons.Vram />, label: 'RAM:', value: `${ram} GB` },
+              { icon: <Icons.Disk />, label: 'Disk:', value: `${disk} GB` },
+              ...(ephemeral > 0 ? [{ icon: <Icons.Ephemeral />, label: 'Ephemeral:', value: `${ephemeral} GB` }] : [])
             ].map((spec, i) => (
-              <Flex key={i} width="100%" direction="column" p="1" className={styles.gpuStatus} gap="2">
-                <Flex align="center" gap="2">
+              <Flex key={i} width="100%" className={styles.gpuStatus} justify="between">
+                <div className={styles.specLabel}>
                   {spec.icon}
-                  <div className={styles.contentText}>{spec.label}</div>
-                  <div className={styles.contentTextWhite}>{spec.value}</div>
-                </Flex>
+                  <div>{spec.label}</div>
+                </div>
+                <div className={styles.specValue}>{spec.value}</div>
               </Flex>
             ))}
           </Flex>
@@ -925,16 +929,17 @@ const CreateCluster = () => {
           key={image.id}
           direction="column"
           onClick={() => toggleImageSelection(image.id)}
-          style={{ position: 'relative' }} // Add relative positioning to the card
         >
-          <div className={styles.checkboxContainer}>{isSelected ? <Icons.Check /> : <Icons.Uncheck />}</div>
+          <Flex justify="end" className={styles.checkboxContainer}>
+            {isSelected ? <Icons.Check /> : <Icons.Uncheck />}
+          </Flex>
           <Flex className={styles.imageCardContent} direction="column">
             <div className={styles.imageName}>{image.name}</div>
             <div className={styles.imageDescription}>
               {image.description || `${image.type} ${image.version} - ${image.display_size}`}
             </div>
-            <div className={styles.imageRegion}>Region: {image.region_name}</div>
           </Flex>
+          <Flex className={styles.imageRegion}>Region: {image.region_name}</Flex>
         </Flex>
       )
     },
@@ -1013,24 +1018,20 @@ const CreateCluster = () => {
       <Flex className={styles.header} p="4">
         <Flex justify="between" width="100%">
           <Flex direction="column">
-            <div className={styles.headerTitle}>Create new GPU Cluster</div>
+            <div className={styles.headerTitle}>
+              Create new <span className={styles.accent}>GPU Cluster</span>
+            </div>
             <div className={styles.subTitle}>Choose your cluster for your GPU workload. Prices update in realtime.</div>
           </Flex>
-          {!isResponsive && (
-            <Flex align="center">
-              <Button className={styles.headerButton}>
-                <span>{'Select GPU First'}</span>
-                <Icons.RightArrow />
-              </Button>
-            </Flex>
-          )}
         </Flex>
       </Flex>
 
       {/* GPU Selection Section */}
-      <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2">
+      <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2" className={styles.gpuSection}>
         <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '25%' }} gap="2">
-          <div className={styles.contentTitle}>Select Your GPU Type</div>
+          <div className={styles.contentTitle}>
+            Select Your <span className={styles.accent}>GPU Type</span>
+          </div>
           <div className={styles.contentText}>Customize your cluster for optimal performance and scalability</div>
           {/* Filters */}
           <Flex mt="4" gap="2" direction={isResponsive ? 'column' : 'row'}>
@@ -1049,7 +1050,7 @@ const CreateCluster = () => {
           {/* Search */}
           <TextField.Root placeholder="Search…" className={styles.searchPad} onChange={handleSearch} value={searchTerm}>
             <TextField.Slot className={styles.iconSlot}>
-              <MagnifyingGlassIcon height="24" width="24" />
+              <Icons.Search />
             </TextField.Slot>
           </TextField.Root>
           {/* GPU Cards Grid */}
@@ -1078,7 +1079,9 @@ const CreateCluster = () => {
       {/* Cluster Base Image Section */}
       <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2">
         <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '25%' }} gap="2">
-          <div className={styles.contentTitle}>Cluster base image</div>
+          <div className={styles.contentTitle}>
+            Cluster <span className={styles.accent}>Base Image</span>
+          </div>
           <div className={styles.contentText}>
             Select a pre-configured cluster setup tailored to your specific needs, requiring no extra configurations and
             ready to integrate with your codebase immediately.
@@ -1149,7 +1152,7 @@ const CreateCluster = () => {
             <FormSelect
               id="summary-gpu-select"
               name="summary-gpu-select"
-              label="Select GPU"
+              // label="Select GPU"
               items={[
                 { label: 'None', name: 'none' },
                 ...filteredGpuCards.map((gpuCard, index) => {
@@ -1189,7 +1192,7 @@ const CreateCluster = () => {
                       <FormSelect
                         id={`summary-flavor-${gpuKey}`}
                         name={`summary-flavor-${gpuKey}`}
-                        label="Select Flavor"
+                        // label="Select Flavor"
                         items={gpuCard.flavors
                           .filter((flavor) => flavor.stock_available === true)
                           .map((flavor) => ({ label: flavor.name, name: String(flavor.id) }))}
@@ -1199,11 +1202,20 @@ const CreateCluster = () => {
                       />
                       {selectedFlavor && (
                         <Flex direction="column" className={styles.summarySpecs}>
-                          <Flex justify="between">
+                          <Flex className={styles.summarySpecsContent}>
                             <Flex direction="column" gap="1">
-                              <div>CPUs: {selectedFlavor.cpu}</div>
-                              <div>RAM: {selectedFlavor.ram} GB</div>
-                              <div>Disk: {selectedFlavor.disk} GB</div>
+                              <Flex gap="2" align="center" className={styles.gpuSpecs}>
+                                <Icons.Cpu />
+                                CPUs: {selectedFlavor.cpu}
+                              </Flex>
+                              <Flex gap="2" align="center" className={styles.gpuSpecs}>
+                                <Icons.Vram />
+                                RAM: {selectedFlavor.ram}
+                              </Flex>
+                              <Flex gap="2" align="center" className={styles.gpuSpecs}>
+                                <Icons.Disk />
+                                Disk: {selectedFlavor.disk}
+                              </Flex>
                               {selectedFlavor.ephemeral > 0 && <div>Ephemeral: {selectedFlavor.ephemeral} GB</div>}
                               <div className={styles.summaryRegion}>Region: {gpuCard.region_name}</div>
                               {gpuPrice > 0 && (
@@ -1237,7 +1249,7 @@ const CreateCluster = () => {
             <FormSelect
               id="summary-image-select"
               name="summary-image-select"
-              label="Select Image"
+              // label="Select Image"
               items={[
                 { label: 'None', name: 'none' },
                 ...filteredImages.map((image) => ({
@@ -1255,7 +1267,7 @@ const CreateCluster = () => {
             <FormSelect
               id="summary-ssh-key-select"
               name="summary-ssh-key-select"
-              label="Select SSH Key"
+              // label="Select SSH Key"
               items={[{ label: 'None', name: 'none' }, ...sshKeyList]}
               value={selectedSshKey || 'none'}
               onChange={handleSshKeyChange}

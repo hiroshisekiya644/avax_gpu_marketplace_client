@@ -23,13 +23,13 @@
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   text-align: center;
-  border: 1px solid rgba(153, 69, 252, 0.3);
+  border: 1px solid rgba(31, 239, 238, 0.3);
   transition: all 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: 0 12px 40px rgba(153, 69, 252, 0.2);
-  border: 1px solid rgba(153, 69, 252, 0.5);
+  box-shadow: 0 12px 40px rgba(31, 239, 238, 0.2);
+  border: 1px solid rgba(31, 239, 238, 0.5);
 }
 
 @media screen and (max-width: 768px) {
@@ -63,7 +63,7 @@
 
 .submitButton {
   cursor: pointer !important;
-  background-color: var(--border) !important;
+  background: #00c8c8 !important;
   width: 100% !important;
   height: 50px !important;
   font-size: 16px !important;
@@ -71,11 +71,15 @@
   border-radius: 8px !important;
   transition: all 0.2s ease !important;
   margin-top: 8px !important;
+  color: #000 !important;
+  border: none !important;
+  text-transform: uppercase !important;
 }
 
 .submitButton:hover {
-  background-color: var(--button) !important;
+  background: #1fefee !important;
   transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(31, 239, 238, 0.2);
 }
 
 .submitButton:active {
@@ -91,13 +95,13 @@
 .subTextButton {
   font-size: 14px;
   font-weight: bold;
-  color: var(--border);
+  color: #1fefee;
   cursor: pointer;
   transition: color 0.2s ease;
 }
 
 .subTextButton:hover {
-  color: var(--text);
+  color: #00c8c8;
   text-decoration: underline;
 }
 
@@ -130,4 +134,24 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
+}
+
+.passwordStrengthIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: -4px;
+  margin-bottom: 4px;
+}
+
+.passwordStrengthDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.passwordStrengthText {
+  font-size: 12px;
+  color: var(--textSoft);
 }

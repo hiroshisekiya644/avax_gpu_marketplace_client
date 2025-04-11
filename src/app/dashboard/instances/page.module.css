@@ -153,12 +153,11 @@
 }
 
 .searchInput {
-  width: 100%;
+  width: 30%;
   height: 40px;
   background-color: var(--bgSoft);
   border: 1px solid var(--textSoftDark);
   border-radius: 7px;
-  padding: 0 16px 0 40px;
   color: var(--text);
   font-size: 14px;
   transition: all 0.2s ease;
@@ -207,9 +206,8 @@
 }
 
 .deployButton {
-  background-color: #9945fc;
-  color: white;
-  border: none;
+  border: 2px solid var(--border);
+  background-color: var(--bgSoft);
   border-radius: 7px;
   height: 40px;
   padding: 0 16px;
@@ -219,7 +217,7 @@
 }
 
 .deployButton:hover {
-  background-color: #8035ec;
+  background-color: var(--button);
 }
 
 .emptyStateContainer {

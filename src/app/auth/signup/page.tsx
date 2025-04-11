@@ -19,13 +19,16 @@ const SignUp = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [passwordError, setPasswordError] = useState<string>('')
+  const [emailError, setEmailError] = useState<string>('')
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setPasswordError('')
+    setEmailError('')
 
     if (!EMAIL_REGEX.test(email)) {
+      setEmailError('Please provide a valid email address')
       Snackbar({ message: 'Please provide valid email address.', type: 'error' })
       setIsLoading(false)
       return
@@ -65,6 +68,15 @@ const SignUp = () => {
     setShowPassword(!showPassword)
   }
 
+  const validateEmail = (value: string) => {
+    setEmail(value)
+    if (value && !EMAIL_REGEX.test(value)) {
+      setEmailError('Please provide a valid email address')
+    } else {
+      setEmailError('')
+    }
+  }
+
   const validatePassword = (value: string) => {
     setPassword(value)
     if (value && !PASSWORD_REGEX.test(value)) {
@@ -98,7 +110,8 @@ const SignUp = () => {
                 placeholder="Enter your email address"
                 type="text"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => validateEmail(e.target.value)}
+                error={emailError}
               />
               <AuthInput
                 id="password"
@@ -118,65 +131,51 @@ const SignUp = () => {
               />
 
               {password && (
-                <Flex
-                  direction="column"
-                  gap="1"
-                  style={{ fontSize: '12px', color: 'var(--textSoft)', marginTop: '-8px' }}
-                >
-                  <Flex align="center" gap="2">
+                <Flex direction="column" gap="1" style={{ fontSize: '12px', marginTop: '-8px' }}>
+                  <Flex align="center" gap="2" className={styles.passwordStrengthIndicator}>
                     <div
+                      className={styles.passwordStrengthDot}
                       style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
                         backgroundColor: password.length >= 8 ? '#22c55e' : 'var(--textSoftDark)'
                       }}
                     ></div>
-                    <span>At least 8 characters</span>
+                    <span className={styles.passwordStrengthText}>At least 8 characters</span>
                   </Flex>
-                  <Flex align="center" gap="2">
+                  <Flex align="center" gap="2" className={styles.passwordStrengthIndicator}>
                     <div
+                      className={styles.passwordStrengthDot}
                       style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
                         backgroundColor: /[A-Z]/.test(password) ? '#22c55e' : 'var(--textSoftDark)'
                       }}
                     ></div>
-                    <span>One uppercase letter</span>
+                    <span className={styles.passwordStrengthText}>One uppercase letter</span>
                   </Flex>
-                  <Flex align="center" gap="2">
+                  <Flex align="center" gap="2" className={styles.passwordStrengthIndicator}>
                     <div
+                      className={styles.passwordStrengthDot}
                       style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
                         backgroundColor: /[a-z]/.test(password) ? '#22c55e' : 'var(--textSoftDark)'
                       }}
                     ></div>
-                    <span>One lowercase letter</span>
+                    <span className={styles.passwordStrengthText}>One lowercase letter</span>
                   </Flex>
-                  <Flex align="center" gap="2">
+                  <Flex align="center" gap="2" className={styles.passwordStrengthIndicator}>
                     <div
+                      className={styles.passwordStrengthDot}
                       style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
                         backgroundColor: /\d/.test(password) ? '#22c55e' : 'var(--textSoftDark)'
                       }}
                     ></div>
-                    <span>One number</span>
+                    <span className={styles.passwordStrengthText}>One number</span>
                   </Flex>
-                  <Flex align="center" gap="2">
+                  <Flex align="center" gap="2" className={styles.passwordStrengthIndicator}>
                     <div
+                      className={styles.passwordStrengthDot}
                       style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
                         backgroundColor: /[!@#$%^&*(),.?":{}|<>]/.test(password) ? '#22c55e' : 'var(--textSoftDark)'
                       }}
                     ></div>
-                    <span>One special character</span>
+                    <span className={styles.passwordStrengthText}>One special character</span>
                   </Flex>
                 </Flex>
               )}
