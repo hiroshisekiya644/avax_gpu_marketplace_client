@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import type React from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
-import { Flex, Button, Table, Link } from '@radix-ui/themes'
+import { Flex, Button, Table, Link, TextField } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
 import { getGpuAction, manageVM, deleteVM } from '@/api/GpuProvider'
 import { getUserData } from '@/api/User'
@@ -55,6 +55,7 @@ const GpuIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconN
 const HistoryIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="history-icon" />
 const RefreshIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="refresh-icon" />
 const ExternalLink = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="external-link" />
+const Search = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="search" />
 const WalletIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="wallet-icon" />
 
 type TabValue = 'instances' | 'history'
@@ -717,7 +718,7 @@ const Instances = () => {
                 <Flex p="4" mt="4" direction="column" gap="4" width="100%" className={styles.instanceCardWrapper}>
                   {/* Search and refresh row */}
                   <Flex justify="between" align="center" width="100%">
-                    <div className={styles.searchContainer}>
+                    {/* <div className={styles.searchContainer}>
                       <input
                         type="text"
                         placeholder="Search for a virtual machine"
@@ -725,7 +726,17 @@ const Instances = () => {
                         value={searchTerm}
                         onChange={handleSearch}
                       />
-                    </div>
+                    </div> */}
+                    <TextField.Root
+                      placeholder="Search for a virtual machine"
+                      className={styles.searchInput}
+                      onChange={handleSearch}
+                      value={searchTerm}
+                    >
+                      <TextField.Slot className={styles.iconSlot}>
+                        <Search />
+                      </TextField.Slot>
+                    </TextField.Root>
                     <Flex gap="2" align="center">
                       <div className={styles.balanceContainer}>
                         <WalletIcon />
