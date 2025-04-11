@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import styles from './Button.module.css'
-import Line from '@/components/icon/Line.svg'
+// import Line from '@/components/icon/Line.svg'
 
 type Props = {
   name?: string

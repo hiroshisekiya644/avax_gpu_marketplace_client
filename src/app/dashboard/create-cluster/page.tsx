@@ -1152,7 +1152,7 @@ const CreateCluster = () => {
             <FormSelect
               id="summary-gpu-select"
               name="summary-gpu-select"
-              label="Select GPU"
+              // label="Select GPU"
               items={[
                 { label: 'None', name: 'none' },
                 ...filteredGpuCards.map((gpuCard, index) => {
@@ -1192,7 +1192,7 @@ const CreateCluster = () => {
                       <FormSelect
                         id={`summary-flavor-${gpuKey}`}
                         name={`summary-flavor-${gpuKey}`}
-                        label="Select Flavor"
+                        // label="Select Flavor"
                         items={gpuCard.flavors
                           .filter((flavor) => flavor.stock_available === true)
                           .map((flavor) => ({ label: flavor.name, name: String(flavor.id) }))}
@@ -1249,7 +1249,7 @@ const CreateCluster = () => {
             <FormSelect
               id="summary-image-select"
               name="summary-image-select"
-              label="Select Image"
+              // label="Select Image"
               items={[
                 { label: 'None', name: 'none' },
                 ...filteredImages.map((image) => ({
@@ -1267,7 +1267,7 @@ const CreateCluster = () => {
             <FormSelect
               id="summary-ssh-key-select"
               name="summary-ssh-key-select"
-              label="Select SSH Key"
+              // label="Select SSH Key"
               items={[{ label: 'None', name: 'none' }, ...sshKeyList]}
               value={selectedSshKey || 'none'}
               onChange={handleSshKeyChange}

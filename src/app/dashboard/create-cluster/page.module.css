@@ -325,7 +325,8 @@
 .defaultButton {
   composes: buttonBase;
   background-color: var(--bg);
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
+  color: var(--border);
   min-width: 100px;
   font-size: 14px;
 }
@@ -367,7 +368,7 @@
   opacity: 0.5;
   cursor: not-allowed;
   background-color: var(--bgSoftDark) !important;
-  border: 2px solid var(--textSoftDark) !important;
+  border: 1px solid var(--textSoftDark) !important;
   color: white;
 }
 
@@ -457,8 +458,8 @@
 }
 
 .instanceArea {
-  background-color: var(--bgSoftDark);
-  border-radius: 4px;
+  background-color: var(--bgSoft);
+  border-radius: 20px;
   margin-bottom: 8px;
 }
 
@@ -467,9 +468,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--bgSoftDark);
+  background-color: var(--bgSoft);
   padding: 12px;
-  border-radius: 4px;
+  border-radius: 20px;
   margin-bottom: 12px;
 }
 
