@@ -199,20 +199,21 @@
 }
 
 .createClusterButton {
-  background-color: var(--button);
+  background-color: var(--bgSoft);
   color: var(--bg);
-}
-
-.createClusterButton:hover {
-  background-color: var(--button);
-}
-
-.createClusterButtonDefault {
   border: 2px solid var(--border);
 }
 
+.createClusterButton:hover {
+  background-color: var(--bgSoft);
+}
+
+.createClusterButtonDefault {
+  border-bottom: 2px solid var(--border);
+}
+
 .createClusterButtonDefault:hover {
-  background-color: var(--button);
+  background-color: var(--bgSoft);
 }
 
 .logoText {

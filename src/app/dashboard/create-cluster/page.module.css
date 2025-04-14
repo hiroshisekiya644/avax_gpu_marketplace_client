@@ -739,7 +739,7 @@
 }
 
 .topUpButton {
-  background-color: var(--button);
+  background-color: var(--bg);
   color: var(--text);
   border: 2px solid var(--border);
   padding: 0.5rem 1rem;
@@ -750,7 +750,7 @@
 }
 
 .topUpButton:hover {
-  background-color: var(--border);
+  background-color: var(--bgSoft);
   transform: translateY(-1px);
 }
 

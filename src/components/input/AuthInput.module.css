@@ -51,7 +51,7 @@
 }
 
 .formContainer:focus-within .label {
-  color: #9945FC;
+  color: var(--border);
   visibility: visible;
 }
 
