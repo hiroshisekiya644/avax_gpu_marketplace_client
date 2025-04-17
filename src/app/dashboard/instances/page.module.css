@@ -20,12 +20,16 @@
 .headerTitle {
   color: var(--text);
   font-size: 1.5rem;
+  font-weight: 600;
   margin-top: 10px;
+  letter-spacing: -0.02em;
+  font-family: var(--font-heading);
 }
 
 .subTitle {
   color: var(--textSoft);
-  font-size: 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .wrapper {

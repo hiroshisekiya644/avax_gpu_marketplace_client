@@ -7,23 +7,23 @@
 
 .header {
   height: 90px;
-  border-bottom: 1px solid rgba(31, 239, 238, 0.2);
+  border-bottom: 1px solid var(--bgSoft);
   width: 100%;
 }
 
 .headerTitle {
-  color: #ffffff;
+  color: var(--text);
   font-size: 1.5rem;
-  margin-top: 10px;
-  background: linear-gradient(90deg, #1fefee 0%, #76b900 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   font-weight: 600;
+  margin-top: 10px;
+  letter-spacing: -0.02em;
+  font-family: var(--font-heading);
 }
 
 .subTitle {
-  color: #d9d9d9;
-  font-size: 12px;
+  color: var(--textSoft);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .content {
@@ -56,7 +56,7 @@
 /* Tab navigation */
 .tabContainer {
   display: flex;
-  border-bottom: 1px solid rgba(31, 239, 238, 0.2);
+  border-bottom: 1px solid var(--bgSoft);
   margin-top: 20px;
 }
 
