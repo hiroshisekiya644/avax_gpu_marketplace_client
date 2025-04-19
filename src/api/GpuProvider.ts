@@ -164,6 +164,8 @@ export const deployVM = async (params: DeployVMParams): Promise<DeployVMResponse
       }
     })
 
+    console.log(result, "success")
+
     return result.data as DeployVMResponse
   } catch (error: unknown) {
     console.error('Deploy GPU error:', error instanceof Error ? error.message : 'Unknown error')

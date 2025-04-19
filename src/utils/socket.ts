@@ -36,7 +36,6 @@ export const initializeSocket = (): Socket => {
 export const joinUserRoom = (userId: string | number): void => {
   const socketInstance = initializeSocket()
   if (socketInstance && userId) {
-    console.log('Joining room for user:', userId)
     socketInstance.emit('join-room', userId)
   }
 }
