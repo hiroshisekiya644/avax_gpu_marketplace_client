@@ -1,6 +1,6 @@
 # AVAX GPU Marketplace Frontend
 
-This is the frontend for the AVAX GPU Marketplace built with **Next.js**, **Tailwind CSS**, and **TypeScript**. It interfaces with the backend for GPU listings, user authentication, payments, and real-time VM status.
+This is the frontend for the AVAX GPU Marketplace built with **Next.js**, **Tailwind CSS**, and **TypeScript**. It interfaces with the backend for GPU listings, user authentication, payments, and real-time VM status. 
 
 ## ✨ Features
 
