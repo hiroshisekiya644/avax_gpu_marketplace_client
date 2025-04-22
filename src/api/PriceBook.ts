@@ -16,7 +16,7 @@ export const getPriceBook = async (): Promise<PriceBookResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/getPriceBook`
 
-    const token = sessionStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken')
 
     const result: AxiosResponse<PriceBookResponse> = await axios.get(url, {
       headers: {

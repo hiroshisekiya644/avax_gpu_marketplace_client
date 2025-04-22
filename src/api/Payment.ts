@@ -1,7 +1,7 @@
-import axios, { type AxiosResponse } from "axios"
+import axios, { type AxiosResponse } from 'axios'
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL
-const getAuthToken = () => sessionStorage.getItem("authToken")
+const getAuthToken = () => localStorage.getItem('authToken')
 
 interface BalanceResponse {
   balance: number
@@ -38,13 +38,13 @@ export const getBalance = async (): Promise<number> => {
     const token = getAuthToken()
 
     const result: AxiosResponse<BalanceResponse> = await axios.get(url, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     })
 
     return result.data.balance
   } catch (error: unknown) {
-    console.error("Balance fetch error:", error instanceof Error ? error.message : "Unknown error")
-    throw new Error("Failed to fetch balance")
+    console.error('Balance fetch error:', error instanceof Error ? error.message : 'Unknown error')
+    throw new Error('Failed to fetch balance')
   }
 }
 
@@ -62,13 +62,13 @@ export const createDeposit = async (amount: number): Promise<DepositResponse> =>
       url,
       { amount },
       {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      },
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+      }
     )
     return response.data
   } catch (error: unknown) {
-    console.error("Deposit creation error:", error instanceof Error ? error.message : "Unknown error")
-    throw new Error("Failed to create deposit")
+    console.error('Deposit creation error:', error instanceof Error ? error.message : 'Unknown error')
+    throw new Error('Failed to create deposit')
   }
 }
 
@@ -83,13 +83,13 @@ export const checkPaymentStatus = async (orderId: string): Promise<string> => {
     const token = getAuthToken()
 
     const response: AxiosResponse<PaymentStatusResponse> = await axios.get(url, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     })
 
     return response.data.status
   } catch (error: unknown) {
-    console.error("Payment status check error:", error instanceof Error ? error.message : "Unknown error")
-    throw new Error("Failed to fetch payment status")
+    console.error('Payment status check error:', error instanceof Error ? error.message : 'Unknown error')
+    throw new Error('Failed to fetch payment status')
   }
 }
 
@@ -103,13 +103,12 @@ export const getPaymentHistory = async (): Promise<PaymentHistoryItem[]> => {
     const token = getAuthToken()
 
     const response: AxiosResponse<PaymentHistoryResponse> = await axios.get(url, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     })
 
     return response.data.history
   } catch (error: unknown) {
-    console.error("Payment history fetch error:", error instanceof Error ? error.message : "Unknown error")
-    throw new Error("Failed to fetch payment history")
+    console.error('Payment history fetch error:', error instanceof Error ? error.message : 'Unknown error')
+    throw new Error('Failed to fetch payment history')
   }
 }
-

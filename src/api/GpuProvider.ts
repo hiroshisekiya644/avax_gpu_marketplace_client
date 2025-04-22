@@ -24,7 +24,7 @@ export const getAvailableGPUAction = async (): Promise<GpuResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/availability`
 
-    const token = sessionStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken')
 
     const result: AxiosResponse<GpuResponse> = await axios.get(url, {
       headers: {
@@ -156,7 +156,7 @@ interface ActiveGpuResponse {
 export const deployVM = async (params: DeployVMParams): Promise<DeployVMResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/vm/deploy`
-    const token = sessionStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken')
 
     const result = await axios.post(url, params, {
       headers: {
@@ -187,7 +187,7 @@ export const deployVM = async (params: DeployVMParams): Promise<DeployVMResponse
 export const manageVM = async (action: string, params: ManageVMParams): Promise<ManageVMResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/vm/manageVM/${action}`
-    const token = sessionStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken')
 
     const result = await axios.post(url, params, {
       headers: {
@@ -242,7 +242,7 @@ export const manageVM = async (action: string, params: ManageVMParams): Promise<
 export const deleteVM = async (rentalId: number | string, params: DeleteVMParams = {}): Promise<ManageVMResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/vm/deleteVM/${rentalId}`
-    const token = sessionStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken')
 
     const result = await axios.post(url, params, {
       headers: {
@@ -297,7 +297,7 @@ export const deleteVM = async (rentalId: number | string, params: DeleteVMParams
 export const getGpuAction = async (): Promise<ActiveGpuResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus`
-    const token = sessionStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken')
 
     const result = await axios.get(url, {
       headers: {
@@ -324,7 +324,7 @@ export const getGpuAction = async (): Promise<ActiveGpuResponse> => {
 export const getVncUrl = async (vmId: number | string): Promise<VncUrlResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/vm/${vmId}/vnc-url`
-    const token = sessionStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken')
 
     const result = await axios.get(url, {
       headers: {
@@ -406,7 +406,7 @@ interface ReservationResponse {
 export const createReservation = async (params: ReservationRequest): Promise<ReservationResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/reserve`
-    const token = sessionStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken')
 
     // Get user data if not provided
     if (!params.user) {

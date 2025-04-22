@@ -105,7 +105,7 @@ const AccountPage = () => {
       Snackbar({ message: 'Account deleted successfully' })
 
       // Clear session storage and redirect to login
-      sessionStorage.clear()
+      localStorage.clear()
       router.push('/auth/login')
     } catch (error) {
       console.error('Failed to delete account:', error)

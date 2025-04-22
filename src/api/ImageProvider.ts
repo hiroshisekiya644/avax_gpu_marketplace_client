@@ -48,10 +48,10 @@ export const getImageAction = async (): Promise<ImageResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/getImage`
     
-    // Use a safer approach to get token from sessionStorage
+    // Use a safer approach to get token from localStorage
     let token: string | null = null
     if (typeof window !== 'undefined') {
-      token = sessionStorage.getItem('authToken')
+      token = localStorage.getItem('authToken')
     }
 
     const result: AxiosResponse<ImageResponse> = await axios.get(url, {

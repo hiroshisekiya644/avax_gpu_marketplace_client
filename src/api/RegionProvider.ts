@@ -13,7 +13,7 @@ export const getRegionAction = async (): Promise<RegionResponse> => {
   try {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/getRegion`
 
-    const token = sessionStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken')
 
     const result: AxiosResponse<RegionResponse> = await axios.get(url, {
       headers: {

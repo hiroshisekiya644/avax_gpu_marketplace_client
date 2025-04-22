@@ -51,7 +51,7 @@ const SignUp = () => {
     try {
       const response: AuthResponse = await authenticateAction('signup', userData)
       Snackbar({ message: 'You have successfully signed up!' })
-      sessionStorage.setItem('authToken', response.accessToken)
+      localStorage.setItem('authToken', response.accessToken)
       router.push('/dashboard/create-cluster')
     } catch (error: unknown) {
       if (error instanceof Error) {

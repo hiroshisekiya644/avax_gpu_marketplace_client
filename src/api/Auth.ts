@@ -36,6 +36,6 @@ export const authenticateAction = async (action: AuthAction, data: AuthData): Pr
 }
 
 export const signout = async () => {
-  sessionStorage.clear()
+  localStorage.removeItem('authToken')
   await redirect('/auth/login')
 }

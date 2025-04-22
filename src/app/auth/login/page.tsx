@@ -38,7 +38,7 @@ const Login = () => {
       const response: AuthResponse = await authenticateAction('signin', userData)
       Snackbar({ message: 'You have successfully logged in!' })
 
-      sessionStorage.setItem('authToken', response.accessToken)
+      localStorage.setItem('authToken', response.accessToken)
       router.push('/dashboard/create-cluster')
     } catch (error: unknown) {
       if (error instanceof Error) {

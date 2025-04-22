@@ -73,7 +73,7 @@ export function BalanceProvider({ children }: BalanceProviderProps) {
   useEffect(() => {
     const initializeData = async () => {
       // Only try to fetch user data if we have an auth token
-      const authToken = sessionStorage.getItem('authToken')
+      const authToken = localStorage.getItem('authToken')
       if (!authToken) return
 
       try {

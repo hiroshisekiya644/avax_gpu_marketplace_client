@@ -1,7 +1,7 @@
-import axios, { type AxiosResponse } from "axios"
+import axios, { type AxiosResponse } from 'axios'
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL
-const getAuthToken = () => sessionStorage.getItem("authToken")
+const getAuthToken = () => localStorage.getItem('authToken')
 
 interface KeyPair {
   id: number
@@ -77,18 +77,18 @@ export const getUserKeyPairs = async (): Promise<KeyPairResponse> => {
   try {
     const token = getAuthToken()
     if (!token) {
-      throw new Error("No access token found")
+      throw new Error('No access token found')
     }
 
     const url = `${API_URL}/keypairs`
     const result: AxiosResponse<KeyPairResponse> = await axios.get(url, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     })
 
     return result.data
   } catch (error: unknown) {
-    console.error("Key pairs fetch error:", error instanceof Error ? error.message : "Unknown error")
-    throw new Error("Failed to fetch SSH keys")
+    console.error('Key pairs fetch error:', error instanceof Error ? error.message : 'Unknown error')
+    throw new Error('Failed to fetch SSH keys')
   }
 }
 
@@ -101,18 +101,18 @@ export const importKeyPair = async (data: KeyPairCreateData): Promise<KeyPairCre
   try {
     const token = getAuthToken()
     if (!token) {
-      throw new Error("No access token found")
+      throw new Error('No access token found')
     }
 
     const url = `${API_URL}/keypairs`
     const result: AxiosResponse<KeyPairCreateResponse> = await axios.post(url, data, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     })
 
     return result.data
   } catch (error: unknown) {
-    console.error("Key pair import error:", error instanceof Error ? error.message : "Unknown error")
-    throw new Error("Failed to import SSH key")
+    console.error('Key pair import error:', error instanceof Error ? error.message : 'Unknown error')
+    throw new Error('Failed to import SSH key')
   }
 }
 
@@ -126,18 +126,18 @@ export const updateKeyPair = async (id: number, data: KeyPairUpdateData): Promis
   try {
     const token = getAuthToken()
     if (!token) {
-      throw new Error("No access token found")
+      throw new Error('No access token found')
     }
 
     const url = `${API_URL}/keypairs/${id}`
     const result: AxiosResponse<KeyPairUpdateResponse> = await axios.put(url, data, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     })
 
     return result.data
   } catch (error: unknown) {
-    console.error("Key pair update error:", error instanceof Error ? error.message : "Unknown error")
-    throw new Error("Failed to update SSH key")
+    console.error('Key pair update error:', error instanceof Error ? error.message : 'Unknown error')
+    throw new Error('Failed to update SSH key')
   }
 }
 
@@ -150,21 +150,20 @@ export const deleteKeyPair = async (id: number): Promise<{ message: string }> =>
   try {
     const token = getAuthToken()
     if (!token) {
-      throw new Error("No access token found")
+      throw new Error('No access token found')
     }
 
     const url = `${API_URL}/keypairs/${id}`
     const result: AxiosResponse<{ message: string }> = await axios.delete(url, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     })
 
     return result.data
   } catch (error: unknown) {
-    console.error("Key pair deletion error:", error instanceof Error ? error.message : "Unknown error")
-    throw new Error("Failed to delete SSH key")
+    console.error('Key pair deletion error:', error instanceof Error ? error.message : 'Unknown error')
+    throw new Error('Failed to delete SSH key')
   }
 }
 
 // Export the KeyPair type for use in other files
 export type { KeyPair, KeyPairCreateResponse, KeyPairUpdateResponse, HyperstackData, KeyPairCreateData }
-

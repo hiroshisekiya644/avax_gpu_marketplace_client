@@ -10,7 +10,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const token = sessionStorage.getItem('authToken')
+      const token = localStorage.getItem('authToken')
       setAuthToken(token)
     }
   }, [])
