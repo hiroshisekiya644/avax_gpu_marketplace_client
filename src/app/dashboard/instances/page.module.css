@@ -55,7 +55,7 @@
   cursor: pointer;
   font-family: 'Inter', sans-serif;
   color: var(--textSoft);
-  padding-bottom: 15px;
+  padding: 12px 24px;
 
   & svg path {
     fill: var(--text-gray-color-dark);
@@ -75,7 +75,7 @@
 
 .tabListItem[data-state='active'] {
   color: var(--text);
-  border-bottom: 2px solid white;
+  border-bottom: 2px solid var(--border);
 
   & svg path {
     fill: var(--white-color);
@@ -216,7 +216,7 @@
   border-radius: 7px;
   height: 40px;
   padding: 0 16px;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
 }
