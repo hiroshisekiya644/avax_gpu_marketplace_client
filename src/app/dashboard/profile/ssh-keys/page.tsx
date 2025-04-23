@@ -387,7 +387,7 @@ const SSHKeysPage = () => {
                 <input
                   type="text"
                   className={styles.formInput}
-                  placeholder="e.g., My Work Laptop"
+                  placeholder="e.g., My SSH Key"
                   value={newKeyData.ssh_key_name}
                   onChange={(e) => handleNewKeyDataChange('ssh_key_name', e.target.value)}
                 />
