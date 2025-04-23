@@ -60,7 +60,6 @@
 }
 
 .tabListItem:hover {
-  color: #1fefee;
   transition: all 0.2s ease;
 }
 
@@ -403,7 +402,7 @@
 
 .formInput {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 8px 16px;
   background-color: #0b1515;
   border: 1px solid rgba(31, 239, 238, 0.3);
   border-radius: 8px;
@@ -424,7 +423,7 @@
 
 /* Button styles */
 .button {
-  background: linear-gradient(90deg, #1fefee, #76b900);
+  background: var(--button);
   color: #000000;
   border: none;
   border-radius: 8px;
@@ -542,7 +541,7 @@
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: white;
-  background: linear-gradient(90deg, #1fefee, #76b900);
+  background: var(--button );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -870,7 +869,6 @@
 /* Select box styling */
 .selectBox {
   background-color: #0b1515;
-  border: 1px solid rgba(31, 239, 238, 0.3);
   border-radius: 8px;
   color: #ffffff;
 }

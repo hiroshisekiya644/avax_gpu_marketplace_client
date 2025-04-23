@@ -588,15 +588,16 @@ const Instances = () => {
                 <Flex p="4" mt="4" direction="column" gap="4" width="100%" className={styles.instanceCardWrapper}>
                   {/* Search and action buttons row */}
                   <Flex justify="between" align="center" width="100%">
-                    <div className={styles.searchContainer}>
-                      <input
-                        type="text"
-                        placeholder="Search for a virtual machine"
-                        className={styles.searchInput}
-                        value={searchTerm}
-                        onChange={handleSearch}
-                      />
-                    </div>
+                    <TextField.Root
+                      placeholder="Search for a virtual machine"
+                      className={styles.searchInput}
+                      onChange={handleSearch}
+                      value={searchTerm}
+                    >
+                      <TextField.Slot className={styles.iconSlot}>
+                        <Search />
+                      </TextField.Slot>
+                    </TextField.Root>
                     <Flex gap="2" align="center">
                       <div className={styles.balanceContainer}>
                         <WalletIcon />
@@ -718,15 +719,6 @@ const Instances = () => {
                 <Flex p="4" mt="4" direction="column" gap="4" width="100%" className={styles.instanceCardWrapper}>
                   {/* Search and refresh row */}
                   <Flex justify="between" align="center" width="100%">
-                    {/* <div className={styles.searchContainer}>
-                      <input
-                        type="text"
-                        placeholder="Search for a virtual machine"
-                        className={styles.searchInput}
-                        value={searchTerm}
-                        onChange={handleSearch}
-                      />
-                    </div> */}
                     <TextField.Root
                       placeholder="Search for a virtual machine"
                       className={styles.searchInput}
