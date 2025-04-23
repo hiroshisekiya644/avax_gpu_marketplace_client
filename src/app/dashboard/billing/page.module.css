@@ -73,7 +73,7 @@
 }
 
 .activeTab {
-  border-bottom: 2px solid var(--background);
+  border-bottom: 2px solid var(--border);
   font-weight: 500;
 }
 
@@ -118,7 +118,7 @@
   font-weight: 700;
   margin: 16px 0;
   color: #1fefee;
-  background: linear-gradient(90deg, #1fefee 0%, #76b900 100%);
+  background: var(--button);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
