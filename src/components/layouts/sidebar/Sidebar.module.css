@@ -239,7 +239,7 @@
   height: 32px;
   border-radius: 50%;
   background-color: var(--button);
-  color: white;
+  color: var(--soft);
   display: flex;
   align-items: center;
   justify-content: center;
