@@ -4,7 +4,6 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { Flex } from '@radix-ui/themes'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import WalletButton from '../button/WalletButton'
 import { sidebarClusterMenu } from '../layouts/sidebar/Sidebar'
 import styles from './HeaderDialog.module.css'
 
@@ -20,11 +19,6 @@ export const HeaderDialog = () => {
         </Dialog.Close>
       </Flex>
       <Flex className={styles.menuList}>
-        <Flex justify="center">
-          <div className={styles.walletButton}>
-            <WalletButton />
-          </div>
-        </Flex>
         {sidebarClusterMenu.map((menu) => (
           <Dialog.Close
             key={menu.name}

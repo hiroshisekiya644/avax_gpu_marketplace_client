@@ -10,7 +10,7 @@ import '../styles/globals.css'
 import '@radix-ui/themes/styles.css'
 import { Toaster } from 'react-hot-toast'
 import { BalanceProvider } from '@/context/BalanceContext'
-import { WalletProvider } from '@/context/Web3Context'
+import { UserProvider } from '@/context/UserContext'
 import type { Metadata } from 'next'
 
 // Configure the Inter font
@@ -40,11 +40,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} ${poppins.variable} antialiased`}>
         <Theme appearance="dark" accentColor="cyan" grayColor="slate" scaling="100%" radius="medium">
-          <WalletProvider>
+          <UserProvider>
             <BalanceProvider>
               <Suspense>{children}</Suspense>
             </BalanceProvider>
-          </WalletProvider>
+          </UserProvider>
           <Toaster />
         </Theme>
       </body>

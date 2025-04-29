@@ -1,14 +1,12 @@
 'use client'
 import type { ReactElement } from 'react'
-import { useState, useEffect } from 'react'
 import { ChevronUpIcon } from '@radix-ui/react-icons'
 import * as Popover from '@radix-ui/react-popover'
 import { Flex } from '@radix-ui/themes'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { signout } from '@/api/Auth'
-import { getUserData, type User } from '@/api/User'
+import { useUser } from '@/context/UserContext'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import styles from './Sidebar.module.css'
 
@@ -41,26 +39,18 @@ export const sidebarClusterMenu: SidebarMenu[] = [
 
 export const Sidebar = () => {
   const path = usePathname()
-  // Add state for user data
-  const [userData, setUserData] = useState<User | null>(null)
-  const [isLoadingUser, setIsLoadingUser] = useState(true)
+  // Use the UserContext instead of direct API calls
+  const { user, isLoading: isLoadingUser, logout } = useUser()
 
-  // Fetch user data on component mount
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        setIsLoadingUser(true)
-        const response = await getUserData()
-        setUserData(response.user)
-      } catch (error) {
-        console.error('Failed to fetch user data:', error)
-      } finally {
-        setIsLoadingUser(false)
-      }
+  // Helper function to check if a path is active, including sub-paths for profile
+  const isPathActive = (menuHref: string) => {
+    if (menuHref === '/dashboard/profile') {
+      // For profile, check if the current path starts with the profile path
+      return path === menuHref || path.startsWith(`${menuHref}/`)
     }
-
-    fetchUserData()
-  }, [])
+    // For other menu items, use exact match
+    return path === menuHref
+  }
 
   return (
     <Flex
@@ -97,7 +87,7 @@ export const Sidebar = () => {
                 <Link
                   key={menu.name}
                   href={menu.href}
-                  className={`${styles.menu} ${path === menu.href ? styles.current : ''}`}
+                  className={`${styles.menu} ${isPathActive(menu.href) ? styles.current : ''}`}
                 >
                   <div className={styles.linkButton}>
                     {menu.icon}
@@ -109,7 +99,7 @@ export const Sidebar = () => {
               <Link
                 key={menu.name}
                 href={menu.href}
-                className={`${styles.menu} ${path === menu.href ? styles.current : ''}`}
+                className={`${styles.menu} ${isPathActive(menu.href) ? styles.current : ''}`}
               >
                 <div className={styles.linkButton}>
                   {menu.icon}
@@ -126,21 +116,19 @@ export const Sidebar = () => {
             <div className={styles.userLinkGroup}>
               {isLoadingUser ? (
                 <div className={styles.avatarPlaceholder}></div>
-              ) : userData?.avatar ? (
+              ) : user?.avatar ? (
                 <Image
-                  src={userData.avatar || '/placeholder.svg'}
+                  src={user.avatar || '/placeholder.svg'}
                   alt=""
                   width={32}
                   height={32}
                   style={{ width: '32px', height: '32px', borderRadius: '50%' }}
                 />
               ) : (
-                <div className={styles.avatarInitial}>
-                  {userData?.email ? userData.email.charAt(0).toUpperCase() : '?'}
-                </div>
+                <div className={styles.avatarInitial}>{user?.email ? user.email.charAt(0).toUpperCase() : '?'}</div>
               )}
               <div className={styles.userLinkButton}>
-                {isLoadingUser ? 'Loading...' : userData?.email || 'Authenticated User'}
+                {isLoadingUser ? 'Loading...' : user?.email || 'Authenticated User'}
               </div>
               <div>
                 <ChevronUpIcon />
@@ -159,7 +147,7 @@ export const Sidebar = () => {
                     </Flex>
                   </Link>
                 </li>
-                <li className={styles.logoutButton} onClick={signout}>
+                <li className={styles.logoutButton} onClick={logout}>
                   <Flex align="center" gap="4">
                     <LogoutIcon />
                     <div className={styles.userLinkButton}>Logout</div>
