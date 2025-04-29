@@ -6,10 +6,20 @@ export type AuthData = {
   password: string
 }
 
+// Update the AuthResponse type to include the user object
 export type AuthResponse = {
   message: string
-  userId: number
+  userId?: number
   accessToken: string
+  user?: {
+    email: string
+    balance: number
+    role: string
+    avatar: string | null
+    createdAt: string
+    status: string
+  }
+  status?: string
 }
 
 type AuthAction = 'signup' | 'signin'
@@ -19,6 +29,50 @@ export const authenticateAction = async (action: AuthAction, data: AuthData): Pr
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/${action}`
 
     const result: AxiosResponse<AuthResponse> = await axios.post(url, data)
+    return result.data
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      // Type assertion for the error response data
+      const errorData = error.response?.data as { message?: string } | undefined
+      // Extract the error message from the response if available
+      const errorMessage = errorData?.message || 'An Axios error occurred'
+      throw new Error(errorMessage)
+    } else if (error instanceof Error) {
+      throw new Error(error.message || 'An unknown error occurred')
+    } else {
+      throw new Error('An unexpected error occurred')
+    }
+  }
+}
+
+// Add the tokenSignin function after the authenticateAction function
+export const tokenSignin = async (): Promise<AuthResponse> => {
+  try {
+    // Get the token from localStorage
+    const token = localStorage.getItem('authToken')
+
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/tokensignin`
+
+    // Send the request with the token in the Authorization header
+    const result: AxiosResponse<AuthResponse> = await axios.post(
+      url,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    // If successful, update the token in localStorage with the new one
+    if (result.data.accessToken) {
+      localStorage.setItem('authToken', result.data.accessToken)
+    }
+
     return result.data
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {

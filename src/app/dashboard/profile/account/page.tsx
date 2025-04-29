@@ -1,16 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Cross2Icon } from '@radix-ui/react-icons'
 import { Flex, Theme } from '@radix-ui/themes'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { getUserData, updateUser, deleteUserAccount, type User } from '@/api/User'
+import { updateUser, deleteUserAccount } from '@/api/User'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { Snackbar } from '@/components/snackbar/SnackBar'
-import { useBalance } from '@/context/BalanceContext'
+import { useUser } from '@/context/UserContext'
 import styles from '../page.module.css'
 
 // Icons
@@ -24,12 +24,7 @@ const WarningIcon = () => <DynamicSvgIcon height={18} className="rounded-none" i
 
 const AccountPage = () => {
   const router = useRouter()
-  const { balance, isLoading: balanceLoading } = useBalance()
-
-  // User data state
-  const [userData, setUserData] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isUpdating, setIsUpdating] = useState(false)
+  const { user, isLoading, refreshUserData, logout } = useUser()
 
   // Password states
   const [passwordData, setPasswordData] = useState({
@@ -40,24 +35,7 @@ const AccountPage = () => {
 
   // Delete account modal state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-
-  // Fetch user data on component mount
-  useEffect(() => {
-    fetchUserData()
-  }, [])
-
-  const fetchUserData = async () => {
-    try {
-      setIsLoading(true)
-      const response = await getUserData()
-      setUserData(response.user)
-    } catch (error) {
-      console.error('Failed to fetch user data:', error)
-      Snackbar({ message: 'Failed to fetch user data', type: 'error' })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const [isUpdating, setIsUpdating] = useState(false)
 
   const handlePasswordChange = (field: string, value: string) => {
     setPasswordData((prev) => ({ ...prev, [field]: value }))
@@ -90,6 +68,9 @@ const AccountPage = () => {
       })
 
       Snackbar({ message: 'Password updated successfully' })
+
+      // Refresh user data to ensure we have the latest information
+      await refreshUserData()
     } catch (error) {
       console.error('Failed to update password:', error)
       Snackbar({ message: 'Failed to update password', type: 'error' })
@@ -104,8 +85,8 @@ const AccountPage = () => {
       await deleteUserAccount()
       Snackbar({ message: 'Account deleted successfully' })
 
-      // Clear session storage and redirect to login
-      localStorage.clear()
+      // Logout user and redirect to login
+      logout()
       router.push('/auth/login')
     } catch (error) {
       console.error('Failed to delete account:', error)
@@ -171,27 +152,27 @@ const AccountPage = () => {
               <Flex direction="column" mt="4">
                 <div className={styles.profileHeader}>
                   <div className={styles.avatarLarge}>
-                    {userData?.avatar ? (
+                    {user?.avatar ? (
                       <Image
-                        src={userData.avatar || '/placeholder.svg'}
+                        src={user.avatar || '/placeholder.svg'}
                         alt="Profile"
                         width={120}
                         height={120}
                         style={{ objectFit: 'cover' }}
                       />
                     ) : (
-                      userData?.email.charAt(0).toUpperCase()
+                      user?.email.charAt(0).toUpperCase()
                     )}
                   </div>
                   <div className={styles.profileInfo}>
-                    <h1 className={styles.profileName}>{userData?.email.split('@')[0]}</h1>
-                    <p className={styles.profileEmail}>{userData?.email}</p>
+                    <h1 className={styles.profileName}>{user?.email.split('@')[0]}</h1>
+                    <p className={styles.profileEmail}>{user?.email}</p>
                     <div className={styles.profileMeta}>
                       <span className={styles.profileBadge}>
-                        {userData?.role ? userData.role.charAt(0).toUpperCase() + userData.role.slice(1) : 'User'}
+                        {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}
                       </span>
                       <span className={styles.profileBadge}>
-                        Member since {userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString() : ''}
+                        Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : ''}
                       </span>
                     </div>
                   </div>
@@ -205,7 +186,7 @@ const AccountPage = () => {
                       </div>
                       <h2 className={styles.cardTitle}>Email Address</h2>
                     </div>
-                    <p className={styles.cardValue}>{userData?.email}</p>
+                    <p className={styles.cardValue}>{user?.email}</p>
                     <p className={styles.cardNote}>Your email address is used for login and cannot be changed</p>
                   </div>
 
@@ -216,7 +197,7 @@ const AccountPage = () => {
                       </div>
                       <h2 className={styles.cardTitle}>Account Balance</h2>
                     </div>
-                    <p className={styles.cardValue}>${balanceLoading ? 'Loading...' : balance.toFixed(2)}</p>
+                    <p className={styles.cardValue}>${user?.balance?.toFixed(2) || '0.00'}</p>
                     <p className={styles.cardNote}>Your current account balance</p>
                     <Flex justify="end" mt="3">
                       <Link href="/dashboard/billing" className={styles.addFundsButton}>
@@ -233,7 +214,7 @@ const AccountPage = () => {
                       <h2 className={styles.cardTitle}>Account Created</h2>
                     </div>
                     <p className={styles.cardValue}>
-                      {userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString() : ''}
+                      {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : ''}
                     </p>
                     <p className={styles.cardNote}>Date when your account was created</p>
                   </div>
