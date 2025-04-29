@@ -6,8 +6,8 @@ import { Flex } from '@radix-ui/themes'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useUser } from '@/context/UserContext'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+import { useUser } from '@/context/UserContext'
 import styles from './Sidebar.module.css'
 
 type Option = {
