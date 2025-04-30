@@ -17,7 +17,7 @@ This is the frontend for the AVAX GPU Marketplace built with **Next.js**, **Tail
 - Tailwind CSS
 - TypeScript
 - Socket.IO Client
-- Web3 / NowPayments Integration
+- NowPayments Integration
  
 ## 🚀 Getting Started
 
