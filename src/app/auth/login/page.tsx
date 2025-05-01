@@ -2,7 +2,7 @@
 import type React from 'react'
 import { useState } from 'react'
 import { EyeOpenIcon, EyeClosedIcon } from '@radix-ui/react-icons'
-import { Flex, Button } from '@radix-ui/themes'
+import { Flex, Button, Separator } from '@radix-ui/themes'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -12,6 +12,9 @@ import { Snackbar } from '@/components/snackbar/SnackBar'
 import { EMAIL_REGEX } from '@/utils/Regex'
 import styles from './page.module.css'
 import { supabase } from '@/lib/supabase'
+import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+
+const GoogleIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="google" />
 
 const Login = () => {
   const router = useRouter()
@@ -85,7 +88,7 @@ const Login = () => {
     <Flex className={styles.bg}>
       <div className={styles.card}>
         <div className={styles.logoContainer}>
-          <Image src="/logo/logo.jpg" alt="Logo" width={48} height={48} className={styles.imageButton} priority />
+          <Image src="/logo/logo.jpg" alt="Logo" width={56} height={56} className={styles.imageButton} priority />
           <Flex className={styles.title}>rLoop GPU Marketplace</Flex>
         </div>
 
@@ -119,17 +122,46 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+
+              <Flex justify="end" width="100%">
+                <Link href="/auth/forgot-password">
+                  <span className={styles.forgotPassword}>Forgot password?</span>
+                </Link>
+              </Flex>
             </Flex>
 
             <Flex width="100%" mt="4">
               <Button className={styles.submitButton} type="submit" disabled={isLoading || !email || !password}>
-                {isLoading ? 'Logging in...' : 'Sign In'}
+                {isLoading ? (
+                  <Flex align="center" gap="2">
+                    <div className={styles.spinner}></div>
+                    <span>Logging in...</span>
+                  </Flex>
+                ) : (
+                  'Sign In'
+                )}
               </Button>
             </Flex>
           </form>
 
+          <Flex align="center" gap="2" width="100%" my="3">
+            <Separator size="4" style={{ background: 'rgba(255,255,255,0.1)' }} />
+            <span className={styles.orText}>OR</span>
+            <Separator size="4" style={{ background: 'rgba(255,255,255,0.1)' }} />
+          </Flex>
+
           <Button onClick={handleGoogleLogin} disabled={isGoogleLoading} className={styles.googleButton}>
-            <span>{isGoogleLoading ? 'Connecting...' : 'Sign in with Google'}</span>
+            {isGoogleLoading ? (
+              <Flex align="center" gap="2">
+                <div className={styles.spinner}></div>
+                <span>Connecting...</span>
+              </Flex>
+            ) : (
+              <Flex align="center" gap="2">
+                <GoogleIcon />
+                <span>Sign in with Google</span>
+              </Flex>
+            )}
           </Button>
 
           <Flex gap="4" align="center" justify="center" width="100%" className={styles.footerLinks}>
