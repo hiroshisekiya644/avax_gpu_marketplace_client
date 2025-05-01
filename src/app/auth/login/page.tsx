@@ -1,8 +1,8 @@
 'use client'
 import type React from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { EyeOpenIcon, EyeClosedIcon } from '@radix-ui/react-icons'
-import { Flex, Button, Separator, Text } from '@radix-ui/themes'
+import { Flex, Button } from '@radix-ui/themes'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -10,47 +10,17 @@ import { authenticateAction, type AuthData, type AuthResponse } from '@/api/Auth
 import { AuthInput } from '@/components/input/AuthInput'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import { EMAIL_REGEX } from '@/utils/Regex'
-import { supabase, syncSupabaseAuth } from '@/lib/supabase'
-import { useUser } from '@/context/UserContext'
 import styles from './page.module.css'
-import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
-
-const GoogleIcon = () => <DynamicSvgIcon width={20} height={20} alt="Google" iconName="google" />
+import { supabase } from '@/lib/supabase'
 
 const Login = () => {
   const router = useRouter()
-  const { updateUser } = useUser()
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [emailError, setEmailError] = useState<string>('')
-
-  // Check if we have a session from Supabase auth
-  useEffect(() => {
-    const checkSession = async () => {
-      const {
-        data: { session }
-      } = await supabase.auth.getSession()
-
-      if (session) {
-        try {
-          // Sync the Supabase session with our backend
-          const success = await syncSupabaseAuth()
-
-          if (success) {
-            Snackbar({ message: 'You have successfully logged in with Google!' })
-            router.push('/dashboard/create-cluster')
-          }
-        } catch (error) {
-          console.error('Error syncing user data:', error)
-        }
-      }
-    }
-
-    checkSession()
-  }, [router])
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -84,25 +54,16 @@ const Login = () => {
   }
 
   const handleGoogleLogin = async () => {
-    try {
-      setIsGoogleLoading(true)
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`
-        }
-      })
+    setIsGoogleLoading(true)
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`
+      }
+    })
 
-      if (error) {
-        throw error
-      }
-      // The redirect happens automatically, so we don't need to do anything else here
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        Snackbar({ message: error.message, type: 'error' })
-      } else {
-        Snackbar({ message: 'An error occurred during Google sign in', type: 'error' })
-      }
+    if (error) {
+      Snackbar({ message: error.message, type: 'error' })
       setIsGoogleLoading(false)
     }
   }
@@ -167,20 +128,9 @@ const Login = () => {
             </Flex>
           </form>
 
-          <Flex direction="column" width="100%" align="center" gap="3" mt="4">
-            <Flex align="center" width="100%" gap="2">
-              <Separator size="4" />
-              <Text size="2" color="gray">
-                OR
-              </Text>
-              <Separator size="4" />
-            </Flex>
-
-            <Button className={styles.googleButton} onClick={handleGoogleLogin} disabled={isGoogleLoading}>
-              <GoogleIcon />
-              <span>{isGoogleLoading ? 'Connecting...' : 'Sign in with Google'}</span>
-            </Button>
-          </Flex>
+          <Button onClick={handleGoogleLogin} disabled={isGoogleLoading} className={styles.googleButton}>
+            <span>{isGoogleLoading ? 'Connecting...' : 'Sign in with Google'}</span>
+          </Button>
 
           <Flex gap="4" align="center" justify="center" width="100%" className={styles.footerLinks}>
             <Flex className={styles.subText}>Don&apos;t have an account?</Flex>

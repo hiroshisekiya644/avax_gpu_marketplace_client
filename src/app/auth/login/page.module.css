@@ -1,26 +1,29 @@
 /* page.module.css */
 .bg {
-  background-image: url('/assets/background.png');
-  background-size: cover;
-  background-position: center;
+  background-color: var(--bg);
+  height: 100%;
   min-height: 100vh;
-  width: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: center !important;
   align-items: center;
-  padding: 20px;
+  background-image: linear-gradient(to bottom right, rgba(10, 10, 10, 0.9), rgba(20, 20, 20, 0.95)),
+    url('/assets/background.png');
+  background-position: center;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
 }
 
 .card {
-  background-color: rgba(17, 24, 39, 0.8);
+  width: 450px;
+  padding: 40px;
+  background-color: rgba(23, 23, 23, 0.8);
   backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 32px;
-  width: 100%;
-  max-width: 450px;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  border: 1px solid rgba(31, 239, 238, 0.3);
   transition: all 0.3s ease;
 }
 
@@ -38,36 +41,43 @@
 }
 
 .title {
-  font-size: 20px;
-  font-weight: 600;
-  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--text);
+  margin-bottom: 8px;
 }
 
 .text {
   font-size: 24px;
-  font-weight: 600;
-  color: white;
+  color: var(--text);
+  font-weight: bold;
+  margin-bottom: 8px;
 }
 
 .subText {
   font-size: 14px;
-  color: #9ca3af;
-  text-align: center;
+  color: var(--textSoft);
+  margin-bottom: 24px;
+  line-height: 1.5;
 }
 
 .submitButton {
-  width: 100%;
-  background-color: #06b6d4;
-  color: white;
-  font-weight: 500;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  cursor: pointer !important;
+  background: #00c8c8 !important;
+  width: 100% !important;
+  height: 50px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+  margin-top: 8px !important;
+  color: #000 !important;
+  border: none !important;
+  text-transform: uppercase !important;
 }
 
 .submitButton:hover {
-  background-color: #0891b2;
+  background: #1fefee !important;
   transform: translateY(-2px);
   box-shadow: 0 8px 15px rgba(31, 239, 238, 0.2);
 }
@@ -77,15 +87,15 @@
 }
 
 .submitButton:disabled {
-  background-color: #6b7280;
-  cursor: not-allowed;
   opacity: 0.7;
+  cursor: not-allowed !important;
   transform: none !important;
 }
 
 .subTextButton {
   font-size: 14px;
-  color: #06b6d4;
+  font-weight: bold;
+  color: #1fefee;
   cursor: pointer;
   transition: color 0.2s ease;
 }
@@ -96,7 +106,8 @@
 }
 
 .imageButton {
-  border-radius: 8px;
+  cursor: pointer;
+  border-radius: 50%;
   width: 48px;
   height: 48px;
   transition: transform 0.2s ease;
@@ -107,7 +118,7 @@
 }
 
 .formContainer {
-  margin-top: 16px;
+  margin-top: 24px;
   margin-bottom: 24px;
 }
 
@@ -118,10 +129,11 @@
 }
 
 .logoContainer {
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
-  margin-bottom: 24px;
 }
 
 .passwordStrengthIndicator {
@@ -142,32 +154,4 @@
 .passwordStrengthText {
   font-size: 12px;
   color: var(--textSoft);
-}
-
-.googleButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background-color: white;
-  color: #4a5568;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.googleButton:hover {
-  background-color: #f7fafc;
-}
-
-.googleButton:active {
-  background-color: #edf2f7;
-}
-
-.googleButton:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
 }
