@@ -86,6 +86,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     localStorage.removeItem('authToken')
     setUser(null)
     setIsAuthenticated(false)
+    // Use window.location for a full page refresh and navigation to login
+    window.location.href = '/auth/login'
   }
 
   // Check for token and authenticate on initial load

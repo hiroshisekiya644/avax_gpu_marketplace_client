@@ -1,6 +1,6 @@
 'use client'
 import type React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { EyeOpenIcon, EyeClosedIcon } from '@radix-ui/react-icons'
 import { Flex, Button } from '@radix-ui/themes'
 import Image from 'next/image'
@@ -20,6 +20,13 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [passwordError, setPasswordError] = useState<string>('')
   const [emailError, setEmailError] = useState<string>('')
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken')
+    if (token) {
+      router.push('/dashboard/create-cluster')
+    }
+  }, [router])
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()

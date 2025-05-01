@@ -1,24 +1,38 @@
 'use client'
 import type React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { EyeOpenIcon, EyeClosedIcon } from '@radix-ui/react-icons'
-import { Flex, Button } from '@radix-ui/themes'
+import { Flex, Button, Separator } from '@radix-ui/themes'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { authenticateAction, type AuthData, type AuthResponse } from '@/api/Auth'
+import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { AuthInput } from '@/components/input/AuthInput'
 import { Snackbar } from '@/components/snackbar/SnackBar'
+import { useUser } from '@/context/UserContext'
+import { supabase } from '@/lib/supabase'
 import { EMAIL_REGEX } from '@/utils/Regex'
 import styles from './page.module.css'
 
+const GoogleIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="google" />
+
 const Login = () => {
   const router = useRouter()
+  const { updateUser } = useUser()
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [emailError, setEmailError] = useState<string>('')
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken')
+    if (token) {
+      router.push('/dashboard/create-cluster')
+    }
+  }, [router])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,6 +53,12 @@ const Login = () => {
       Snackbar({ message: 'You have successfully logged in!' })
 
       localStorage.setItem('authToken', response.accessToken)
+
+      // Update the user context with the user data from the response
+      if (response.user) {
+        updateUser(response.user)
+      }
+
       router.push('/dashboard/create-cluster')
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -48,6 +68,21 @@ const Login = () => {
       }
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true)
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`
+      }
+    })
+
+    if (error) {
+      Snackbar({ message: error.message, type: 'error' })
+      setIsGoogleLoading(false)
     }
   }
 
@@ -68,7 +103,7 @@ const Login = () => {
     <Flex className={styles.bg}>
       <div className={styles.card}>
         <div className={styles.logoContainer}>
-          <Image src="/logo/logo.jpg" alt="Logo" width={48} height={48} className={styles.imageButton} priority />
+          <Image src="/logo/logo.jpg" alt="Logo" width={56} height={56} className={styles.imageButton} priority />
           <Flex className={styles.title}>rLoop GPU Marketplace</Flex>
         </div>
 
@@ -102,14 +137,47 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+
+              <Flex justify="end" width="100%">
+                <Link href="/auth/forgot-password">
+                  <span className={styles.forgotPassword}>Forgot password?</span>
+                </Link>
+              </Flex>
             </Flex>
 
             <Flex width="100%" mt="4">
               <Button className={styles.submitButton} type="submit" disabled={isLoading || !email || !password}>
-                {isLoading ? 'Logging in...' : 'Sign In'}
+                {isLoading ? (
+                  <Flex align="center" gap="2">
+                    <div className={styles.spinner}></div>
+                    <span>Logging in...</span>
+                  </Flex>
+                ) : (
+                  'Sign In'
+                )}
               </Button>
             </Flex>
           </form>
+
+          <Flex align="center" gap="2" width="100%" my="3">
+            <Separator size="4" style={{ background: 'rgba(255,255,255,0.1)' }} />
+            <span className={styles.orText}>OR</span>
+            <Separator size="4" style={{ background: 'rgba(255,255,255,0.1)' }} />
+          </Flex>
+
+          <Button onClick={handleGoogleLogin} disabled={isGoogleLoading} className={styles.googleButton}>
+            {isGoogleLoading ? (
+              <Flex align="center" gap="2">
+                <div className={styles.spinner}></div>
+                <span>Connecting...</span>
+              </Flex>
+            ) : (
+              <Flex align="center" gap="2">
+                <GoogleIcon />
+                <span>Sign in with Google</span>
+              </Flex>
+            )}
+          </Button>
 
           <Flex gap="4" align="center" justify="center" width="100%" className={styles.footerLinks}>
             <Flex className={styles.subText}>Don&apos;t have an account?</Flex>
