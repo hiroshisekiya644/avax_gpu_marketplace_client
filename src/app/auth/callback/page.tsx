@@ -1,11 +1,11 @@
 'use client'
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import { Flex } from '@radix-ui/themes'
 import Image from 'next/image'
-import styles from './page.module.css'
+import { useRouter } from 'next/navigation'
 import { Snackbar } from '@/components/snackbar/SnackBar'
+import { supabase } from '@/lib/supabase'
+import styles from './page.module.css'
 
 export default function AuthCallback() {
   const router = useRouter()

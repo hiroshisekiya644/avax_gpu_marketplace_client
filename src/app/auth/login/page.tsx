@@ -7,13 +7,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { authenticateAction, type AuthData, type AuthResponse } from '@/api/Auth'
+import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { AuthInput } from '@/components/input/AuthInput'
 import { Snackbar } from '@/components/snackbar/SnackBar'
+import { useUser } from '@/context/UserContext'
+import { supabase } from '@/lib/supabase'
 import { EMAIL_REGEX } from '@/utils/Regex'
 import styles from './page.module.css'
-import { supabase } from '@/lib/supabase'
-import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
-import { useUser } from '@/context/UserContext'
 
 const GoogleIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="google" />
 
