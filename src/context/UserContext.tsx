@@ -76,6 +76,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       setUser(null)
       setIsAuthenticated(false)
       setError(err instanceof Error ? err.message : 'Authentication failed')
+      logout() // Call logout on error
     } finally {
       setIsLoading(false)
     }
