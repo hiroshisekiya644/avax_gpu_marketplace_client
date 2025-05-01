@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Flex } from '@radix-ui/themes'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -12,8 +12,12 @@ import styles from './page.module.css'
 export default function AuthCallback() {
   const router = useRouter()
   const { updateUser } = useUser()
+  const hasRun = useRef(false)
 
   useEffect(() => {
+    if (hasRun.current) return
+    hasRun.current = true
+
     const syncAuth = async () => {
       try {
         const {
@@ -21,16 +25,12 @@ export default function AuthCallback() {
           error: sessionError
         } = await supabase.auth.getSession()
 
-        if (sessionError) {
-          throw new Error(sessionError.message)
-        }
+        if (sessionError) throw new Error(sessionError.message)
 
         if (session?.access_token) {
           try {
-            // Use the supabaseSignIn function from Auth.ts
             const authResponse = await supabaseSignIn(session.access_token)
 
-            // Update the user context if user data is available
             if (authResponse && authResponse.user) {
               updateUser(authResponse.user)
             }
