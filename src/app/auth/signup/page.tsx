@@ -2,7 +2,7 @@
 import type React from 'react'
 import { useState, useEffect } from 'react'
 import { EyeOpenIcon, EyeClosedIcon } from '@radix-ui/react-icons'
-import { Flex, Button } from '@radix-ui/themes'
+import { Flex, Button, Separator } from '@radix-ui/themes'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -11,6 +11,8 @@ import { AuthInput } from '@/components/input/AuthInput'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import { EMAIL_REGEX, PASSWORD_REGEX } from '@/utils/Regex'
 import styles from '../login/page.module.css'
+import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+import { supabase } from '@/lib/supabase'
 
 const SignUp = () => {
   const router = useRouter()
@@ -20,6 +22,7 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [passwordError, setPasswordError] = useState<string>('')
   const [emailError, setEmailError] = useState<string>('')
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('authToken')
@@ -68,6 +71,23 @@ const SignUp = () => {
       }
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const GoogleIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="google" />
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true)
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`
+      }
+    })
+
+    if (error) {
+      Snackbar({ message: error.message, type: 'error' })
+      setIsGoogleLoading(false)
     }
   }
 
@@ -193,6 +213,26 @@ const SignUp = () => {
                 {isLoading ? 'Signing up...' : 'Create Account'}
               </Button>
             </Flex>
+
+            <Flex align="center" gap="2" width="100%" my="3">
+              <Separator size="4" style={{ background: 'rgba(255,255,255,0.1)' }} />
+              <span className={styles.orText}>OR</span>
+              <Separator size="4" style={{ background: 'rgba(255,255,255,0.1)' }} />
+            </Flex>
+
+            <Button onClick={handleGoogleLogin} disabled={isGoogleLoading} className={styles.googleButton}>
+              {isGoogleLoading ? (
+                <Flex align="center" gap="2">
+                  <div className={styles.spinner}></div>
+                  <span>Connecting...</span>
+                </Flex>
+              ) : (
+                <Flex align="center" gap="2">
+                  <GoogleIcon />
+                  <span>Continue with Google</span>
+                </Flex>
+              )}
+            </Button>
           </form>
 
           <Flex gap="4" align="center" justify="center" width="100%" className={styles.footerLinks}>
