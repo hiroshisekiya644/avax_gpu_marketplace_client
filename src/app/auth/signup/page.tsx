@@ -7,12 +7,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { authenticateAction, type AuthData, type AuthResponse } from '@/api/Auth'
+import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { AuthInput } from '@/components/input/AuthInput'
 import { Snackbar } from '@/components/snackbar/SnackBar'
+import { supabase } from '@/lib/supabase'
 import { EMAIL_REGEX, PASSWORD_REGEX } from '@/utils/Regex'
 import styles from '../login/page.module.css'
-import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
-import { supabase } from '@/lib/supabase'
 
 const SignUp = () => {
   const router = useRouter()
