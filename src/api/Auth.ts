@@ -88,6 +88,48 @@ export const tokenSignin = async (): Promise<AuthResponse> => {
   }
 }
 
+// Add the supabaseSignIn function to handle Supabase authentication
+export const supabaseSignIn = async (accessToken: string): Promise<AuthResponse> => {
+  try {
+    if (!accessToken) {
+      throw new Error('No Supabase access token provided')
+    }
+
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/supabaseSignIn`
+
+    // Send the request with the Supabase token in the Authorization header
+    const result: AxiosResponse<AuthResponse> = await axios.post(
+      url,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    // If successful, store the token in localStorage
+    if (result.data.accessToken) {
+      localStorage.setItem('authToken', result.data.accessToken)
+    }
+
+    return result.data
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      // Type assertion for the error response data
+      const errorData = error.response?.data as { message?: string } | undefined
+      // Extract the error message from the response if available
+      const errorMessage = errorData?.message || 'An Axios error occurred'
+      throw new Error(errorMessage)
+    } else if (error instanceof Error) {
+      throw new Error(error.message || 'An unknown error occurred')
+    } else {
+      throw new Error('An unexpected error occurred')
+    }
+  }
+}
+
 // Update the signout function to use the UserContext's logout function
 // Replace the current signout function with:
 export const signout = () => {
