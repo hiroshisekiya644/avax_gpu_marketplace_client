@@ -1,6 +1,6 @@
 'use client'
 import type React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { EyeOpenIcon, EyeClosedIcon } from '@radix-ui/react-icons'
 import { Flex, Button, Separator } from '@radix-ui/themes'
 import Image from 'next/image'
@@ -13,17 +13,26 @@ import { EMAIL_REGEX } from '@/utils/Regex'
 import styles from './page.module.css'
 import { supabase } from '@/lib/supabase'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+import { useUser } from '@/context/UserContext'
 
 const GoogleIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="google" />
 
 const Login = () => {
   const router = useRouter()
+  const { updateUser } = useUser()
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [emailError, setEmailError] = useState<string>('')
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken')
+    if (token) {
+      router.push('/dashboard/create-cluster')
+    }
+  }, [router])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,6 +53,12 @@ const Login = () => {
       Snackbar({ message: 'You have successfully logged in!' })
 
       localStorage.setItem('authToken', response.accessToken)
+
+      // Update the user context with the user data from the response
+      if (response.user) {
+        updateUser(response.user)
+      }
+
       router.push('/dashboard/create-cluster')
     } catch (error: unknown) {
       if (error instanceof Error) {

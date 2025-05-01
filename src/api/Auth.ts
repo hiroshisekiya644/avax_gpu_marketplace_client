@@ -1,5 +1,4 @@
 import axios, { type AxiosResponse } from 'axios'
-import { redirect } from 'next/navigation'
 
 export type AuthData = {
   email: string
@@ -89,7 +88,10 @@ export const tokenSignin = async (): Promise<AuthResponse> => {
   }
 }
 
-export const signout = async () => {
+// Update the signout function to use the UserContext's logout function
+// Replace the current signout function with:
+export const signout = () => {
   localStorage.removeItem('authToken')
-  await redirect('/auth/login')
+  // Use window.location for a full page refresh and navigation to login
+  window.location.href = '/auth/login'
 }
