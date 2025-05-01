@@ -3,12 +3,15 @@ import { useEffect } from 'react'
 import { Flex } from '@radix-ui/themes'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { supabaseSignIn } from '@/api/Auth'
 import { Snackbar } from '@/components/snackbar/SnackBar'
+import { useUser } from '@/context/UserContext'
 import { supabase } from '@/lib/supabase'
 import styles from './page.module.css'
 
 export default function AuthCallback() {
   const router = useRouter()
+  const { updateUser } = useUser()
 
   useEffect(() => {
     const syncAuth = async () => {
@@ -24,19 +27,14 @@ export default function AuthCallback() {
 
         if (session?.access_token) {
           try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/supabaseSignIn`, {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${session.access_token}`,
-                'Content-Type': 'application/json'
-              }
-            })
+            // Use the supabaseSignIn function from Auth.ts
+            const authResponse = await supabaseSignIn(session.access_token)
 
-            if (!response.ok) {
-              throw new Error('Failed to authenticate with backend')
+            // Update the user context if user data is available
+            if (authResponse && authResponse.user) {
+              updateUser(authResponse.user)
             }
 
-            localStorage.setItem('authToken', session.access_token)
             Snackbar({ message: 'Authentication successful!' })
             router.push('/dashboard/create-cluster')
           } catch (error) {
@@ -56,7 +54,7 @@ export default function AuthCallback() {
     }
 
     syncAuth()
-  }, [router])
+  }, [router, updateUser])
 
   return (
     <div className={styles.container}>
