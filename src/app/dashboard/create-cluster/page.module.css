@@ -332,6 +332,7 @@
 
 .defaultButton:hover {
   background-color: var(--button);
+  color: var(--bg);
 }
 
 .headerButton {
