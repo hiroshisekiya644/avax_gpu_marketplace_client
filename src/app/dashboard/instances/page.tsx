@@ -1,17 +1,16 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import type React from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
 import { Flex, Button, Table, Link, TextField } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
-import { getGpuAction, manageVM, deleteVM } from '@/api/GpuProvider'
-import { getUserData } from '@/api/User'
+import { manageVM, deleteVM } from '@/api/GpuProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import { useBalance } from '@/context/BalanceContext'
-import { initializeSocket, joinUserRoom } from '@/utils/socket'
+import { useGpuInstances } from '@/context/GpuInstanceContext'
 import styles from './page.module.css'
 
 // Define the flavor features interface
@@ -41,22 +40,13 @@ interface GpuInstance {
   public_ip?: string | null // Make public_ip optional
 }
 
-// Define the structure of the data received from the socket
-interface GpuStatusUpdate {
-  instance_id: number | string
-  status: string
-  public_ip?: string | null // Make public_ip optional
-}
-
-// Update the GpuResponse interface to correctly define gpu as an array
-// Remove the unused GpuResponse interface
-
 const GpuIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="gpu-icon" />
 const HistoryIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="history-icon" />
 const RefreshIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="refresh-icon" />
 const ExternalLink = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="external-link" />
 const Search = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="search" />
 const WalletIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="wallet-icon" />
+const InfoIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="info-icon" />
 
 type TabValue = 'instances' | 'history'
 const tabValues: TabValue[] = ['instances', 'history']
@@ -74,13 +64,11 @@ const historyTableHeaderItems = ['NAME', 'GPU', 'REGION', 'STATUS', 'CREATED', '
 const Instances = () => {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabValue>(tabValues[0])
-  const [gpuInstances, setGpuInstances] = useState<GpuInstance[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [tableLoading, setTableLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [processingInstances, setProcessingInstances] = useState<Record<number, boolean>>({})
-  const [userId, setUserId] = useState<number | null>(null)
+
+  // Use the shared GPU instances context
+  const { instances: gpuInstances, isLoading, error, refreshInstances } = useGpuInstances()
 
   // Use the balance context instead of local state
   const { balance, isLoading: balanceLoading } = useBalance()
@@ -132,126 +120,6 @@ const Instances = () => {
     }
   }
 
-  // Removing the unused renderFeatureBadges function
-  // This functionality will be implemented in the future when we add feature badges to the UI
-
-  // Fetch user data to get the user ID
-  const fetchUserData = useCallback(async () => {
-    try {
-      const response = await getUserData()
-      if (response && response.user) {
-        setUserId(response.user.id)
-        return response.user.id
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error)
-    }
-    return null
-  }, [])
-
-  // Initialize socket connection and join user room
-  const setupSocket = useCallback(async () => {
-    try {
-      // Get user ID if not already set
-      const currentUserId = userId || (await fetchUserData())
-      if (!currentUserId) return undefined
-
-      // Initialize socket and join user room
-      const socket = initializeSocket()
-      joinUserRoom(currentUserId)
-
-      // Listen for GPU status updates
-      socket.on('gpuStatusUpdate', (rawData: unknown) => {
-        // Type guard function to validate the data structure
-        const isValidStatusUpdate = (data: unknown): data is GpuStatusUpdate => {
-          return (
-            typeof data === 'object' &&
-            data !== null &&
-            'instance_id' in data &&
-            'status' in data &&
-            typeof (data as GpuStatusUpdate).status === 'string'
-          )
-        }
-
-        // Validate the data before processing
-        if (!isValidStatusUpdate(rawData)) {
-          console.error('Invalid GPU status update data:', rawData)
-          return
-        }
-
-        // Now TypeScript knows data is a GpuStatusUpdate
-        const data: GpuStatusUpdate = rawData
-
-        // Update the specific instance in the state without refetching everything
-        setGpuInstances((prevInstances) => {
-          return prevInstances.map((instance) => {
-            if (instance.instance_id === data.instance_id) {
-              // Create updated instance with new status
-              const updatedInstance: GpuInstance = {
-                ...instance,
-                status: data.status === 'BUILD' ? 'CREATING' : data.status,
-                ...(data.public_ip !== undefined && { public_ip: data.public_ip })
-              }
-
-              return updatedInstance
-            }
-            return instance
-          })
-        })
-      })
-
-      // Return a cleanup function
-      return () => {
-        socket.off('gpuStatusUpdate')
-      }
-    } catch (error) {
-      console.error('Error setting up socket:', error)
-      return undefined
-    }
-  }, [userId, fetchUserData])
-
-  // Also update the initial data processing to convert BUILD to CREATING
-  const fetchGpuInstances = async (initialLoad = false) => {
-    try {
-      // Only set the main loading state on initial load
-      if (initialLoad) {
-        setIsLoading(true)
-      } else {
-        // For refresh button clicks, only set the table loading state
-        setTableLoading(true)
-      }
-
-      setError(null)
-      const response = await getGpuAction()
-
-      if (response && response.status === 'success') {
-        // Handle both array and single object responses
-        const gpuData = Array.isArray(response.gpu) ? response.gpu : [response.gpu]
-
-        // Process the data to convert BUILD status to CREATING
-        const processedData = gpuData.map((instance) => ({
-          ...instance,
-          status: instance.status === 'BUILD' ? 'CREATING' : instance.status
-        }))
-
-        // Sort instances by creation date (newest first)
-        const sortedInstances = [...processedData].sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        setGpuInstances(sortedInstances)
-      } else {
-        setError('Failed to fetch GPU instances')
-      }
-    } catch (err) {
-      console.error('Error fetching GPU instances:', err)
-      setError('Failed to fetch GPU instances. Please try again.')
-      Snackbar({ message: 'Failed to fetch GPU instances', type: 'error' })
-    } finally {
-      setIsLoading(false)
-      setTableLoading(false)
-    }
-  }
-
   // Navigate to console page for an instance
   const navigateToConsole = (instance: GpuInstance) => {
     if (instance.status.toUpperCase() !== 'ACTIVE') {
@@ -266,6 +134,12 @@ const Instances = () => {
     router.push(`/dashboard/instances/${instance.instance_id}/console`)
   }
 
+  // Navigate to details page for an instance
+  const navigateToDetails = (instance: GpuInstance) => {
+    // Navigate to the details page with the instance ID
+    router.push(`/dashboard/instances/${instance.id}`)
+  }
+
   // Update the getActionItems function to include the restore action for hibernated instances
   const getActionItems = (instance: GpuInstance): SelectItem[] => {
     // Check if the instance is being processed
@@ -275,6 +149,13 @@ const Instances = () => {
 
     // Start with the placeholder item
     const items: SelectItem[] = [{ label: 'Actions', name: 'placeholder', disabled: true }]
+
+    // Add view details option
+    items.push({
+      label: 'View Details',
+      name: 'details',
+      disabled: isProcessing
+    })
 
     // Only add start button if instance is not active and not hibernated
     if (!isActive && !isHibernated) {
@@ -374,6 +255,12 @@ const Instances = () => {
     // Skip if placeholder is selected
     if (action === 'placeholder') return
 
+    // Handle navigation to details page
+    if (action === 'details') {
+      navigateToDetails(instance)
+      return
+    }
+
     // Special handling for delete action
     if (action === 'delete') {
       // Open the confirmation modal instead of using window.confirm
@@ -419,7 +306,7 @@ const Instances = () => {
 
         // Refresh the instances list after a short delay
         setTimeout(() => {
-          fetchGpuInstances()
+          refreshInstances()
         }, 1000)
       } else {
         // Show error message from the API
@@ -476,7 +363,7 @@ const Instances = () => {
 
         // Refresh the instances list after a short delay
         setTimeout(() => {
-          fetchGpuInstances()
+          refreshInstances()
         }, 1000)
       } else {
         // Show error message from the API
@@ -502,24 +389,6 @@ const Instances = () => {
       setInstanceToDelete(null)
     }
   }
-
-  useEffect(() => {
-    fetchGpuInstances(true)
-
-    // Set up socket connection
-    let cleanupFn: (() => void) | undefined
-
-    setupSocket().then((cleanup) => {
-      cleanupFn = cleanup
-    })
-
-    // Clean up the socket listeners when the component unmounts
-    return () => {
-      if (cleanupFn) {
-        cleanupFn()
-      }
-    }
-  }, [setupSocket])
 
   // Filter active instances for the Instances tab
   const activeInstances = gpuInstances
@@ -580,7 +449,7 @@ const Instances = () => {
               ) : error ? (
                 <Flex className={styles.errorContainer}>
                   <div className={styles.errorText}>{error}</div>
-                  <Button className={styles.retryButton} onClick={() => fetchGpuInstances(true)}>
+                  <Button className={styles.retryButton} onClick={refreshInstances}>
                     Retry
                   </Button>
                 </Flex>
@@ -607,7 +476,7 @@ const Instances = () => {
                           <span className={styles.balanceAmount}>${balance.toFixed(2)}</span>
                         )}
                       </div>
-                      <Button className={styles.refreshButton} onClick={() => fetchGpuInstances()}>
+                      <Button className={styles.refreshButton} onClick={refreshInstances}>
                         <RefreshIcon />
                         Refresh
                       </Button>
@@ -631,7 +500,7 @@ const Instances = () => {
                     </Flex>
                   ) : (
                     <div className={styles.tableContainer}>
-                      {tableLoading && (
+                      {isLoading && (
                         <div className={styles.tableLoadingOverlay}>
                           <div className={styles.loadingSpinner}></div>
                         </div>
@@ -651,7 +520,21 @@ const Instances = () => {
                         <Table.Body>
                           {activeInstances.map((instance) => (
                             <Table.Row key={instance.id}>
-                              <Table.Cell className={styles.historyTableCell}>{instance.gpu_name}</Table.Cell>
+                              <Table.Cell className={styles.historyTableCell}>
+                                <Link
+                                  href="#"
+                                  className={styles.instanceNameLink}
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    navigateToDetails(instance)
+                                  }}
+                                >
+                                  <Flex align="center" gap="1">
+                                    {instance.gpu_name}
+                                    <InfoIcon />
+                                  </Flex>
+                                </Link>
+                              </Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>{instance.flavor_name}</Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>{instance.region}</Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>
@@ -711,7 +594,7 @@ const Instances = () => {
               ) : error ? (
                 <Flex className={styles.errorContainer}>
                   <div className={styles.errorText}>{error}</div>
-                  <Button className={styles.retryButton} onClick={() => fetchGpuInstances(true)}>
+                  <Button className={styles.retryButton} onClick={refreshInstances}>
                     Retry
                   </Button>
                 </Flex>
@@ -738,7 +621,7 @@ const Instances = () => {
                           <span className={styles.balanceAmount}>${balance.toFixed(2)}</span>
                         )}
                       </div>
-                      <Button className={styles.refreshButton} onClick={() => fetchGpuInstances()}>
+                      <Button className={styles.refreshButton} onClick={refreshInstances}>
                         <RefreshIcon />
                         Refresh
                       </Button>
@@ -760,7 +643,7 @@ const Instances = () => {
                     </Flex>
                   ) : (
                     <div className={styles.tableContainer}>
-                      {tableLoading && (
+                      {isLoading && (
                         <div className={styles.tableLoadingOverlay}>
                           <div className={styles.loadingSpinner}></div>
                         </div>
@@ -780,7 +663,21 @@ const Instances = () => {
                         <Table.Body>
                           {historyInstances.map((instance) => (
                             <Table.Row key={instance.id}>
-                              <Table.Cell className={styles.historyTableCell}>{instance.gpu_name}</Table.Cell>
+                              <Table.Cell className={styles.historyTableCell}>
+                                <Link
+                                  href="#"
+                                  className={styles.instanceNameLink}
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    navigateToDetails(instance)
+                                  }}
+                                >
+                                  <Flex align="center" gap="1">
+                                    {instance.gpu_name}
+                                    <InfoIcon />
+                                  </Flex>
+                                </Link>
+                              </Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>{instance.flavor_name}</Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>{instance.region}</Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>

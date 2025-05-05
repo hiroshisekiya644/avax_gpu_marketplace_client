@@ -1,0 +1,351 @@
+.bg {
+  background-color: var(--bg);
+  height: 100%;
+  min-height: 100vh;
+  color: var(--text);
+}
+
+.header {
+  height: 90px;
+  border-bottom: 1px solid var(--bgSoft);
+  width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .header {
+    height: 110px;
+  }
+}
+
+.headerTitle {
+  color: var(--text);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 10px;
+  letter-spacing: -0.02em;
+  font-family: var(--font-heading);
+}
+
+.subTitle {
+  color: var(--textSoft);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 7px;
+  height: 40px;
+  padding: 0 16px;
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  background-color: var(--button);
+  border-color: var(--border);
+  color: var(--soft);
+}
+
+.detailsContainer {
+  background-color: var(--cardDarkPurple);
+  border-radius: 10px;
+  margin: 16px;
+  width: 100%;
+}
+
+.detailsHeader {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--bgSoft);
+}
+
+.detailsTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.detailsContent {
+  padding: 24px;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .detailsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detailsSection {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.detailsRow {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.detailsLabel {
+  width: 140px;
+  font-size: 14px;
+  color: var(--textSoft);
+}
+
+.detailsValue {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Status badges - using consistent color patterns */
+.statusBadge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusActive {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.statusPending {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+}
+
+.statusError {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.statusDeleted {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.statusHibernated {
+  background-color: rgba(79, 70, 229, 0.2);
+  color: #6366f1;
+}
+
+.statusDefault {
+  background-color: rgba(107, 114, 128, 0.2);
+  color: #6b7280;
+}
+
+.actionsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 7px;
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.primaryButton {
+  background-color: var(--button);
+  color: var(--soft);
+  border: 2px solid var(--border);
+}
+
+.primaryButton:hover {
+  background-color: var(--border);
+}
+
+.secondaryButton {
+  background-color: var(--bgSoft);
+  color: var(--text);
+  border: 1px solid var(--textSoftDark);
+}
+
+.secondaryButton:hover {
+  background-color: var(--button);
+  border-color: var(--border);
+  color: var(--soft);
+}
+
+.dangerButton {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
+
+.dangerButton:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+.loadingContainer,
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background-color: var(--bgSoftDark);
+  border-radius: 10px;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.loadingSpinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--textSoftDark);
+  border-radius: 50%;
+  border-top-color: var(--text);
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.loadingText {
+  color: var(--textSoft);
+  font-size: 1rem;
+}
+
+.errorText {
+  color: #ef4444;
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  background-color: var(--button);
+  cursor: pointer;
+  border: 2px solid var(--border);
+  font-size: 14px;
+  border-radius: 7px;
+  height: 36px;
+  padding: 0 16px;
+  color: var(--soft);
+}
+
+.retryButton:hover {
+  background-color: var(--border);
+}
+
+.dialogOverlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  inset: 0;
+  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 50;
+}
+
+.dialogContent {
+  background-color: var(--cardDarkPurple);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 450px;
+  max-height: 85vh;
+  padding: 25px;
+  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 51;
+}
+
+.modalTitle {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 1.25rem;
+}
+
+.modalDescription {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  color: var(--textSoft);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.cancelButton {
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background-color: var(--bgSoft);
+  border-color: var(--textSoft);
+}
+
+.deleteButton {
+  background-color: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deleteButton:hover {
+  background-color: rgba(239, 68, 68, 0.3);
+}
+
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

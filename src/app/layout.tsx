@@ -11,6 +11,7 @@ import '@radix-ui/themes/styles.css'
 import { Toaster } from 'react-hot-toast'
 import { BalanceProvider } from '@/context/BalanceContext'
 import { UserProvider } from '@/context/UserContext'
+import { GpuInstanceProvider } from '@/context/GpuInstanceContext'
 import type { Metadata } from 'next'
 
 // Configure the Inter font
@@ -42,7 +43,9 @@ export default function RootLayout({
         <Theme appearance="dark" accentColor="cyan" grayColor="slate" scaling="100%" radius="medium">
           <UserProvider>
             <BalanceProvider>
-              <Suspense>{children}</Suspense>
+              <GpuInstanceProvider>
+                <Suspense>{children}</Suspense>
+              </GpuInstanceProvider>
             </BalanceProvider>
           </UserProvider>
           <Toaster />
