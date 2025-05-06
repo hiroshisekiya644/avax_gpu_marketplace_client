@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type React from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
-import { Flex, Button, Table, Link, TextField } from '@radix-ui/themes'
+import { Flex, Button, Table, Link, TextField, Theme } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
 import { manageVM, deleteVM } from '@/api/GpuProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
@@ -710,25 +710,27 @@ const Instances = () => {
         <Dialog.Portal>
           <Dialog.Overlay className={styles.dialogOverlay} />
           <Dialog.Content className={styles.dialogContent}>
-            <Dialog.Title className={styles.modalTitle}>Confirm Delete</Dialog.Title>
-            <Dialog.Description className={styles.modalDescription}>
-              Are you sure you want to delete {instanceToDelete?.gpu_name}? This action cannot be undone.
-            </Dialog.Description>
+            <Theme>
+              <Dialog.Title className={styles.modalTitle}>Confirm Delete</Dialog.Title>
+              <Dialog.Description className={styles.modalDescription}>
+                Are you sure you want to delete {instanceToDelete?.gpu_name}? This action cannot be undone.
+              </Dialog.Description>
 
-            <Flex justify="end" gap="3" mt="4">
-              <Button
-                className={styles.cancelButton}
-                onClick={() => {
-                  setIsDeleteModalOpen(false)
-                  setInstanceToDelete(null)
-                }}
-              >
-                Cancel
-              </Button>
-              <Button className={styles.deleteButton} onClick={handleConfirmDelete}>
-                Delete
-              </Button>
-            </Flex>
+              <Flex justify="end" gap="3" mt="4">
+                <Button
+                  className={styles.cancelButton}
+                  onClick={() => {
+                    setIsDeleteModalOpen(false)
+                    setInstanceToDelete(null)
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button className={styles.deleteButton} onClick={handleConfirmDelete}>
+                  Delete
+                </Button>
+              </Flex>
+            </Theme>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
