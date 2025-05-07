@@ -5,12 +5,10 @@ export type AuthData = {
   password: string
 }
 
-// Update the AuthResponse type to include the user object
+// Update the AuthResponse type to include the user.id field
 export type AuthResponse = {
-  message: string
-  userId?: number
-  accessToken: string
-  user?: {
+  user: {
+    id: number
     email: string
     balance: number
     role: string
@@ -18,7 +16,9 @@ export type AuthResponse = {
     createdAt: string
     status: string
   }
-  status?: string
+  accessToken?: string
+  message: string
+  status: string
 }
 
 type AuthAction = 'signup' | 'signin'
@@ -44,7 +44,7 @@ export const authenticateAction = async (action: AuthAction, data: AuthData): Pr
   }
 }
 
-// Add the tokenSignin function after the authenticateAction function
+// Update tokenSignin to match the actual response format
 export const tokenSignin = async (): Promise<AuthResponse> => {
   try {
     // Get the token from localStorage
@@ -57,15 +57,11 @@ export const tokenSignin = async (): Promise<AuthResponse> => {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/tokensignin`
 
     // Send the request with the token in the Authorization header
-    const result: AxiosResponse<AuthResponse> = await axios.post(
-      url,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+    const result: AxiosResponse<AuthResponse> = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-    )
+    })
 
     // If successful, update the token in localStorage with the new one
     if (result.data.accessToken) {
@@ -88,7 +84,7 @@ export const tokenSignin = async (): Promise<AuthResponse> => {
   }
 }
 
-// Add the supabaseSignIn function to handle Supabase authentication
+// Update supabaseSignIn to match the actual response format
 export const supabaseSignIn = async (accessToken: string): Promise<AuthResponse> => {
   try {
     if (!accessToken) {
@@ -131,7 +127,6 @@ export const supabaseSignIn = async (accessToken: string): Promise<AuthResponse>
 }
 
 // Update the signout function to use the UserContext's logout function
-// Replace the current signout function with:
 export const signout = () => {
   localStorage.removeItem('authToken')
   // Use window.location for a full page refresh and navigation to login

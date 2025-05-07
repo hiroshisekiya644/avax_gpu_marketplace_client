@@ -8,7 +8,7 @@ import Image from 'next/image'
 import { createDeposit, getPaymentHistory } from '@/api/Payment'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { Snackbar } from '@/components/snackbar/SnackBar'
-import { useBalance } from '@/context/BalanceContext'
+import { useUser } from '@/context/UserContext'
 import styles from './page.module.css'
 
 const WalletIcon = () => <DynamicSvgIcon height={22} className="wallet-none" iconName="wallet-icon" />
@@ -37,8 +37,9 @@ const Billing = () => {
   const [transactionsError, setTransactionsError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview')
 
-  // Use the balance context instead of local state
-  const { balance, isLoading: balanceLoading, refreshBalance } = useBalance()
+  // Use the user context instead of balance context
+  const { user, isLoading: userLoading, refreshUserData } = useUser()
+  const balance = user?.balance || 0
 
   // Fetch transaction history on component mount
   useEffect(() => {
@@ -109,7 +110,7 @@ const Billing = () => {
       window.open(invoiceUrl, '_self')
 
       // After successful deposit, update the balance
-      await refreshBalance()
+      await refreshUserData()
       setCredit('')
 
       // Refresh transaction history
@@ -163,7 +164,7 @@ const Billing = () => {
                   <WalletIcon />
                   <h2>Current Balance</h2>
                 </div>
-                <div className={styles.balanceAmount}>${balanceLoading ? 'Loading...' : balance.toFixed(2)}</div>
+                <div className={styles.balanceAmount}>${userLoading ? 'Loading...' : balance.toFixed(2)}</div>
                 <div className={styles.balanceDescription}>Your available funds for GPU compute resources</div>
               </div>
 
@@ -212,7 +213,7 @@ const Billing = () => {
                 <div className={styles.paymentMethods}>
                   <div className={styles.paymentMethodsTitle}>Accepted Cryptocurrencies</div>
                   <div className={styles.paymentMethodsIcons}>
-{/*                     <div className={styles.cryptoItem}>
+                    {/*                     <div className={styles.cryptoItem}>
                       <Image src="/icons/avax.svg" alt="AVAX" width={24} height={24} />
                       <span>AVAX</span>
                     </div> */}

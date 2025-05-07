@@ -1,15 +1,12 @@
 import type React from 'react'
 import { Suspense } from 'react'
 import { Theme } from '@radix-ui/themes'
-// Replace the IBM Plex Sans import with Inter font which better matches the design
 import { Inter } from 'next/font/google'
-// Import Poppins as a secondary font for headings
 import { Poppins } from 'next/font/google'
 import '../styles/globals.css'
-// Important: Import Radix UI styles AFTER globals.css but BEFORE any component styles
 import '@radix-ui/themes/styles.css'
 import { Toaster } from 'react-hot-toast'
-import { BalanceProvider } from '@/context/BalanceContext'
+import { GpuInstanceProvider } from '@/context/GpuInstanceContext'
 import { UserProvider } from '@/context/UserContext'
 import type { Metadata } from 'next'
 
@@ -41,9 +38,9 @@ export default function RootLayout({
       <body className={`${inter.className} ${poppins.variable} antialiased`}>
         <Theme appearance="dark" accentColor="cyan" grayColor="slate" scaling="100%" radius="medium">
           <UserProvider>
-            <BalanceProvider>
+            <GpuInstanceProvider>
               <Suspense>{children}</Suspense>
-            </BalanceProvider>
+            </GpuInstanceProvider>
           </UserProvider>
           <Toaster />
         </Theme>

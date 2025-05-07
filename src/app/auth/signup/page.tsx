@@ -61,8 +61,16 @@ const SignUp = () => {
     try {
       const response: AuthResponse = await authenticateAction('signup', userData)
       Snackbar({ message: 'You have successfully signed up!' })
-      localStorage.setItem('authToken', response.accessToken)
-      router.push('/dashboard/create-cluster')
+
+      if (response.accessToken) {
+        localStorage.setItem('authToken', response.accessToken)
+        router.push('/dashboard/create-cluster')
+      } else {
+        console.error('No access token received from the server')
+        Snackbar({ message: 'Registration successful but no token received', type: 'info' })
+        // Still redirect to login since they can log in with their new credentials
+        router.push('/auth/login')
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         Snackbar({ message: error.message, type: 'error' })

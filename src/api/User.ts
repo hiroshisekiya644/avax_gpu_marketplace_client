@@ -1,20 +1,21 @@
 import axios, { type AxiosResponse } from 'axios'
 
+// Update User interface to include the id field
 export interface User {
   id: number
   email: string
   balance: number
   role: string
   avatar: string | null
-  is_deleted: boolean
-  deleted_at: string | null
   createdAt: string
-  updatedAt: string
+  status: string
 }
 
+// Update UserResponse to match the actual response format
 export interface UserResponse {
-  message: string
   user: User
+  message: string
+  status: string
 }
 
 export interface UpdateUserData {
@@ -24,6 +25,7 @@ export interface UpdateUserData {
 
 export interface DeleteUserResponse {
   message: string
+  status: string
 }
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL
@@ -40,7 +42,8 @@ export const getUserData = async (): Promise<UserResponse> => {
     return result.data
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      const errorMessage = 'An Axios error occurred'
+      const errorData = error.response?.data as { message?: string } | undefined
+      const errorMessage = errorData?.message || 'An Axios error occurred'
       throw new Error(errorMessage)
     } else if (error instanceof Error) {
       throw new Error(error.message || 'An unknown error occurred')
@@ -61,7 +64,8 @@ export const updateUser = async (data: UpdateUserData): Promise<UserResponse> =>
     return result.data
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      const errorMessage = 'An Axios error occurred'
+      const errorData = error.response?.data as { message?: string } | undefined
+      const errorMessage = errorData?.message || 'An Axios error occurred'
       throw new Error(errorMessage)
     } else if (error instanceof Error) {
       throw new Error(error.message || 'An unknown error occurred')
@@ -82,7 +86,8 @@ export const deleteUserAccount = async (): Promise<DeleteUserResponse> => {
     return result.data
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      const errorMessage = 'An Axios error occurred'
+      const errorData = error.response?.data as { message?: string } | undefined
+      const errorMessage = errorData?.message || 'An Axios error occurred'
       throw new Error(errorMessage)
     } else if (error instanceof Error) {
       throw new Error(error.message || 'An unknown error occurred')

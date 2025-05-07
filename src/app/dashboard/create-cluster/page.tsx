@@ -13,7 +13,7 @@ import { getRegionAction } from '@/api/RegionProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
 import { Snackbar } from '@/components/snackbar/SnackBar'
-import { useBalance } from '@/context/BalanceContext'
+import { useUser } from '@/context/UserContext'
 import { useResize } from '@/utils/Helper'
 import styles from './page.module.css'
 
@@ -169,8 +169,9 @@ const CreateCluster = () => {
   const { isResponsive } = useResize()
   const router = useRouter()
 
-  // Use the balance context instead of local state
-  const { balance, isLoading: balanceLoading } = useBalance()
+  // Use the user context to get balance
+  const { user, isLoading: userLoading } = useUser()
+  const balance = user?.balance || 0
 
   // UI state
   const [modalOpen, setModalOpen] = useState(false)
@@ -1346,7 +1347,7 @@ const CreateCluster = () => {
             {selectedGpu && (
               <div className={styles.balanceInfo}>
                 <div className={styles.balanceTitle}>Your Balance</div>
-                {balanceLoading ? (
+                {userLoading ? (
                   <div className={styles.balanceLoading}>Loading...</div>
                 ) : (
                   <>

@@ -53,7 +53,7 @@
   gap: 8px;
   border-radius: 2px;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   color: var(--textSoft);
   padding: 12px 24px;
 
@@ -73,7 +73,7 @@
   color: var(--textSoftDark);
 }
 
-.tabListItem[data-state='active'] {
+.tabListItem[data-state="active"] {
   color: var(--text);
   border-bottom: 2px solid var(--border);
 
@@ -178,7 +178,7 @@
 }
 
 .searchContainer::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 16px;
   top: 50%;
@@ -239,6 +239,21 @@
 
 .instanceContent {
   color: var(--textSoftDark);
+}
+
+/* Add styles for the instance name link */
+.instanceNameLink {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #2563eb;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.instanceNameLink:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
 }
 
 .tableContainer {
