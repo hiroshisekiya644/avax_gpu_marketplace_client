@@ -10,8 +10,8 @@ import '../styles/globals.css'
 import '@radix-ui/themes/styles.css'
 import { Toaster } from 'react-hot-toast'
 import { BalanceProvider } from '@/context/BalanceContext'
-import { UserProvider } from '@/context/UserContext'
 import { GpuInstanceProvider } from '@/context/GpuInstanceContext'
+import { UserProvider } from '@/context/UserContext'
 import type { Metadata } from 'next'
 
 // Configure the Inter font

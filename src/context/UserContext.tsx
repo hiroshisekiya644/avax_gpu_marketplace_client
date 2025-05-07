@@ -1,7 +1,7 @@
 'use client'
 
 import type React from 'react'
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import { tokenSignin } from '@/api/Auth'
 
 // Define the User type based on the API response
@@ -57,7 +57,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   }
 
   // Function to refresh user data from the token
-  const refreshUserData = async () => {
+  const refreshUserData = useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
@@ -80,16 +80,16 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
   // Function to handle logout
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('authToken')
     setUser(null)
     setIsAuthenticated(false)
     // Use window.location for a full page refresh and navigation to login
     window.location.href = '/auth/login'
-  }
+  }, [])
 
   // Check for token and authenticate on initial load
   useEffect(() => {
@@ -101,7 +101,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       setIsLoading(false)
       setIsAuthenticated(false)
     }
-  }, [])
+  }, [refreshUserData])
 
   const value = {
     user,

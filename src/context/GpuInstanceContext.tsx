@@ -4,8 +4,8 @@ import type React from 'react'
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { getGpuAction } from '@/api/GpuProvider'
 import { getUserData } from '@/api/User'
-import { initializeSocket, joinUserRoom } from '@/utils/socket'
 import { Snackbar } from '@/components/snackbar/SnackBar'
+import { initializeSocket, joinUserRoom } from '@/utils/socket'
 
 // Define the flavor features interface
 interface FlavorFeatures {
