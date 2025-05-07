@@ -1,7 +1,8 @@
 import axios, { type AxiosResponse } from 'axios'
 
-// Update User interface to match the actual user object from the backend
+// Update User interface to include the id field
 export interface User {
+  id: number
   email: string
   balance: number
   role: string

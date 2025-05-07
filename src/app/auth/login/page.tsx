@@ -52,7 +52,12 @@ const Login = () => {
       const response: AuthResponse = await authenticateAction('signin', userData)
       Snackbar({ message: 'You have successfully logged in!' })
 
-      localStorage.setItem('authToken', response.accessToken)
+      if (response.accessToken) {
+        localStorage.setItem('authToken', response.accessToken)
+      } else {
+        console.error('No access token received from the server')
+        Snackbar({ message: 'Authentication successful but no token received', type: 'info' })
+      }
 
       // Update the user context with the user data from the response
       if (response.user) {

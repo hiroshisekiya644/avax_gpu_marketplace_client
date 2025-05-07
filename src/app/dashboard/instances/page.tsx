@@ -9,8 +9,8 @@ import { manageVM, deleteVM } from '@/api/GpuProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
 import { Snackbar } from '@/components/snackbar/SnackBar'
-import { useUser } from '@/context/UserContext'
 import { useGpuInstances } from '@/context/GpuInstanceContext'
+import { useUser } from '@/context/UserContext'
 import styles from './page.module.css'
 
 // Define the flavor features interface

@@ -61,7 +61,7 @@ export const GpuInstanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const fetchUserData = useCallback(async () => {
     try {
       const response = await getUserData()
-      if (response && response.user) {
+      if (response && response.user && response.user.id) {
         setUserId(response.user.id)
         return response.user.id
       }

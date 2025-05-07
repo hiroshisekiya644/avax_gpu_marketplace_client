@@ -5,9 +5,10 @@ export type AuthData = {
   password: string
 }
 
-// Update the AuthResponse type to match the actual backend response
+// Update the AuthResponse type to include the user.id field
 export type AuthResponse = {
   user: {
+    id: number
     email: string
     balance: number
     role: string
