@@ -9,7 +9,7 @@ import { manageVM, deleteVM } from '@/api/GpuProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
 import { Snackbar } from '@/components/snackbar/SnackBar'
-import { useBalance } from '@/context/BalanceContext'
+import { useUser } from '@/context/UserContext'
 import { useGpuInstances } from '@/context/GpuInstanceContext'
 import styles from './page.module.css'
 
@@ -70,8 +70,9 @@ const Instances = () => {
   // Use the shared GPU instances context
   const { instances: gpuInstances, isLoading, error, refreshInstances } = useGpuInstances()
 
-  // Use the balance context instead of local state
-  const { balance, isLoading: balanceLoading } = useBalance()
+  // Use the user context instead of balance context
+  const { user, isLoading: userLoading } = useUser()
+  const balance = user?.balance || 0
 
   // Add state for delete confirmation modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false)
@@ -470,7 +471,7 @@ const Instances = () => {
                     <Flex gap="2" align="center">
                       <div className={styles.balanceContainer}>
                         <WalletIcon />
-                        {balanceLoading ? (
+                        {userLoading ? (
                           <div className={styles.balanceSpinner}></div>
                         ) : (
                           <span className={styles.balanceAmount}>${balance.toFixed(2)}</span>
@@ -615,7 +616,7 @@ const Instances = () => {
                     <Flex gap="2" align="center">
                       <div className={styles.balanceContainer}>
                         <WalletIcon />
-                        {balanceLoading ? (
+                        {userLoading ? (
                           <div className={styles.balanceSpinner}></div>
                         ) : (
                           <span className={styles.balanceAmount}>${balance.toFixed(2)}</span>
