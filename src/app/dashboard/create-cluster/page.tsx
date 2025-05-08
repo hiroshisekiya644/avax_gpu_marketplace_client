@@ -419,9 +419,9 @@ const CreateCluster = () => {
         const ramPriceItem = priceBook.find((item) => item.name === 'RAM (cpu-only-flavors)')
         const storagePriceItem = priceBook.find((item) => item.name === 'hypervisor-local-storage (cpu-only-flavors)')
 
-        const cpuPrice = (Number.parseFloat(cpuPriceItem?.value || '0') || 0) * flavor.cpu
-        const ramPrice = (Number.parseFloat(ramPriceItem?.value || '0') || 0) * flavor.ram
-        const storagePrice = (Number.parseFloat(storagePriceItem?.value || '0') || 0) * flavor.disk
+        const cpuPrice = (Number.parseFloat(cpuPriceItem?.original_value || '0') || 0) * flavor.cpu
+        const ramPrice = (Number.parseFloat(ramPriceItem?.original_value || '0') || 0) * flavor.ram
+        const storagePrice = (Number.parseFloat(storagePriceItem?.original_value || '0') || 0) * flavor.disk
 
         return cpuPrice + ramPrice + storagePrice
       }
@@ -430,7 +430,7 @@ const CreateCluster = () => {
       const priceItem = priceBook.find((item) => item.name === gpuName)
       if (!priceItem) return 0
 
-      const basePrice = Number.parseFloat(priceItem.value) || 0
+      const basePrice = Number.parseFloat(priceItem.original_value) || 0
 
       // If we have a flavor object with gpu_count, use that for the multiplier
       if (flavor && flavor.gpu_count !== undefined && flavor.gpu_count > 0) {
