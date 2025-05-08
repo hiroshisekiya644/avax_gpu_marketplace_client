@@ -843,15 +843,9 @@ const CreateCluster = () => {
             </Flex>
 
             <Flex width="100%" className={styles.regionInfo} align="center" gap="2">
-              {gpuCard.region_name.includes('NORWAY') && (
-                <DynamicSvgIcon height={16} className="rounded-none" iconName="norway" />
-              )}
-              {gpuCard.region_name.includes('CANADA') && (
-                <DynamicSvgIcon height={16} className="rounded-none" iconName="canada" />
-              )}
-              {gpuCard.region_name.includes('US') && (
-                <DynamicSvgIcon height={16} className="rounded-none" iconName="us" />
-              )}
+              {gpuCard.region_name.includes('NORWAY') && <Icons.Norway />}
+              {gpuCard.region_name.includes('CANADA') && <Icons.Canada />}
+              {gpuCard.region_name.includes('US') && <Icons.US />}
               <div>
                 <span className={styles.regionLabel}>Region:</span>
                 <span className={styles.regionName}>{gpuCard.region_name}</span>
