@@ -4,7 +4,6 @@ import type React from 'react'
 
 import { useCallback, useState, useEffect } from 'react'
 import { Flex, Button, TextField } from '@radix-ui/themes'
-import Image from 'next/image'
 import { createDeposit, getPaymentHistory } from '@/api/Payment'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { Snackbar } from '@/components/snackbar/SnackBar'
