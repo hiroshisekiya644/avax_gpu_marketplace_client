@@ -14,7 +14,7 @@ interface PriceBookResponse {
 
 export const getPriceBook = async (): Promise<PriceBookResponse> => {
   try {
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/getPriceBook`
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/getpricebook`
 
     const token = localStorage.getItem('authToken')
 
