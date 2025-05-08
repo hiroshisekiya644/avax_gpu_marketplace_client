@@ -15,6 +15,7 @@ const WalletIcon = () => <DynamicSvgIcon height={22} className="wallet-none" ico
 const CryptoIcon = () => <DynamicSvgIcon height={22} className="crypto-none" iconName="crypto-icon" />
 const HistoryIcon = () => <DynamicSvgIcon height={22} className="history-none" iconName="history-icon" />
 const OverviewIcon = () => <DynamicSvgIcon height={22} className="overview-none" iconName="overview-icon" />
+const UsdtIcon = () => <DynamicSvgIcon height={22} className="overview-none" iconName="usdt" />
 
 interface Transaction {
   id: string
@@ -213,12 +214,8 @@ const Billing = () => {
                 <div className={styles.paymentMethods}>
                   <div className={styles.paymentMethodsTitle}>Accepted Cryptocurrencies</div>
                   <div className={styles.paymentMethodsIcons}>
-                    {/*                     <div className={styles.cryptoItem}>
-                      <Image src="/icons/avax.svg" alt="AVAX" width={24} height={24} />
-                      <span>AVAX</span>
-                    </div> */}
                     <div className={styles.cryptoItem}>
-                      <Image src="/icons/usdt.svg" alt="USDT" width={24} height={24} />
+                      <UsdtIcon />
                       <span>USDT</span>
                     </div>
                   </div>
