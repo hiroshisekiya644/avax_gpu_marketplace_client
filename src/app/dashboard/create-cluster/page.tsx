@@ -60,7 +60,6 @@ interface Image {
   display_size: string
   green_status?: string
   logo?: string | null
-  regions?: string[]
 }
 
 interface RegionImages {
@@ -81,12 +80,6 @@ interface PriceItem {
   end_time: string | null
 }
 
-interface GroupedGpuCard {
-  gpu: string
-  regions: string[]
-  flavors: Record<string, Flavor[]>
-}
-
 // Constants
 const FLAVOR_MULTIPLIERS = [1, 2, 4, 8]
 const DEFAULT_REGION = 'any'
@@ -96,25 +89,25 @@ const PUBLIC_IP_HOURLY_RATE = 0.00672
  * Icon components for UI elements
  */
 const Icons = {
-  Any: () => <DynamicSvgIcon height={22} className='rounded-none' iconName='any' />,
-  Search: () => <DynamicSvgIcon height={22} className='rounded-none' iconName='search' />,
-  Norway: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='norway' />,
-  US: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='us' />,
-  Canada: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='canada' />,
-  SecureCloud: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='secure-cloud' />,
-  CommunityCloud: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='community-cloud' />,
-  ShowAll: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='show-all' />,
-  ShowAvailable: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='show-available' />,
-  Nvidia: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='nvidia-logo' />,
-  Cpu: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='cpu' />,
-  Vram: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='vram' />,
-  Disk: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='disk' />,
-  Ephemeral: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='ephemeral' />,
-  Socket: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='socket' />,
-  RightArrow: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='rightArrow' />,
-  Check: () => <DynamicSvgIcon height={30} width={30} className='rounded-none' iconName='checked' />,
-  Uncheck: () => <DynamicSvgIcon height={30} width={30} className='rounded-none' iconName='unchecked' />,
-  Key: () => <DynamicSvgIcon height={20} className='rounded-none' iconName='key-icon' />,
+  Any: () => <DynamicSvgIcon height={22} className="rounded-none" iconName="any" />,
+  Search: () => <DynamicSvgIcon height={22} className="rounded-none" iconName="search" />,
+  Norway: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="norway" />,
+  US: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="us" />,
+  Canada: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="canada" />,
+  SecureCloud: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="secure-cloud" />,
+  CommunityCloud: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="community-cloud" />,
+  ShowAll: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="show-all" />,
+  ShowAvailable: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="show-available" />,
+  Nvidia: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="nvidia-logo" />,
+  Cpu: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="cpu" />,
+  Vram: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="vram" />,
+  Disk: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="disk" />,
+  Ephemeral: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="ephemeral" />,
+  Socket: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="socket" />,
+  RightArrow: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="rightArrow" />,
+  Check: () => <DynamicSvgIcon height={30} width={30} className="rounded-none" iconName="checked" />,
+  Uncheck: () => <DynamicSvgIcon height={30} width={30} className="rounded-none" iconName="unchecked" />,
+  Key: () => <DynamicSvgIcon height={20} className="rounded-none" iconName="key-icon" />
 }
 
 // Add this function to generate random VM names
@@ -135,7 +128,7 @@ const generateRandomName = () => {
     'mighty',
     'noble',
     'rapid',
-    'silent',
+    'silent'
   ]
 
   const nouns = [
@@ -154,7 +147,7 @@ const generateRandomName = () => {
     'planck',
     'dirac',
     'heisenberg',
-    'fermi',
+    'fermi'
   ]
 
   const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)]
@@ -220,7 +213,7 @@ const CreateCluster = () => {
           getImageAction(),
           getRegionAction(),
           getPriceBook(),
-          getUserKeyPairs(),
+          getUserKeyPairs()
         ])
 
         if (results[0].status === 'fulfilled') {
@@ -286,8 +279,8 @@ const CreateCluster = () => {
       ...locations.map((location) => ({
         label: location.name,
         name: location.name,
-        image: getRegionIcon(location.name),
-      })),
+        image: getRegionIcon(location.name)
+      }))
     ]
   }, [locations])
 
@@ -301,7 +294,7 @@ const CreateCluster = () => {
     return filteredKeys.map((key) => ({
       label: `${key.ssh_key_name} (${key.region})`,
       name: String(key.id),
-      image: <Icons.Key />,
+      image: <Icons.Key />
     }))
   }, [sshKeys, selectedGpuRegion])
 
@@ -312,7 +305,7 @@ const CreateCluster = () => {
     if (!imageList.length) return []
 
     const types = new Set<string>()
-    types.add('all') // Add 'all' as the default option
+    types.add('all') // Add "all" as the default option
 
     imageList.forEach((regionImages) => {
       regionImages.images.forEach((image) => {
@@ -325,61 +318,38 @@ const CreateCluster = () => {
     return Array.from(types)
   }, [imageList])
 
-  // Fix the grouping logic for GPUs in the filteredGpuCards useMemo
+  /**
+   * Filter GPU cards based on selected region and search term
+   */
   const filteredGpuCards = useMemo(() => {
     if (!gpuCards.length) return []
 
-    // First, filter by region if needed
-    const regionFilteredCards =
-      selectedRegion !== DEFAULT_REGION ? gpuCards.filter((card) => card.region_name === selectedRegion) : gpuCards
+    return gpuCards.filter((gpuCard) => {
+      // Filter by region
+      const matchesRegion = selectedRegion === DEFAULT_REGION || gpuCard.region_name === selectedRegion
+      if (!matchesRegion) return false
 
-    // Group GPUs by name
-    const groupedGpus: Record<string, GroupedGpuCard> = {}
+      // Filter by search term
+      if (!searchTerm.trim()) return true
 
-    regionFilteredCards.forEach((card) => {
-      const gpuName = card.gpu || 'CPU only'
+      const searchLower = searchTerm.toLowerCase()
+      const gpuName = (gpuCard.gpu || 'CPU only').toLowerCase()
 
-      // Filter by search term if provided
-      if (searchTerm.trim()) {
-        const searchLower = searchTerm.toLowerCase()
-        const gpuNameLower = gpuName.toLowerCase()
-        const regionNameLower = (card.region_name || '').toLowerCase()
-
-        const matchesSearch =
-          gpuNameLower.includes(searchLower) ||
-          regionNameLower.includes(searchLower) ||
-          card.flavors.some((flavor) => flavor.name.toLowerCase().includes(searchLower))
-
-        if (!matchesSearch) return
-      }
-
-      if (!groupedGpus[gpuName]) {
-        groupedGpus[gpuName] = {
-          gpu: gpuName,
-          regions: [card.region_name],
-          flavors: { [card.region_name]: [...card.flavors] },
-        }
-      } else {
-        // Add region if not already included
-        if (!groupedGpus[gpuName].regions.includes(card.region_name)) {
-          groupedGpus[gpuName].regions.push(card.region_name)
-          groupedGpus[gpuName].flavors[card.region_name] = [...card.flavors]
-        }
-      }
+      return (
+        gpuName.includes(searchLower) ||
+        gpuCard.flavors.some((flavor) => flavor.name.toLowerCase().includes(searchLower)) ||
+        (gpuCard.region_name || '').toLowerCase().includes(searchLower)
+      )
     })
-
-    // Convert the grouped GPUs object to an array
-    return Object.values(groupedGpus)
   }, [gpuCards, selectedRegion, searchTerm])
 
-  // Fix the image grouping logic in filteredImages useMemo
+  /**
+   * Filter images based on selected GPU's region and image type
+   */
   const filteredImages = useMemo(() => {
     if (!imageList.length) return []
 
-    // Create a map to group images by name
-    const imageMap = new Map<string, Image & { regions: string[] }>()
-
-    // First filter by region if needed
+    // First filter by region
     let filteredByRegion = imageList
     if (selectedGpuRegion) {
       filteredByRegion = imageList.filter((regionImages) => regionImages.region_name === selectedGpuRegion)
@@ -387,40 +357,28 @@ const CreateCluster = () => {
       filteredByRegion = imageList.filter((regionImages) => regionImages.region_name === selectedRegion)
     }
 
-    // Extract all images from filtered regions
-    filteredByRegion.forEach((regionImages) => {
-      regionImages.images.forEach((image) => {
-        // Only add if image type matches selected type or 'all' is selected
-        if (selectedImageType === 'all' || image.type === selectedImageType) {
-          // Use image name as the key for grouping
-          if (!imageMap.has(image.name)) {
-            imageMap.set(image.name, {
-              ...image,
-              green_status: regionImages.green_status,
-              logo: regionImages.logo,
-              // Add a regions array to track all regions this image is available in
-              regions: [image.region_name],
-            })
-          } else {
-            // If image already exists in the map, add this region to its regions array
-            const existingImage = imageMap.get(image.name)
-            if (existingImage && !existingImage.regions.includes(image.region_name)) {
-              existingImage.regions.push(image.region_name)
-            }
-          }
-        }
-      })
-    })
+    // Then extract and filter images by type
+    let result = filteredByRegion.flatMap((regionImages) =>
+      regionImages.images.map((image) => ({
+        ...image,
+        green_status: regionImages.green_status,
+        logo: regionImages.logo
+      }))
+    )
 
-    return Array.from(imageMap.values())
+    // Filter by image type if not "all"
+    if (selectedImageType !== 'all') {
+      result = result.filter((image) => image.type === selectedImageType)
+    }
+
+    return result
   }, [imageList, selectedRegion, selectedGpuRegion, selectedImageType])
 
-  // Fix the allImages useMemo with proper typing
+  /**
+   * All images for modal view, filtered by selected GPU region and image type if available
+   */
   const allImages = useMemo(() => {
     if (!imageList.length) return []
-
-    // Create a map to group images by name
-    const imageMap = new Map<string, Image & { regions: string[] }>()
 
     // First filter by region if a GPU is selected
     let filteredByRegion = imageList
@@ -428,32 +386,21 @@ const CreateCluster = () => {
       filteredByRegion = imageList.filter((regionImages) => regionImages.region_name === selectedGpuRegion)
     }
 
-    // Extract all images from filtered regions
-    filteredByRegion.forEach((regionImages) => {
-      regionImages.images.forEach((image) => {
-        // Only add if image type matches selected type or 'all' is selected
-        if (selectedImageType === 'all' || image.type === selectedImageType) {
-          // Use image name as the key for grouping
-          if (!imageMap.has(image.name)) {
-            imageMap.set(image.name, {
-              ...image,
-              green_status: regionImages.green_status,
-              logo: regionImages.logo,
-              // Add a regions array to track all regions this image is available in
-              regions: [image.region_name],
-            })
-          } else {
-            // If image already exists in the map, add this region to its regions array
-            const existingImage = imageMap.get(image.name)
-            if (existingImage && !existingImage.regions.includes(image.region_name)) {
-              existingImage.regions.push(image.region_name)
-            }
-          }
-        }
-      })
-    })
+    // Then extract images
+    let result = filteredByRegion.flatMap((regionImages) =>
+      regionImages.images.map((image) => ({
+        ...image,
+        green_status: regionImages.green_status,
+        logo: regionImages.logo
+      }))
+    )
 
-    return Array.from(imageMap.values())
+    // Filter by image type if not "all"
+    if (selectedImageType !== 'all') {
+      result = result.filter((image) => image.type === selectedImageType)
+    }
+
+    return result
   }, [imageList, selectedGpuRegion, selectedImageType])
 
   /**
@@ -494,7 +441,7 @@ const CreateCluster = () => {
       const multiplier = FLAVOR_MULTIPLIERS[flavorIndex] || 1
       return basePrice * multiplier
     },
-    [priceBook],
+    [priceBook]
   )
 
   /**
@@ -516,7 +463,7 @@ const CreateCluster = () => {
 
       return totalPrice
     },
-    [assignPublicIp],
+    [assignPublicIp]
   )
 
   /**
@@ -561,7 +508,7 @@ const CreateCluster = () => {
       if (!hourlyPrice || hourlyPrice <= 0) return Number.POSITIVE_INFINITY
       return balance / hourlyPrice
     },
-    [balance],
+    [balance]
   )
 
   // Format runtime in a human-readable way
@@ -587,13 +534,13 @@ const CreateCluster = () => {
         setSelectedFlavors({})
       }
     },
-    [selectedGpuRegion],
+    [selectedGpuRegion]
   )
 
   const handleFlavorChange = useCallback((gpuKey: string, selectedFlavorId: string) => {
     setSelectedFlavors((prev) => ({
       ...prev,
-      [gpuKey]: selectedFlavorId,
+      [gpuKey]: selectedFlavorId
     }))
   }, [])
 
@@ -629,7 +576,7 @@ const CreateCluster = () => {
       }
       setEnableSshAccess(checked)
     },
-    [assignPublicIp],
+    [assignPublicIp]
   )
 
   // Update the handlePublicIpToggle function to enforce the dependency
@@ -643,7 +590,7 @@ const CreateCluster = () => {
       }
       setAssignPublicIp(checked)
     },
-    [enableSshAccess],
+    [enableSshAccess]
   )
 
   // Add a handler for the cluster name input
@@ -685,7 +632,7 @@ const CreateCluster = () => {
       if (selectedKeyPair && gpuCard && selectedKeyPair.region !== gpuCard.region_name) {
         Snackbar({
           message: `The selected SSH key is for region ${selectedKeyPair.region} but the GPU is in ${gpuCard.region_name}. Please select a compatible SSH key.`,
-          type: 'error',
+          type: 'error'
         })
         setIsDeploying(false)
         return
@@ -717,8 +664,8 @@ const CreateCluster = () => {
           network_optimised: false,
           no_hibernation: false,
           no_snapshot: false,
-          local_storage_only: false,
-        },
+          local_storage_only: false
+        }
       }
 
       // Call the deployVM function
@@ -733,7 +680,7 @@ const CreateCluster = () => {
       console.error('Deployment error:', error)
       Snackbar({
         message: `Failed to deploy VM: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        type: 'error',
+        type: 'error'
       })
     } finally {
       setIsDeploying(false)
@@ -751,7 +698,7 @@ const CreateCluster = () => {
     sshKeys,
     clusterName,
     selectedFlavors,
-    selectedRegion,
+    selectedRegion
   ])
 
   const toggleGpuSelection = useCallback(
@@ -766,14 +713,14 @@ const CreateCluster = () => {
         setSelectedGpuRegion(regionName)
         setSelectedFlavors((prev) => ({
           ...prev,
-          [gpuKey]: flavorId,
+          [gpuKey]: flavorId
         }))
 
         // Reset image selection when changing GPU
         setSelectedImage(null)
       }
     },
-    [selectedGpu],
+    [selectedGpu]
   )
 
   /**
@@ -791,41 +738,32 @@ const CreateCluster = () => {
 
       setSelectedGpu(selectedGpuKey)
 
-      // Parse the GPU key to get the name and index
+      // Set default flavor for the selected GPU
       const [gpuName, index] = selectedGpuKey.split('-')
+      const selectedGpuCard = gpuCards.find((card, idx) => card.gpu === gpuName && idx === Number(index))
 
-      // Find the grouped GPU card
-      const selectedGroupedGpuCard = filteredGpuCards.find(
-        (card, idx) => card.gpu === (gpuName === 'cpu' ? 'CPU only' : gpuName) && idx === Number(index),
-      )
+      if (!selectedGpuCard) return
 
-      if (!selectedGroupedGpuCard) return
-
-      // Use the first region by default
-      const defaultRegion = selectedGroupedGpuCard.regions[0]
-      setSelectedGpuRegion(defaultRegion)
+      // Store the region of the selected GPU
+      setSelectedGpuRegion(selectedGpuCard.region_name)
 
       // Reset image selection when changing GPU
       setSelectedImage(null)
 
-      // Get flavors for the selected region
-      const flavorsForRegion = selectedGroupedGpuCard.flavors[defaultRegion] || []
-
-      // Find the first available flavor
-      const defaultFlavor = flavorsForRegion.find((flavor) => flavor.stock_available)
+      const defaultFlavor = selectedGpuCard.flavors.find((flavor) => flavor.stock_available)
       if (defaultFlavor) {
         setSelectedFlavors({
-          [selectedGpuKey]: String(defaultFlavor.id),
+          [selectedGpuKey]: String(defaultFlavor.id)
         })
       }
     },
-    [filteredGpuCards],
+    [gpuCards]
   )
 
   const handleSummaryFlavorChange = useCallback((gpuKey: string, flavorId: string) => {
     setSelectedFlavors((prev) => ({
       ...prev,
-      [gpuKey]: flavorId,
+      [gpuKey]: flavorId
     }))
   }, [])
 
@@ -865,99 +803,63 @@ const CreateCluster = () => {
     setModalOpen(false)
   }, [])
 
-  // Fix the GpuCard component to handle the grouped GPU card properly
+  /**
+   * GPU Card component for displaying GPU options
+   */
   const GpuCard = useCallback(
-    ({ gpuCard, index }: { gpuCard: GroupedGpuCard; index: number }) => {
-      const gpuKey = `${gpuCard.gpu === 'CPU only' ? 'cpu' : gpuCard.gpu}-${index}`
+    ({ gpuCard, index }: { gpuCard: GpuCard; index: number }) => {
+      const gpuKey = `${gpuCard.gpu || 'cpu'}-${index}`
       const isSelected = selectedGpu === gpuKey
 
-      // Get the selected region for this GPU
-      const selectedGpuRegionForCard =
-        selectedGpuRegion && gpuCard.regions.includes(selectedGpuRegion) ? selectedGpuRegion : gpuCard.regions[0]
-
-      // Get flavors for the selected region
-      const flavorsForRegion = gpuCard.flavors[selectedGpuRegionForCard] || []
-
-      const flavorOptions: SelectItem[] = flavorsForRegion.map((flavor) => ({
+      const flavorOptions: SelectItem[] = gpuCard.flavors.map((flavor) => ({
         label: flavor.name,
-        name: String(flavor.id),
+        name: String(flavor.id)
       }))
 
       // Get selected flavor or default
-      const selectedFlavorId = selectedFlavors[gpuKey] || String(flavorsForRegion[0]?.id || '')
+      const selectedFlavorId = selectedFlavors[gpuKey] || String(gpuCard.flavors[0]?.id || '')
       const selectedFlavor =
-        flavorsForRegion.find((flavor) => String(flavor.id) === selectedFlavorId) || flavorsForRegion[0]
+        gpuCard.flavors.find((flavor) => String(flavor.id) === selectedFlavorId) || gpuCard.flavors[0]
 
-      const flavorIndex = flavorsForRegion.findIndex((flavor) => String(flavor.id) === selectedFlavorId)
+      const flavorIndex = gpuCard.flavors.findIndex((flavor) => String(flavor.id) === selectedFlavorId)
       const { cpu = 0, ram = 0, disk = 0, ephemeral = 0, stock_available = false } = selectedFlavor || {}
-      const gpuPrice = calculateGpuPrice(gpuCard.gpu === 'CPU only' ? '' : gpuCard.gpu, flavorIndex, selectedFlavor)
-
-      // Create a region selector for the GPU card
-      const regionOptions: SelectItem[] = gpuCard.regions.map((region) => ({
-        label: region,
-        name: region,
-      }))
+      const gpuPrice = calculateGpuPrice(gpuCard.gpu, flavorIndex, selectedFlavor)
 
       return (
         <Flex
           className={`${styles.gpuCard} ${isSelected ? styles.selectedGpuCard : ''}`}
           key={gpuKey}
-          direction='column'
-          gap='2'
-          justify='between'
+          direction="column"
+          gap="2"
+          justify="between"
         >
-          <Flex className={styles.gpuCardContent} direction='column' gap='2'>
-            <Flex justify='end'>
+          <Flex className={styles.gpuCardContent} direction="column" gap="2">
+            <Flex justify="end">
               {gpuPrice > 0 && <div className={styles.gpuPrice}>${gpuPrice.toFixed(2)}/hr</div>}
             </Flex>
-            <Flex gap='2' className={styles.nvidiaTitle}>
-              {gpuCard.gpu !== 'CPU only' ? <Icons.Nvidia /> : <Icons.Socket />}
-              <div>{gpuCard.gpu}</div>
+            <Flex gap="2" className={styles.nvidiaTitle}>
+              {gpuCard.gpu ? <Icons.Nvidia /> : <Icons.Socket />}
+              <div>{gpuCard.gpu || 'CPU only'}</div>
             </Flex>
 
-            {/* Region selector for multiple regions */}
-            {gpuCard.regions.length > 1 && (
-              <FormSelect
-                id={`region-${gpuKey}`}
-                name='region'
-                label='Region'
-                items={regionOptions}
-                value={selectedGpuRegionForCard}
-                onChange={(selectedValue) => {
-                  // When region changes, update the selected flavors
-                  const newRegionFlavors = gpuCard.flavors[selectedValue] || []
-                  if (newRegionFlavors.length > 0) {
-                    handleFlavorChange(gpuKey, String(newRegionFlavors[0].id))
-                    if (isSelected) {
-                      setSelectedGpuRegion(selectedValue)
-                    }
-                  }
-                }}
-                className={styles.selectValueBox}
-              />
-            )}
-
-            {/* Display single region if there's only one */}
-            {gpuCard.regions.length === 1 && (
-              <Flex width='100%' className={styles.regionInfo} align='center' gap='2'>
-                {selectedGpuRegionForCard.includes('NORWAY') && <Icons.Norway />}
-                {selectedGpuRegionForCard.includes('CANADA') && <Icons.Canada />}
-                {selectedGpuRegionForCard.includes('US') && <Icons.US />}
-                <div>
-                  <span className={styles.regionLabel}>Region:</span>
-                  <span className={styles.regionName}>{selectedGpuRegionForCard}</span>
-                  {selectedGpuRegionForCard.includes('NORWAY') || selectedGpuRegionForCard.includes('CANADA') ? (
-                    <span className={styles.greenBadge} title='Green Energy Data Center'>
-                      🌱
-                    </span>
-                  ) : null}
-                </div>
-              </Flex>
-            )}
+            <Flex width="100%" className={styles.regionInfo} align="center" gap="2">
+              {gpuCard.region_name.includes('NORWAY') && <Icons.Norway />}
+              {gpuCard.region_name.includes('CANADA') && <Icons.Canada />}
+              {gpuCard.region_name.includes('US') && <Icons.US />}
+              <div>
+                <span className={styles.regionLabel}>Region:</span>
+                <span className={styles.regionName}>{gpuCard.region_name}</span>
+                {gpuCard.region_name.includes('NORWAY') || gpuCard.region_name.includes('CANADA') ? (
+                  <span className={styles.greenBadge} title="Green Energy Data Center">
+                    🌱
+                  </span>
+                ) : null}
+              </div>
+            </Flex>
 
             <FormSelect
               id={`flavor-${gpuKey}`}
-              name='flavor'
+              name="flavor"
               items={flavorOptions}
               value={selectedFlavorId}
               onChange={(selectedValue) => {
@@ -971,9 +873,9 @@ const CreateCluster = () => {
               { icon: <Icons.Cpu />, label: 'CPUs:', value: cpu },
               { icon: <Icons.Vram />, label: 'RAM:', value: `${ram} GB` },
               { icon: <Icons.Disk />, label: 'Disk:', value: `${disk} GB` },
-              ...(ephemeral > 0 ? [{ icon: <Icons.Ephemeral />, label: 'Ephemeral:', value: `${ephemeral} GB` }] : []),
+              ...(ephemeral > 0 ? [{ icon: <Icons.Ephemeral />, label: 'Ephemeral:', value: `${ephemeral} GB` }] : [])
             ].map((spec, i) => (
-              <Flex key={i} width='100%' className={styles.gpuStatus} justify='between'>
+              <Flex key={i} width="100%" className={styles.gpuStatus} justify="between">
                 <div className={styles.specLabel}>
                   {spec.icon}
                   <div>{spec.label}</div>
@@ -987,16 +889,16 @@ const CreateCluster = () => {
             {stock_available ? (
               <Button
                 className={`${styles.selectGPUButton} ${isSelected ? styles.selectedGPUButton : ''}`}
-                onClick={() => toggleGpuSelection(gpuKey, selectedFlavorId, selectedGpuRegionForCard)}
+                onClick={() => toggleGpuSelection(gpuKey, selectedFlavorId, gpuCard.region_name)}
               >
                 {isSelected ? 'Selected' : 'Select GPU'}
               </Button>
             ) : (
-              <Flex width='100%' direction='column' p='1' className={styles.invalidGPUButton}>
+              <Flex width="100%" direction="column" p="1" className={styles.invalidGPUButton}>
                 <b className={styles.contentText}>Out of Stock.</b>
                 <p className={styles.contentText}>
                   Please try a lower number of GPUs. Or reserve future stock{' '}
-                  <a href='/dashboard/quotes' className={styles.link}>
+                  <a href="/dashboard/quotes" className={styles.link}>
                     here
                   </a>
                 </p>
@@ -1006,40 +908,37 @@ const CreateCluster = () => {
         </Flex>
       )
     },
-    [selectedGpu, selectedFlavors, selectedGpuRegion, handleFlavorChange, toggleGpuSelection, calculateGpuPrice],
+    [selectedGpu, selectedFlavors, handleFlavorChange, toggleGpuSelection, calculateGpuPrice]
   )
 
-  // Fix the ImageCard component to properly handle the regions property
+  /**
+   * Image Card component for displaying image options
+   */
   const ImageCard = useCallback(
-    ({ image }: { image: Image & { regions: string[] } }) => {
+    ({ image }: { image: Image }) => {
       const isSelected = selectedImage === image.id
-      const regions = image.regions || [image.region_name]
 
       return (
         <Flex
           className={`${styles.clusterCard} ${isSelected ? styles.selectedClusterCard : ''} ${styles.imageCard}`}
           key={image.id}
-          direction='column'
+          direction="column"
           onClick={() => toggleImageSelection(image.id)}
         >
-          <Flex justify='end' className={styles.checkboxContainer}>
+          <Flex justify="end" className={styles.checkboxContainer}>
             {isSelected ? <Icons.Check /> : <Icons.Uncheck />}
           </Flex>
-          <Flex className={styles.imageCardContent} direction='column'>
+          <Flex className={styles.imageCardContent} direction="column">
             <div className={styles.imageName}>{image.name}</div>
             <div className={styles.imageDescription}>
               {image.description || `${image.type} ${image.version} - ${image.display_size}`}
             </div>
           </Flex>
-          <Flex className={styles.imageRegion}>
-            {regions.length > 1
-              ? `Available in ${regions.length} regions: ${regions.join(', ')}`
-              : `Region: ${regions[0]}`}
-          </Flex>
+          <Flex className={styles.imageRegion}>Region: {image.region_name}</Flex>
         </Flex>
       )
     },
-    [selectedImage, toggleImageSelection],
+    [selectedImage, toggleImageSelection]
   )
 
   /**
@@ -1052,7 +951,7 @@ const CreateCluster = () => {
         <div className={styles.contentText}>Loading...</div>
       </Flex>
     ),
-    [],
+    []
   )
 
   /**
@@ -1064,7 +963,7 @@ const CreateCluster = () => {
         <div className={styles.contentText}>{message}</div>
       </Flex>
     ),
-    [],
+    []
   )
 
   // Scroll to selected image when it changes
@@ -1109,11 +1008,11 @@ const CreateCluster = () => {
   }, [assignPublicIp, enableSshAccess])
 
   return (
-    <Flex className={styles.bg} direction='column'>
+    <Flex className={styles.bg} direction="column">
       {/* Header Section */}
-      <Flex className={styles.header} p='4'>
-        <Flex justify='between' width='100%'>
-          <Flex direction='column'>
+      <Flex className={styles.header} p="4">
+        <Flex justify="between" width="100%">
+          <Flex direction="column">
             <div className={styles.headerTitle}>
               Create new <span className={styles.accent}>GPU Cluster</span>
             </div>
@@ -1123,42 +1022,42 @@ const CreateCluster = () => {
       </Flex>
 
       {/* GPU Selection Section */}
-      <Flex p='4' direction={isResponsive ? 'column' : 'row'} gap='2' className={styles.gpuSection}>
-        <Flex direction='column' mt='4' width={{ initial: '100%', sm: '100%', md: '25%' }} gap='2'>
+      <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2" className={styles.gpuSection}>
+        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '25%' }} gap="2">
           <div className={styles.contentTitle}>
             Select Your <span className={styles.accent}>GPU Type</span>
           </div>
           <div className={styles.contentText}>Customize your cluster for optimal performance and scalability</div>
           {/* Filters */}
-          <Flex mt='4' gap='2' direction={isResponsive ? 'column' : 'row'}>
+          <Flex mt="4" gap="2" direction={isResponsive ? 'column' : 'row'}>
             <FormSelect
-              id='location'
-              name='location'
+              id="location"
+              name="location"
               items={regionList}
-              label='Location'
+              label="Location"
               defaultValue={DEFAULT_REGION}
               className={styles.selectBox}
               onChange={handleChangeRegion}
             />
           </Flex>
         </Flex>
-        <Flex direction='column' mt='4' width={{ initial: '100%', sm: '100%', md: '75%' }}>
+        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '75%' }}>
           {/* Search */}
-          <TextField.Root placeholder='Search…' className={styles.searchPad} onChange={handleSearch} value={searchTerm}>
+          <TextField.Root placeholder="Search…" className={styles.searchPad} onChange={handleSearch} value={searchTerm}>
             <TextField.Slot className={styles.iconSlot}>
               <Icons.Search />
             </TextField.Slot>
           </TextField.Root>
           {/* GPU Cards Grid */}
-          <Flex mt='4' gap='2' direction={isResponsive ? 'column' : 'row'}>
-            <Grid columns={{ initial: '1', sm: '1', md: '2', lg: '3' }} gap={{ initial: '2', sm: '4' }} width='100%'>
+          <Flex mt="4" gap="2" direction={isResponsive ? 'column' : 'row'}>
+            <Grid columns={{ initial: '1', sm: '1', md: '2', lg: '3' }} gap={{ initial: '2', sm: '4' }} width="100%">
               {isLoading ? (
                 <LoadingState />
               ) : filteredGpuCards.length === 0 ? (
                 <NoResultsState
                   message={
                     searchTerm
-                      ? `No GPU types found matching '${searchTerm}'. Please try a different search term.`
+                      ? `No GPU types found matching "${searchTerm}". Please try a different search term.`
                       : 'No GPU types available for the selected region. Please try a different region.'
                   }
                 />
@@ -1173,8 +1072,8 @@ const CreateCluster = () => {
       </Flex>
 
       {/* Cluster Base Image Section */}
-      <Flex p='4' direction={isResponsive ? 'column' : 'row'} gap='2'>
-        <Flex direction='column' mt='4' width={{ initial: '100%', sm: '100%', md: '25%' }} gap='2'>
+      <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2">
+        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '25%' }} gap="2">
           <div className={styles.contentTitle}>
             Cluster <span className={styles.accent}>Base Image</span>
           </div>
@@ -1182,11 +1081,11 @@ const CreateCluster = () => {
             Select a pre-configured cluster setup tailored to your specific needs, requiring no extra configurations and
             ready to integrate with your codebase immediately.
           </div>
-          <Flex mt='4' gap='2' direction={isResponsive ? 'column' : 'row'}>
+          <Flex mt="4" gap="2" direction={isResponsive ? 'column' : 'row'}>
             <FormSelect
-              id='image-type'
-              name='image-type'
-              label='Image Type'
+              id="image-type"
+              name="image-type"
+              label="Image Type"
               items={imageTypes.map((type) => ({ label: type.charAt(0).toUpperCase() + type.slice(1), name: type }))}
               value={selectedImageType}
               onChange={handleImageTypeChange}
@@ -1194,9 +1093,9 @@ const CreateCluster = () => {
             />
           </Flex>
         </Flex>
-        <Flex direction='column' mt='4' width={{ initial: '100%', sm: '100%', md: '75%' }}>
-          <Flex gap='2' direction={isResponsive ? 'column' : 'row'}>
-            <Grid columns={{ initial: '1', sm: '1', md: '2', lg: '3' }} gap={{ initial: '2', sm: '4' }} width='100%'>
+        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '75%' }}>
+          <Flex gap="2" direction={isResponsive ? 'column' : 'row'}>
+            <Grid columns={{ initial: '1', sm: '1', md: '2', lg: '3' }} gap={{ initial: '2', sm: '4' }} width="100%">
               {isImagesLoading ? (
                 <LoadingState />
               ) : filteredImages.length === 0 ? (
@@ -1216,7 +1115,7 @@ const CreateCluster = () => {
               )}
             </Grid>
           </Flex>
-          <Flex mt='4'>
+          <Flex mt="4">
             <Button className={styles.selectGPUButton} onClick={handleModalOpen}>
               Browse More Templates
             </Button>
@@ -1225,17 +1124,17 @@ const CreateCluster = () => {
       </Flex>
 
       {/* Summary Section */}
-      <Flex p='4' direction={isResponsive ? 'column' : 'row'} gap='2'>
-        <Flex direction='column' mt='4' width={{ initial: '100%', sm: '100%', md: '25%' }} gap='2'>
+      <Flex p="4" direction={isResponsive ? 'column' : 'row'} gap="2">
+        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '25%' }} gap="2">
           <div className={styles.contentTitle}>Summary</div>
           <div className={styles.contentText}>Review and adjust your GPU and image selection.</div>
         </Flex>
-        <Flex direction='column' mt='4' width={{ initial: '100%', sm: '100%', md: '75%' }}>
-          {/* Add the cluster name field to the summary section, right after the summaryTitle 'Summary' */}
-          <Flex className={styles.summary} p='4' gap='2' direction='column'>
+        <Flex direction="column" mt="4" width={{ initial: '100%', sm: '100%', md: '75%' }}>
+          {/* Add the cluster name field to the summary section, right after the summaryTitle "Summary" */}
+          <Flex className={styles.summary} p="4" gap="2" direction="column">
             <div className={styles.summaryTitle}>Virtual Machine Name</div>
             <TextField.Root
-              placeholder='Enter a name for your virtual machine'
+              placeholder="Enter a name for your virtual machine"
               className={styles.clusterNameInput}
               value={clusterName}
               onChange={handleClusterNameChange}
@@ -1246,42 +1145,30 @@ const CreateCluster = () => {
 
             <div className={styles.summaryTitle}>GPU Configuration</div>
             <FormSelect
-              id='summary-gpu-select'
-              name='summary-gpu-select'
-              // label='Select GPU'
+              id="summary-gpu-select"
+              name="summary-gpu-select"
+              // label="Select GPU"
               items={[
                 { label: 'None', name: 'none' },
                 ...filteredGpuCards.map((gpuCard, index) => {
                   const gpuKey = `${gpuCard.gpu || 'cpu'}-${index}`
                   return {
                     label: gpuCard.gpu || 'CPU only',
-                    name: gpuKey,
+                    name: gpuKey
                   }
-                }),
+                })
               ]}
               value={selectedGpu || 'none'}
               onChange={handleSummaryGpuSelection}
               className={styles.summarySelect}
             />
-            {/* Fix the summary section to handle the grouped GPU cards properly */}
             {selectedGpu && (
-              <Flex direction='column' gap='2'>
+              <Flex direction="column" gap="2">
                 {filteredGpuCards.map((gpuCard, index) => {
-                  const gpuKey = `${gpuCard.gpu === 'CPU only' ? 'cpu' : gpuCard.gpu}-${index}`
+                  const gpuKey = `${gpuCard.gpu || 'cpu'}-${index}`
                   if (gpuKey !== selectedGpu) return null
 
-                  // Get the selected region for this GPU
-                  const selectedGpuRegionForCard =
-                    selectedGpuRegion && gpuCard.regions.includes(selectedGpuRegion)
-                      ? selectedGpuRegion
-                      : gpuCard.regions[0]
-
-                  // Get flavors for the selected region
-                  const flavorsForRegion = gpuCard.flavors[selectedGpuRegionForCard] || []
-
-                  // Filter available flavors
-                  const availableFlavors = flavorsForRegion.filter((flavor) => flavor.stock_available === true)
-
+                  const availableFlavors = gpuCard.flavors.filter((flavor) => flavor.stock_available === true)
                   const selectedFlavorId =
                     selectedFlavors[gpuKey] || (availableFlavors.length > 0 ? String(availableFlavors[0].id) : '')
 
@@ -1290,46 +1177,42 @@ const CreateCluster = () => {
                     (availableFlavors.length > 0 ? availableFlavors[0] : null)
 
                   // Find the index of the selected flavor in the original flavors array
-                  const flavorIndex = flavorsForRegion.findIndex((flavor) => String(flavor.id) === selectedFlavorId)
+                  const flavorIndex = gpuCard.flavors.findIndex((flavor) => String(flavor.id) === selectedFlavorId)
 
                   // Calculate price for this GPU configuration
-                  const gpuPrice = calculateGpuPrice(
-                    gpuCard.gpu === 'CPU only' ? '' : gpuCard.gpu,
-                    flavorIndex,
-                    selectedFlavor,
-                  )
+                  const gpuPrice = calculateGpuPrice(gpuCard.gpu, flavorIndex, selectedFlavor)
 
                   return (
                     <React.Fragment key={gpuKey}>
                       <FormSelect
                         id={`summary-flavor-${gpuKey}`}
                         name={`summary-flavor-${gpuKey}`}
-                        items={availableFlavors.map((flavor) => ({
-                          label: flavor.name,
-                          name: String(flavor.id),
-                        }))}
+                        // label="Select Flavor"
+                        items={gpuCard.flavors
+                          .filter((flavor) => flavor.stock_available === true)
+                          .map((flavor) => ({ label: flavor.name, name: String(flavor.id) }))}
                         value={selectedFlavorId}
                         onChange={(value) => handleSummaryFlavorChange(gpuKey, value)}
                         className={styles.summarySelect}
                       />
                       {selectedFlavor && (
-                        <Flex direction='column' className={styles.summarySpecs}>
+                        <Flex direction="column" className={styles.summarySpecs}>
                           <Flex className={styles.summarySpecsContent}>
-                            <Flex direction='column' gap='1'>
-                              <Flex gap='2' align='center' className={styles.gpuSpecs}>
+                            <Flex direction="column" gap="1">
+                              <Flex gap="2" align="center" className={styles.gpuSpecs}>
                                 <Icons.Cpu />
                                 CPUs: {selectedFlavor.cpu}
                               </Flex>
-                              <Flex gap='2' align='center' className={styles.gpuSpecs}>
+                              <Flex gap="2" align="center" className={styles.gpuSpecs}>
                                 <Icons.Vram />
                                 RAM: {selectedFlavor.ram}
                               </Flex>
-                              <Flex gap='2' align='center' className={styles.gpuSpecs}>
+                              <Flex gap="2" align="center" className={styles.gpuSpecs}>
                                 <Icons.Disk />
                                 Disk: {selectedFlavor.disk}
                               </Flex>
                               {selectedFlavor.ephemeral > 0 && <div>Ephemeral: {selectedFlavor.ephemeral} GB</div>}
-                              <div className={styles.summaryRegion}>Region: {selectedGpuRegionForCard}</div>
+                              <div className={styles.summaryRegion}>Region: {gpuCard.region_name}</div>
                               {gpuPrice > 0 && (
                                 <div className={styles.summaryPrice}>
                                   Price: ${gpuPrice.toFixed(2)}/hr (${calculateDailyPrice(gpuPrice).toFixed(2)}/day)
@@ -1338,7 +1221,7 @@ const CreateCluster = () => {
                             </Flex>
 
                             {selectedFlavor.features && (
-                              <Flex direction='column' className={styles.featuresList}>
+                              <Flex direction="column" className={styles.featuresList}>
                                 {selectedFlavor.features.no_hibernation && (
                                   <div className={styles.restrictionItem}>No Hibernation</div>
                                 )}
@@ -1359,15 +1242,15 @@ const CreateCluster = () => {
             {/* Image selection summary */}
             <div className={styles.summaryTitle}>Base Image</div>
             <FormSelect
-              id='summary-image-select'
-              name='summary-image-select'
-              // label='Select Image'
+              id="summary-image-select"
+              name="summary-image-select"
+              // label="Select Image"
               items={[
                 { label: 'None', name: 'none' },
                 ...filteredImages.map((image) => ({
                   label: image.name,
-                  name: String(image.id),
-                })),
+                  name: String(image.id)
+                }))
               ]}
               value={selectedImage ? String(selectedImage) : 'none'}
               onChange={handleSummaryImageSelection}
@@ -1377,9 +1260,9 @@ const CreateCluster = () => {
             {/* SSH Key summary */}
             <div className={styles.summaryTitle}>SSH Key</div>
             <FormSelect
-              id='summary-ssh-key-select'
-              name='summary-ssh-key-select'
-              // label='Select SSH Key'
+              id="summary-ssh-key-select"
+              name="summary-ssh-key-select"
+              // label="Select SSH Key"
               items={[{ label: 'None', name: 'none' }, ...sshKeyList]}
               value={selectedSshKey || 'none'}
               onChange={handleSshKeyChange}
@@ -1394,16 +1277,16 @@ const CreateCluster = () => {
                 {!assignPublicIp && (
                   <div className={styles.dependencyNote}>Required when no public IP is assigned.</div>
                 )}
-                <a href='#' className={styles.learnMoreLink}>
+                <a href="#" className={styles.learnMoreLink}>
                   Learn more
                 </a>
               </div>
-              <Flex align='center' gap='2'>
-                <label htmlFor='ssh-access-switch' className={styles.switchLabel}>
+              <Flex align="center" gap="2">
+                <label htmlFor="ssh-access-switch" className={styles.switchLabel}>
                   {enableSshAccess ? 'Enabled' : 'Disabled'}
                 </label>
                 <Switch.Root
-                  id='ssh-access-switch'
+                  id="ssh-access-switch"
                   className={styles.switchRoot}
                   checked={enableSshAccess}
                   onCheckedChange={handleSshAccessToggle}
@@ -1420,16 +1303,16 @@ const CreateCluster = () => {
               <div className={styles.networkOptionDescription}>
                 Enable internet access for your VM by assigning a public IP at a nominal rate of $
                 {PUBLIC_IP_HOURLY_RATE}/hr.
-                <a href='#' className={styles.learnMoreLink}>
+                <a href="#" className={styles.learnMoreLink}>
                   Learn more
                 </a>
               </div>
-              <Flex align='center' gap='2'>
-                <label htmlFor='public-ip-switch' className={styles.switchLabel}>
+              <Flex align="center" gap="2">
+                <label htmlFor="public-ip-switch" className={styles.switchLabel}>
                   {assignPublicIp ? 'Assign Public IP' : 'No Public IP'}
                 </label>
                 <Switch.Root
-                  id='public-ip-switch'
+                  id="public-ip-switch"
                   className={styles.switchRoot}
                   checked={assignPublicIp}
                   onCheckedChange={handlePublicIpToggle}
@@ -1440,12 +1323,12 @@ const CreateCluster = () => {
             </div>
 
             {selectedGpu && (
-              <Flex justify='between' align='center' className={styles.instanceArea} p='4'>
-                <Flex gap='2'>
+              <Flex justify="between" align="center" className={styles.instanceArea} p="4">
+                <Flex gap="2">
                   <Icons.Nvidia />
                   <div className={styles.priceTitle}>Total Price</div>
                 </Flex>
-                <Flex direction='column'>
+                <Flex direction="column">
                   <div className={styles.priceTitle}>${totalPrice.toFixed(2)}/hr</div>
                   <div className={styles.contentText}>${calculateDailyPrice(totalPrice).toFixed(2)} per day</div>
                   {assignPublicIp && (
@@ -1478,7 +1361,7 @@ const CreateCluster = () => {
                         Your balance is low for extended usage. Consider adding funds.
                       </div>
                     )}
-                    <Flex justify='end' mt='2'>
+                    <Flex justify="end" mt="2">
                       <Button className={styles.topUpButton} onClick={() => router.push('/dashboard/billing')}>
                         Top Up Balance
                       </Button>
@@ -1488,7 +1371,7 @@ const CreateCluster = () => {
               </div>
             )}
           </Flex>
-          <Flex ml='auto' mt='4' gap='4'>
+          <Flex ml="auto" mt="4" gap="4">
             <Button className={styles.defaultButton} onClick={handleReset}>
               Reset
             </Button>
@@ -1510,37 +1393,37 @@ const CreateCluster = () => {
           <Dialog.Overlay className={styles.dialogOverlay} />
           <Dialog.Content className={styles.dialogContent}>
             <Dialog.Title />
-            <Flex direction='column'>
+            <Flex direction="column">
               <Flex>Base Image</Flex>
               {selectedGpuRegion && (
                 <div className={styles.modalRegionFilter}>
                   Showing images for region: <strong>{selectedGpuRegion}</strong>
                 </div>
               )}
-              <Flex className={styles.contentText} mt='10px' mb='10px'>
+              <Flex className={styles.contentText} mt="10px" mb="10px">
                 Select a pre-configured cluster setup tailored to your specific needs, requiring no extra configurations
                 and ready to integrate with your codebase immediately.
               </Flex>
-              <TextField.Root placeholder='Find a template to deploy...' className={styles.searchPad}>
+              <TextField.Root placeholder="Find a template to deploy..." className={styles.searchPad}>
                 <TextField.Slot className={styles.iconSlot} style={{ paddingLeft: '10px' }}></TextField.Slot>
               </TextField.Root>
-              <Flex mt='2' mb='4'>
+              <Flex mt="2" mb="4">
                 <FormSelect
-                  id='modal-image-type'
-                  name='modal-image-type'
-                  label='Image Type'
+                  id="modal-image-type"
+                  name="modal-image-type"
+                  label="Image Type"
                   items={imageTypes.map((type) => ({
                     label: type.charAt(0).toUpperCase() + type.slice(1),
-                    name: type,
+                    name: type
                   }))}
                   value={selectedImageType}
                   onChange={handleImageTypeChange}
                   className={styles.selectBox}
                 />
               </Flex>
-              <Flex direction='column' mt='10px' width={{ initial: '100%', sm: '100%' }} gap='12px'>
-                <Flex gap='6' direction={isResponsive ? 'column' : 'row'}>
-                  <Grid columns={{ initial: '1', sm: '1', md: '2' }} gap={{ initial: '20px', sm: '20px' }} width='100%'>
+              <Flex direction="column" mt="10px" width={{ initial: '100%', sm: '100%' }} gap="12px">
+                <Flex gap="6" direction={isResponsive ? 'column' : 'row'}>
+                  <Grid columns={{ initial: '1', sm: '1', md: '2' }} gap={{ initial: '20px', sm: '20px' }} width="100%">
                     {isImagesLoading ? (
                       <LoadingState />
                     ) : allImages.length === 0 ? (
