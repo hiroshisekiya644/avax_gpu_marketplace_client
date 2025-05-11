@@ -46,7 +46,7 @@ interface ImageResponse {
  */
 export const getImageAction = async (): Promise<ImageResponse> => {
   try {
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/getImage`
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/getimage`
     
     // Use a safer approach to get token from localStorage
     let token: string | null = null

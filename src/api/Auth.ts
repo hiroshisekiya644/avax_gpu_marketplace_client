@@ -91,7 +91,7 @@ export const supabaseSignIn = async (accessToken: string): Promise<AuthResponse>
       throw new Error('No Supabase access token provided')
     }
 
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/supabaseSignIn`
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/supabasesignin`
 
     // Send the request with the Supabase token in the Authorization header
     const result: AxiosResponse<AuthResponse> = await axios.post(
