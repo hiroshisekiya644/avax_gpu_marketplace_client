@@ -40,6 +40,14 @@ interface GpuInstance {
   public_ip?: string | null // Make public_ip optional
 }
 
+// Define a proper type for the socket data
+// Add this type definition after the existing GpuInstance interface
+interface GpuStatusUpdate {
+  instance_id: string | number
+  status: string
+  public_ip?: string | null
+}
+
 const GpuIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="gpu-icon" />
 const HistoryIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="history-icon" />
 const RefreshIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="refresh-icon" />
@@ -136,7 +144,7 @@ const Instances = () => {
           joinUserRoom(userId)
 
           // Listen for GPU status updates
-          socket.on('gpuStatusUpdate', (data: any) => {
+          socket.on('gpuStatusUpdate', (data: GpuStatusUpdate) => {
             if (data && data.instance_id) {
               // Update the specific instance in the state without refetching everything
               setInstances((prevInstances) => {

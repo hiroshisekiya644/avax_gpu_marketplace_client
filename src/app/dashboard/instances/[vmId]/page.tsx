@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Flex, Button } from '@radix-ui/themes'
 import { useRouter, useParams } from 'next/navigation'
@@ -45,6 +45,14 @@ interface GpuInstance {
   public_ip?: string | null
 }
 
+// Define a proper type for the socket data
+// Add this type definition after the existing GpuInstance interface
+interface GpuStatusUpdate {
+  instance_id: string | number
+  status: string
+  public_ip?: string | null
+}
+
 const InstanceDetailsPage = () => {
   const router = useRouter()
   const params = useParams()
@@ -57,7 +65,7 @@ const InstanceDetailsPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false)
 
   // Fetch instance data
-  const fetchInstanceData = async () => {
+  const fetchInstanceData = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -94,7 +102,7 @@ const InstanceDetailsPage = () => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [vmId])
 
   // Format date to a more readable format
   const formatDate = (dateString: string | null) => {
@@ -309,7 +317,7 @@ const InstanceDetailsPage = () => {
           joinUserRoom(userId)
 
           // Listen for GPU status updates
-          socket.on('gpuStatusUpdate', (data: any) => {
+          socket.on('gpuStatusUpdate', (data: GpuStatusUpdate) => {
             if (
               data &&
               data.instance_id &&
@@ -352,7 +360,7 @@ const InstanceDetailsPage = () => {
   // Fetch instance data on component mount
   useEffect(() => {
     fetchInstanceData()
-  }, [vmId])
+  }, [fetchInstanceData])
 
   return (
     <Flex className={styles.bg} direction="column">
