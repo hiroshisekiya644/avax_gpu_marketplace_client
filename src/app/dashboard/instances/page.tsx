@@ -1,15 +1,15 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type React from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
 import { Flex, Button, Table, Link, TextField, Theme } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
-import { manageVM, deleteVM } from '@/api/GpuProvider'
+import { manageVM, deleteVM, getGpuAction } from '@/api/GpuProvider'
+import { getUserData } from '@/api/User'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
 import { Snackbar } from '@/components/snackbar/SnackBar'
-import { useGpuInstances } from '@/context/GpuInstanceContext'
 import { useUser } from '@/context/UserContext'
 import styles from './page.module.css'
 
@@ -40,6 +40,14 @@ interface GpuInstance {
   public_ip?: string | null // Make public_ip optional
 }
 
+// Define a proper type for the socket data
+// Add this type definition after the existing GpuInstance interface
+interface GpuStatusUpdate {
+  instance_id: string | number
+  status: string
+  public_ip?: string | null
+}
+
 const GpuIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="gpu-icon" />
 const HistoryIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="history-icon" />
 const RefreshIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="refresh-icon" />
@@ -67,8 +75,10 @@ const Instances = () => {
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [processingInstances, setProcessingInstances] = useState<Record<number, boolean>>({})
 
-  // Use the shared GPU instances context
-  const { instances: gpuInstances, isLoading, error, refreshInstances } = useGpuInstances()
+  // State for instances data
+  const [instances, setInstances] = useState<GpuInstance[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Use the user context instead of balance context
   const { user, isLoading: userLoading } = useUser()
@@ -80,6 +90,103 @@ const Instances = () => {
 
   // Add a new state to track the FormSelect values
   const [actionSelections, setActionSelections] = useState<Record<number, string>>({})
+
+  // Fetch instances data
+  const fetchInstances = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const response = await getGpuAction()
+
+      if (response && response.status === 'success') {
+        // Handle both array and single object responses
+        const gpuData = Array.isArray(response.gpu) ? response.gpu : [response.gpu]
+
+        // Process the data to convert BUILD status to CREATING
+        const processedData = gpuData.map((instance) => ({
+          ...instance,
+          status: instance.status === 'BUILD' ? 'CREATING' : instance.status
+        }))
+
+        // Sort instances by creation date (newest first)
+        const sortedInstances = [...processedData].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+
+        setInstances(sortedInstances)
+      } else {
+        setError('Failed to fetch GPU instances')
+      }
+    } catch (err) {
+      console.error('Error fetching GPU instances:', err)
+      setError('Failed to fetch GPU instances. Please try again.')
+      Snackbar({ message: 'Failed to fetch GPU instances', type: 'error' })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Set up socket connection for real-time updates
+  useEffect(() => {
+    // Import socket utilities dynamically to avoid issues
+    const setupSocket = async () => {
+      try {
+        const { initializeSocket, joinUserRoom } = await import('@/utils/socket')
+
+        // Get user ID
+        const userResponse = await getUserData()
+        if (userResponse && userResponse.user && userResponse.user.id) {
+          const userId = userResponse.user.id
+
+          // Initialize socket and join user room
+          const socket = initializeSocket()
+          joinUserRoom(userId)
+
+          // Listen for GPU status updates
+          socket.on('gpuStatusUpdate', (data: GpuStatusUpdate) => {
+            if (data && data.instance_id) {
+              // Update the specific instance in the state without refetching everything
+              setInstances((prevInstances) => {
+                return prevInstances.map((instance) => {
+                  if (instance.instance_id.toString() === data.instance_id.toString()) {
+                    // Create updated instance with new status
+                    return {
+                      ...instance,
+                      status: data.status === 'BUILD' ? 'CREATING' : data.status,
+                      ...(data.public_ip !== undefined && { public_ip: data.public_ip })
+                    }
+                  }
+                  return instance
+                })
+              })
+            }
+          })
+
+          // Return cleanup function
+          return () => {
+            socket.off('gpuStatusUpdate')
+          }
+        }
+      } catch (error) {
+        console.error('Error setting up socket:', error)
+      }
+    }
+
+    // Set up socket
+    const cleanupPromise = setupSocket()
+
+    return () => {
+      cleanupPromise.then((cleanup) => {
+        if (cleanup) cleanup()
+      })
+    }
+  }, [])
+
+  // Fetch instances on component mount
+  useEffect(() => {
+    fetchInstances()
+  }, [])
 
   const handleTabChange = (value: TabValue) => {
     setActiveTab(value)
@@ -307,7 +414,7 @@ const Instances = () => {
 
         // Refresh the instances list after a short delay
         setTimeout(() => {
-          refreshInstances()
+          fetchInstances()
         }, 1000)
       } else {
         // Show error message from the API
@@ -364,7 +471,7 @@ const Instances = () => {
 
         // Refresh the instances list after a short delay
         setTimeout(() => {
-          refreshInstances()
+          fetchInstances()
         }, 1000)
       } else {
         // Show error message from the API
@@ -392,7 +499,7 @@ const Instances = () => {
   }
 
   // Filter active instances for the Instances tab
-  const activeInstances = gpuInstances
+  const activeInstances = instances
     .filter((instance) => !instance.is_deleted)
     .filter(
       (instance) =>
@@ -404,7 +511,7 @@ const Instances = () => {
     )
 
   // Show all instances in the History tab (not just deleted ones)
-  const historyInstances = gpuInstances.filter(
+  const historyInstances = instances.filter(
     (instance) =>
       searchTerm === '' ||
       instance.gpu_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -450,7 +557,7 @@ const Instances = () => {
               ) : error ? (
                 <Flex className={styles.errorContainer}>
                   <div className={styles.errorText}>{error}</div>
-                  <Button className={styles.retryButton} onClick={refreshInstances}>
+                  <Button className={styles.retryButton} onClick={fetchInstances}>
                     Retry
                   </Button>
                 </Flex>
@@ -477,7 +584,7 @@ const Instances = () => {
                           <span className={styles.balanceAmount}>${balance.toFixed(2)}</span>
                         )}
                       </div>
-                      <Button className={styles.refreshButton} onClick={refreshInstances}>
+                      <Button className={styles.refreshButton} onClick={fetchInstances}>
                         <RefreshIcon />
                         Refresh
                       </Button>
@@ -595,7 +702,7 @@ const Instances = () => {
               ) : error ? (
                 <Flex className={styles.errorContainer}>
                   <div className={styles.errorText}>{error}</div>
-                  <Button className={styles.retryButton} onClick={refreshInstances}>
+                  <Button className={styles.retryButton} onClick={fetchInstances}>
                     Retry
                   </Button>
                 </Flex>
@@ -622,7 +729,7 @@ const Instances = () => {
                           <span className={styles.balanceAmount}>${balance.toFixed(2)}</span>
                         )}
                       </div>
-                      <Button className={styles.refreshButton} onClick={refreshInstances}>
+                      <Button className={styles.refreshButton} onClick={fetchInstances}>
                         <RefreshIcon />
                         Refresh
                       </Button>
