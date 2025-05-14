@@ -6,7 +6,6 @@ import { Poppins } from 'next/font/google'
 import '../styles/globals.css'
 import '@radix-ui/themes/styles.css'
 import { Toaster } from 'react-hot-toast'
-import { GpuInstanceProvider } from '@/context/GpuInstanceContext'
 import { UserProvider } from '@/context/UserContext'
 import type { Metadata } from 'next'
 
@@ -38,9 +37,7 @@ export default function RootLayout({
       <body className={`${inter.className} ${poppins.variable} antialiased`}>
         <Theme appearance="dark" accentColor="cyan" grayColor="slate" scaling="100%" radius="medium">
           <UserProvider>
-            <GpuInstanceProvider>
-              <Suspense>{children}</Suspense>
-            </GpuInstanceProvider>
+            <Suspense>{children}</Suspense>
           </UserProvider>
           <Toaster />
         </Theme>

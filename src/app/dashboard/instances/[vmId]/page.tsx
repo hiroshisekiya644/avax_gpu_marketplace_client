@@ -4,10 +4,9 @@ import { useState, useEffect } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Flex, Button } from '@radix-ui/themes'
 import { useRouter, useParams } from 'next/navigation'
-import { manageVM, deleteVM } from '@/api/GpuProvider'
+import { manageVM, deleteVM, getGpuAction } from '@/api/GpuProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { Snackbar } from '@/components/snackbar/SnackBar'
-import { useGpuInstances } from '@/context/GpuInstanceContext'
 import styles from './page.module.css'
 
 const BackIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="left-arrow" />
@@ -19,17 +18,83 @@ const HibernateIcon = () => <DynamicSvgIcon height={18} className="rounded-none"
 const RestoreIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="restore-icon" />
 const DeleteIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="trash-icon" />
 
+// Define the flavor features interface
+interface FlavorFeatures {
+  network_optimised: boolean
+  no_hibernation: boolean
+  no_snapshot: boolean
+  local_storage_only: boolean
+}
+
+// Define the GPU instance type based on the API response
+interface GpuInstance {
+  id: number
+  user_id: number
+  flavor_name: string
+  region: string
+  instance_id: number | string
+  gpu_name: string
+  hyperstack_gpu_name: string
+  status: string
+  flavor_features: FlavorFeatures
+  startedAt: string
+  is_deleted: boolean
+  deleted_at: string | null
+  createdAt: string
+  updatedAt: string
+  public_ip?: string | null
+}
+
 const InstanceDetailsPage = () => {
   const router = useRouter()
   const params = useParams()
   const vmId = params?.vmId as string
 
-  // Use the shared GPU instances context
-  const { getInstance, refreshInstances, isLoading: contextLoading, error: contextError } = useGpuInstances()
-
-  const [instance, setInstance] = useState(getInstance(vmId))
+  const [instance, setInstance] = useState<GpuInstance | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false)
+
+  // Fetch instance data
+  const fetchInstanceData = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const response = await getGpuAction()
+
+      if (response && response.status === 'success') {
+        // Handle both array and single object responses
+        const gpuData = Array.isArray(response.gpu) ? response.gpu : [response.gpu]
+
+        // Find the specific instance by ID
+        const foundInstance = gpuData.find(
+          (inst) => inst.id.toString() === vmId || inst.instance_id.toString() === vmId
+        )
+
+        if (foundInstance) {
+          // Process the data to convert BUILD status to CREATING
+          const processedInstance = {
+            ...foundInstance,
+            status: foundInstance.status === 'BUILD' ? 'CREATING' : foundInstance.status
+          }
+
+          setInstance(processedInstance)
+        } else {
+          setError('Instance not found')
+        }
+      } else {
+        setError('Failed to fetch instance details')
+      }
+    } catch (err) {
+      console.error('Error fetching instance details:', err)
+      setError('Failed to fetch instance details. Please try again.')
+      Snackbar({ message: 'Failed to fetch instance details', type: 'error' })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   // Format date to a more readable format
   const formatDate = (dateString: string | null) => {
@@ -135,9 +200,9 @@ const InstanceDetailsPage = () => {
           type: 'success'
         })
 
-        // Refresh the instances list after a short delay
+        // Refresh the instance data after a short delay
         setTimeout(() => {
-          refreshInstances()
+          fetchInstanceData()
         }, 1000)
       } else {
         // Show error message from the API
@@ -226,10 +291,68 @@ const InstanceDetailsPage = () => {
     router.push(`/dashboard/instances/${instance.instance_id}/console`)
   }
 
-  // Update the instance when it changes in the context
+  // Set up socket connection for real-time updates
   useEffect(() => {
-    setInstance(getInstance(vmId))
-  }, [vmId, getInstance])
+    // Import socket utilities dynamically to avoid issues
+    const setupSocket = async () => {
+      try {
+        const { initializeSocket, joinUserRoom } = await import('@/utils/socket')
+        const { getUserData } = await import('@/api/User')
+
+        // Get user ID
+        const userResponse = await getUserData()
+        if (userResponse && userResponse.user && userResponse.user.id) {
+          const userId = userResponse.user.id
+
+          // Initialize socket and join user room
+          const socket = initializeSocket()
+          joinUserRoom(userId)
+
+          // Listen for GPU status updates
+          socket.on('gpuStatusUpdate', (data: any) => {
+            if (
+              data &&
+              data.instance_id &&
+              instance &&
+              instance.instance_id.toString() === data.instance_id.toString()
+            ) {
+              // Update the instance with new status
+              setInstance((prev) => {
+                if (!prev) return prev
+                return {
+                  ...prev,
+                  status: data.status === 'BUILD' ? 'CREATING' : data.status,
+                  ...(data.public_ip !== undefined && { public_ip: data.public_ip })
+                }
+              })
+            }
+          })
+
+          // Return cleanup function
+          return () => {
+            socket.off('gpuStatusUpdate')
+          }
+        }
+      } catch (error) {
+        console.error('Error setting up socket:', error)
+      }
+    }
+
+    // Set up socket if we have an instance
+    if (instance) {
+      const cleanupPromise = setupSocket()
+      return () => {
+        cleanupPromise.then((cleanup) => {
+          if (cleanup) cleanup()
+        })
+      }
+    }
+  }, [instance])
+
+  // Fetch instance data on component mount
+  useEffect(() => {
+    fetchInstanceData()
+  }, [vmId])
 
   return (
     <Flex className={styles.bg} direction="column">
@@ -246,15 +369,15 @@ const InstanceDetailsPage = () => {
         </Flex>
       </Flex>
 
-      {contextLoading ? (
+      {isLoading ? (
         <Flex className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
           <div className={styles.loadingText}>Loading instance details...</div>
         </Flex>
-      ) : contextError ? (
+      ) : error ? (
         <Flex className={styles.errorContainer}>
-          <div className={styles.errorText}>{contextError}</div>
-          <Button className={styles.retryButton} onClick={refreshInstances}>
+          <div className={styles.errorText}>{error}</div>
+          <Button className={styles.retryButton} onClick={fetchInstanceData}>
             Retry
           </Button>
         </Flex>
