@@ -9,6 +9,13 @@ import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
 
+// Add these styles to the existing styles
+const customStyles = {
+  disabledButton: 'opacity-50 cursor-not-allowed',
+  disabledFeatureIndicator: 'text-xs ml-1 text-red-400 font-normal'
+}
+
+// Icons
 const BackIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="left-arrow" />
 const ConsoleIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="external-link" />
 const StartIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="play-icon" />
@@ -17,6 +24,12 @@ const RestartIcon = () => <DynamicSvgIcon height={18} className="rounded-none" i
 const HibernateIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="hibernate-icon" />
 const RestoreIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="restore-icon" />
 const DeleteIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="trash-icon" />
+const InfoIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="info-icon" />
+const CopyIcon = () => <DynamicSvgIcon height={14} className="rounded-none" iconName="copy-icon" />
+const ServerIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="server-icon" />
+const ClockIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="clock-icon" />
+const FeaturesIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="features-icon" />
+const StatusIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="status-icon" />
 
 // Define the flavor features interface
 interface FlavorFeatures {
@@ -46,7 +59,6 @@ interface GpuInstance {
 }
 
 // Define a proper type for the socket data
-// Add this type definition after the existing GpuInstance interface
 interface GpuStatusUpdate {
   instance_id: string | number
   status: string
@@ -63,6 +75,7 @@ const InstanceDetailsPage = () => {
   const [error, setError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false)
+  const [copiedText, setCopiedText] = useState<string | null>(null)
 
   // Fetch instance data
   const fetchInstanceData = useCallback(async () => {
@@ -135,6 +148,26 @@ const InstanceDetailsPage = () => {
         return styles.statusHibernated
       default:
         return styles.statusDefault
+    }
+  }
+
+  // Get status icon based on status
+  const getStatusIcon = (status: string) => {
+    switch (status.toUpperCase()) {
+      case 'ACTIVE':
+        return <DynamicSvgIcon height={14} className="rounded-none" iconName="check-circle" />
+      case 'DELETED':
+        return <DynamicSvgIcon height={14} className="rounded-none" iconName="x-circle" />
+      case 'PENDING':
+      case 'BUILD':
+      case 'CREATING':
+        return <DynamicSvgIcon height={14} className="rounded-none" iconName="loading-icon" />
+      case 'ERROR':
+        return <DynamicSvgIcon height={14} className="rounded-none" iconName="alert-circle" />
+      case 'HIBERNATED':
+        return <DynamicSvgIcon height={14} className="rounded-none" iconName="moon-icon" />
+      default:
+        return <DynamicSvgIcon height={14} className="rounded-none" iconName="info-icon" />
     }
   }
 
@@ -299,6 +332,21 @@ const InstanceDetailsPage = () => {
     router.push(`/dashboard/instances/${instance.instance_id}/console`)
   }
 
+  // Copy text to clipboard
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        setCopiedText(label)
+        Snackbar({ message: `${label} copied to clipboard`, type: 'success' })
+        setTimeout(() => setCopiedText(null), 2000)
+      },
+      (err) => {
+        console.error('Could not copy text: ', err)
+        Snackbar({ message: 'Failed to copy to clipboard', type: 'error' })
+      }
+    )
+  }
+
   // Set up socket connection for real-time updates
   useEffect(() => {
     // Import socket utilities dynamically to avoid issues
@@ -392,19 +440,19 @@ const InstanceDetailsPage = () => {
       ) : instance ? (
         <div className={styles.detailsContainer}>
           <div className={styles.detailsHeader}>
-            <div className={styles.detailsTitle}>{instance.gpu_name}</div>
+            <div className={styles.detailsTitle}>
+              <ServerIcon />
+              {instance.gpu_name}
+              <span className={`${styles.statusBadge} ${getStatusColor(instance.status)}`}>
+                {getStatusIcon(instance.status)} {instance.status}
+              </span>
+            </div>
           </div>
           <div className={styles.detailsContent}>
             <div className={styles.detailsGrid}>
               <div className={styles.detailsSection}>
-                <div className={styles.sectionTitle}>Instance Information</div>
-                <div className={styles.detailsRow}>
-                  <div className={styles.detailsLabel}>Status</div>
-                  <div className={styles.detailsValue}>
-                    <span className={`${styles.statusBadge} ${getStatusColor(instance.status)}`}>
-                      {instance.status}
-                    </span>
-                  </div>
+                <div className={styles.sectionTitle}>
+                  <InfoIcon /> Instance Information
                 </div>
                 <div className={styles.detailsRow}>
                   <div className={styles.detailsLabel}>GPU Type</div>
@@ -416,16 +464,38 @@ const InstanceDetailsPage = () => {
                 </div>
                 <div className={styles.detailsRow}>
                   <div className={styles.detailsLabel}>Instance ID</div>
-                  <div className={styles.detailsValue}>{instance.instance_id}</div>
+                  <div className={styles.detailsValue}>
+                    {instance.instance_id}
+                    <button
+                      className={styles.copyButton}
+                      onClick={() => copyToClipboard(instance.instance_id.toString(), 'Instance ID')}
+                      aria-label="Copy Instance ID"
+                    >
+                      <CopyIcon />
+                    </button>
+                  </div>
                 </div>
                 <div className={styles.detailsRow}>
                   <div className={styles.detailsLabel}>IP Address</div>
-                  <div className={styles.detailsValue}>{instance.public_ip || '-'}</div>
+                  <div className={styles.detailsValue}>
+                    {instance.public_ip || '-'}
+                    {instance.public_ip && (
+                      <button
+                        className={styles.copyButton}
+                        onClick={() => copyToClipboard(instance.public_ip || '', 'IP Address')}
+                        aria-label="Copy IP Address"
+                      >
+                        <CopyIcon />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
               <div className={styles.detailsSection}>
-                <div className={styles.sectionTitle}>Timestamps</div>
+                <div className={styles.sectionTitle}>
+                  <ClockIcon /> Timestamps
+                </div>
                 <div className={styles.detailsRow}>
                   <div className={styles.detailsLabel}>Created</div>
                   <div className={styles.detailsValue}>{formatDate(instance.createdAt)}</div>
@@ -448,29 +518,31 @@ const InstanceDetailsPage = () => {
             </div>
 
             <div className={styles.detailsSection}>
-              <div className={styles.sectionTitle}>Features</div>
-              <div className={styles.detailsRow}>
-                <div className={styles.detailsLabel}>Network Optimized</div>
-                <div className={styles.detailsValue}>{instance.flavor_features?.network_optimised ? 'Yes' : 'No'}</div>
+              <div className={styles.sectionTitle}>
+                <FeaturesIcon /> Features
               </div>
-              <div className={styles.detailsRow}>
-                <div className={styles.detailsLabel}>Hibernation</div>
-                <div className={styles.detailsValue}>
-                  {instance.flavor_features?.no_hibernation ? 'Not Supported' : 'Supported'}
-                </div>
-              </div>
-              <div className={styles.detailsRow}>
-                <div className={styles.detailsLabel}>Snapshot</div>
-                <div className={styles.detailsValue}>
-                  {instance.flavor_features?.no_snapshot ? 'Not Supported' : 'Supported'}
-                </div>
-              </div>
-              <div className={styles.detailsRow}>
-                <div className={styles.detailsLabel}>Storage Type</div>
-                <div className={styles.detailsValue}>
-                  {instance.flavor_features?.local_storage_only ? 'Local Storage Only' : 'Network Storage Available'}
-                </div>
-              </div>
+              <Flex wrap="wrap" gap="2" style={{ marginBottom: '16px' }}>
+                <span
+                  className={`${styles.featureBadge} ${instance.flavor_features?.network_optimised ? styles.featureEnabled : styles.featureDisabled}`}
+                >
+                  {instance.flavor_features?.network_optimised ? 'Network Optimized' : 'Standard Network'}
+                </span>
+                <span
+                  className={`${styles.featureBadge} ${!instance.flavor_features?.no_hibernation ? styles.featureEnabled : styles.featureDisabled}`}
+                >
+                  {instance.flavor_features?.no_hibernation ? 'No Hibernation' : 'Hibernation Support'}
+                </span>
+                <span
+                  className={`${styles.featureBadge} ${!instance.flavor_features?.no_snapshot ? styles.featureEnabled : styles.featureDisabled}`}
+                >
+                  {instance.flavor_features?.no_snapshot ? 'No Snapshot' : 'Snapshot Support'}
+                </span>
+                <span
+                  className={`${styles.featureBadge} ${!instance.flavor_features?.local_storage_only ? styles.featureEnabled : styles.featureDisabled}`}
+                >
+                  {instance.flavor_features?.local_storage_only ? 'Local Storage Only' : 'Network Storage'}
+                </span>
+              </Flex>
             </div>
 
             {!instance.is_deleted && (
@@ -483,7 +555,7 @@ const InstanceDetailsPage = () => {
                       disabled={isProcessing}
                     >
                       <ConsoleIcon />
-                      Console
+                      Open Console
                     </Button>
                     <Button
                       className={`${styles.actionButton} ${styles.secondaryButton}`}
@@ -502,9 +574,14 @@ const InstanceDetailsPage = () => {
                       Restart
                     </Button>
                     <Button
-                      className={`${styles.actionButton} ${styles.secondaryButton}`}
+                      className={`${styles.actionButton} ${styles.secondaryButton} ${
+                        instance.flavor_features?.no_hibernation ? customStyles.disabledButton : ''
+                      }`}
                       onClick={() => handleInstanceAction('hibernate')}
                       disabled={isProcessing || instance.flavor_features?.no_hibernation === true}
+                      title={
+                        instance.flavor_features?.no_hibernation ? 'Hibernation not supported for this instance' : ''
+                      }
                     >
                       <HibernateIcon />
                       Hibernate

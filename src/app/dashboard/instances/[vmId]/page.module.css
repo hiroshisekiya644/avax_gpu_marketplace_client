@@ -1,19 +1,21 @@
 .bg {
   background-color: var(--bg);
-  height: 100%;
   min-height: 100vh;
   color: var(--text);
+  padding-bottom: 2rem;
 }
 
 .header {
   height: 90px;
   border-bottom: 1px solid var(--bgSoft);
   width: 100%;
+  background-color: var(--cardDarkPurple);
 }
 
 @media screen and (max-width: 768px) {
   .header {
-    height: 110px;
+    height: auto;
+    padding: 1rem 0;
   }
 }
 
@@ -53,42 +55,57 @@
   color: var(--soft);
 }
 
+/* Updated container styles */
 .detailsContainer {
   background-color: var(--cardDarkPurple);
   border-radius: 10px;
   margin: 16px;
-  width: 100%;
+  width: calc(100% - 32px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .detailsHeader {
   padding: 20px 24px;
   border-bottom: 1px solid var(--bgSoft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .detailsTitle {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .detailsContent {
   padding: 24px;
 }
 
+/* Updated grid layout */
 .detailsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+  gap: 32px;
 }
 
 @media (max-width: 768px) {
   .detailsGrid {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 }
 
 .detailsSection {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
+  background-color: var(--bg);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--bgSoft);
 }
 
 .sectionTitle {
@@ -96,11 +113,17 @@
   font-weight: 600;
   color: var(--text);
   margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--bgSoft);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .detailsRow {
   display: flex;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  align-items: center;
 }
 
 .detailsLabel {
@@ -115,49 +138,63 @@
   font-weight: 500;
 }
 
-/* Status badges - using consistent color patterns */
+/* Enhanced status badges */
 .statusBadge {
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .statusActive {
-  background-color: rgba(16, 185, 129, 0.2);
+  background-color: rgba(16, 185, 129, 0.15);
   color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .statusPending {
-  background-color: rgba(245, 158, 11, 0.2);
+  background-color: rgba(245, 158, 11, 0.15);
   color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .statusError {
-  background-color: rgba(239, 68, 68, 0.2);
+  background-color: rgba(239, 68, 68, 0.15);
   color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .statusDeleted {
-  background-color: rgba(239, 68, 68, 0.2);
+  background-color: rgba(239, 68, 68, 0.15);
   color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .statusHibernated {
-  background-color: rgba(79, 70, 229, 0.2);
+  background-color: rgba(79, 70, 229, 0.15);
   color: #6366f1;
+  border: 1px solid rgba(79, 70, 229, 0.3);
 }
 
 .statusDefault {
-  background-color: rgba(107, 114, 128, 0.2);
+  background-color: rgba(107, 114, 128, 0.15);
   color: #6b7280;
+  border: 1px solid rgba(107, 114, 128, 0.3);
 }
 
+/* Improved action buttons */
 .actionsContainer {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 24px;
+  background-color: var(--bg);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--bgSoft);
 }
 
 .actionButton {
@@ -166,9 +203,9 @@
   gap: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border-radius: 7px;
-  height: 40px;
-  padding: 0 16px;
+  border-radius: 8px;
+  height: 44px;
+  padding: 0 18px;
   font-size: 14px;
   font-weight: 500;
 }
@@ -181,6 +218,7 @@
 
 .primaryButton:hover {
   background-color: var(--border);
+  transform: translateY(-2px);
 }
 
 .secondaryButton {
@@ -193,6 +231,7 @@
   background-color: var(--button);
   border-color: var(--border);
   color: var(--soft);
+  transform: translateY(-2px);
 }
 
 .dangerButton {
@@ -203,8 +242,10 @@
 
 .dangerButton:hover {
   background-color: rgba(239, 68, 68, 0.2);
+  transform: translateY(-2px);
 }
 
+/* Improved loading and error states */
 .loadingContainer,
 .errorContainer {
   display: flex;
@@ -212,20 +253,21 @@
   align-items: center;
   justify-content: center;
   padding: 3rem;
-  background-color: var(--bgSoftDark);
+  background-color: var(--cardDarkPurple);
   border-radius: 10px;
-  margin-top: 2rem;
-  width: 100%;
+  margin: 2rem 16px;
+  width: calc(100% - 32px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .loadingSpinner {
-  width: 30px;
-  height: 30px;
-  border: 3px solid var(--textSoftDark);
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(79, 70, 229, 0.2);
   border-radius: 50%;
-  border-top-color: var(--text);
+  border-top-color: var(--button);
   animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .loadingText {
@@ -235,7 +277,8 @@
 
 .errorText {
   color: #ef4444;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
 }
 
 .retryButton {
@@ -243,27 +286,31 @@
   cursor: pointer;
   border: 2px solid var(--border);
   font-size: 14px;
-  border-radius: 7px;
-  height: 36px;
-  padding: 0 16px;
+  border-radius: 8px;
+  height: 40px;
+  padding: 0 20px;
   color: var(--soft);
+  transition: all 0.2s ease;
 }
 
 .retryButton:hover {
   background-color: var(--border);
+  transform: translateY(-2px);
 }
 
+/* Enhanced dialog styles */
 .dialogOverlay {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
   position: fixed;
   inset: 0;
   animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 50;
+  backdrop-filter: blur(4px);
 }
 
 .dialogContent {
   background-color: var(--cardDarkPurple);
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
   position: fixed;
   top: 50%;
@@ -272,9 +319,10 @@
   width: 90vw;
   max-width: 450px;
   max-height: 85vh;
-  padding: 25px;
+  padding: 28px;
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 51;
+  border: 1px solid var(--bgSoft);
 }
 
 .modalTitle {
@@ -285,19 +333,19 @@
 }
 
 .modalDescription {
-  margin-top: 10px;
-  margin-bottom: 20px;
+  margin-top: 12px;
+  margin-bottom: 24px;
   color: var(--textSoft);
   font-size: 0.9rem;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .cancelButton {
   background-color: var(--bgSoft);
   border: 1px solid var(--textSoftDark);
   color: var(--text);
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 10px 18px;
+  border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -312,8 +360,8 @@
   background-color: rgba(239, 68, 68, 0.2);
   border: 1px solid #ef4444;
   color: #ef4444;
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 10px 18px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -322,6 +370,74 @@
 
 .deleteButton:hover {
   background-color: rgba(239, 68, 68, 0.3);
+}
+
+/* Feature badge styles */
+.featureBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-right: 6px;
+  background-color: var(--bgSoft);
+  color: var(--textSoft);
+  border: 1px solid var(--textSoftDark);
+}
+
+.featureEnabled {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.featureDisabled {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Copy button for IP and ID */
+.copyButton {
+  background-color: transparent;
+  border: none;
+  color: var(--textSoft);
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.copyButton:hover {
+  color: var(--text);
+  background-color: var(--bgSoft);
+}
+
+.copyButton:active {
+  transform: scale(0.95);
+}
+
+.disabledButton {
+  opacity: 0.5;
+  cursor: default;
+  position: relative;
+}
+
+.disabledButton:hover::after {
+  content: 'Not supported for this instance';
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
 }
 
 @keyframes overlayShow {
