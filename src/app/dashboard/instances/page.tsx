@@ -687,11 +687,16 @@ const Instances = () => {
                               <Table.Cell className={styles.historyTableCell}>{instance.flavor_name}</Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>{instance.region}</Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>
-                                <span className={`${styles.statusBadge} ${getStatusColor(instance.status)}`}>
-                                  {instance.status === 'BUILD' || instance.status === 'CREATING'
-                                    ? 'CREATING'
-                                    : instance.status}
-                                </span>
+                                <Flex align="center" gap="1">
+                                  <span className={`${styles.statusBadge} ${getStatusColor(instance.status)}`}>
+                                    {instance.status === 'BUILD' || instance.status === 'CREATING' ? (
+                                      <span className={styles.statusSpinner}></span>
+                                    ) : null}
+                                    {instance.status === 'BUILD' || instance.status === 'CREATING'
+                                      ? 'CREATING'
+                                      : instance.status}
+                                  </span>
+                                </Flex>
                               </Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>
                                 {formatDate(instance.createdAt)}
