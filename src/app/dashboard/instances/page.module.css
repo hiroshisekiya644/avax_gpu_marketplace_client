@@ -53,7 +53,7 @@
   gap: 8px;
   border-radius: 2px;
   cursor: pointer;
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   color: var(--textSoft);
   padding: 12px 24px;
 
@@ -73,7 +73,7 @@
   color: var(--textSoftDark);
 }
 
-.tabListItem[data-state="active"] {
+.tabListItem[data-state='active'] {
   color: var(--text);
   border-bottom: 2px solid var(--border);
 
@@ -90,70 +90,10 @@
   padding: 0;
 }
 
-.loadingContainer,
-.errorContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
-  background-color: var(--bgSoftDark);
-  border-radius: 10px;
-  margin-top: 2rem;
-  width: 100%;
-}
-
-.loadingSpinner {
-  width: 30px;
-  height: 30px;
-  border: 3px solid var(--textSoftDark);
-  border-radius: 50%;
-  border-top-color: var(--text);
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.loadingText,
-.errorText {
-  color: var(--textSoft);
-  font-size: 1rem;
-}
-
-.errorText {
-  color: var(--error-color);
-  margin-bottom: 1rem;
-}
-
-.retryButton {
-  background-color: var(--button);
-  cursor: pointer;
-  border: 2px solid var(--border);
-  font-size: 14px;
-  border-radius: 7px;
-  height: 36px;
-  padding: 0 16px;
-}
-
-.retryButton:hover {
-  background-color: var(--border);
-}
-
 .instanceCardWrapper {
   background-color: var(--bgSoftDark);
   border-radius: 10px;
   text-align: left;
-}
-
-.searchContainer {
-  flex: 1;
-  max-width: 400px;
-  position: relative;
 }
 
 .searchInput {
@@ -177,8 +117,14 @@
   color: var(--textSoftDark);
 }
 
+.searchContainer {
+  flex: 1;
+  max-width: 400px;
+  position: relative;
+}
+
 .searchContainer::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 16px;
   top: 50%;
@@ -189,6 +135,10 @@
   background-repeat: no-repeat;
   background-size: contain;
   pointer-events: none;
+}
+
+.iconSlot {
+  color: #6b7280;
 }
 
 .refreshButton {
@@ -241,21 +191,6 @@
   color: var(--textSoftDark);
 }
 
-/* Add styles for the instance name link */
-.instanceNameLink {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #2563eb;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.instanceNameLink:hover {
-  color: #1d4ed8;
-  text-decoration: underline;
-}
-
 .tableContainer {
   position: relative;
   width: 100%;
@@ -275,8 +210,19 @@
   border-radius: 8px;
 }
 
+.loadingSpinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--textSoftDark);
+  border-radius: 50%;
+  border-top-color: var(--text);
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
 .historyTable {
   width: 100%;
+  table-layout: fixed;
 }
 
 .historyTableHeader {
@@ -285,6 +231,18 @@
 
 .historyTableCell {
   color: var(--textSoftDark);
+  height: 50px; /* Fixed height for table cells */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+}
+
+/* Add this style for the history instance name */
+.historyInstanceName {
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .statusBadge {
@@ -314,30 +272,49 @@
   color: #ef4444;
 }
 
+.statusHibernated {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
 .statusDefault {
   background-color: rgba(107, 114, 128, 0.2);
   color: #6b7280;
 }
 
-.instanceButton {
-  background-color: var(--button);
-  cursor: pointer;
-  border: 2px solid var(--border);
-  font-size: 16px;
-  text-align: center;
-  max-width: 100%;
-  min-width: 100px;
-  font-size: 14px;
-  border-radius: 7px;
-  height: 40px;
+.statusSpinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(245, 158, 11, 0.3);
+  border-top-color: #f59e0b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-right: 4px;
 }
 
-.instanceButton:hover {
-  background-color: var(--border);
+.instanceNameLink {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #2563eb;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
-.actionSelect {
-  width: 140px;
+.instanceNameLink:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.networkLink {
+  color: #6b7280;
+  margin-left: 0.5rem;
+  transition: all 0.2s;
+}
+
+.networkLink:hover {
+  color: #2563eb;
 }
 
 .consoleLink {
@@ -354,134 +331,66 @@
   text-decoration: underline;
 }
 
-.restrictionBadge {
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 500;
-  background-color: var(--error-color-bg, rgba(239, 68, 68, 0.2));
-  color: var(--error-color, #ef4444);
-  margin-top: 2px;
-}
-
-.actionButton {
-  background-color: var(--bgSoft);
-  border: 1px solid var(--textSoftDark);
-  border-radius: 4px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.actionButton:hover {
-  background-color: var(--button);
-  border-color: var(--border);
-}
-
-.actionButtonDelete {
-  background-color: var(--bgSoft);
-  border: 1px solid var(--error-color);
-  border-radius: 4px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.actionButtonDelete:hover {
-  background-color: rgba(239, 68, 68, 0.2);
-  border-color: var(--error-color);
-}
-
-.actionDropdownContainer {
-  display: flex;
-  flex-direction: column;
-  background-color: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  overflow: hidden;
+.actionSelect {
   width: 140px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.actionButtonGroup {
-  display: flex;
-  flex-direction: column;
-}
-
-.actionDivider {
-  height: 1px;
-  background-color: #e5e7eb;
-  margin: 4px 0;
-}
-
-/* Add these styles for the balance display */
-.balanceContainer {
+.processingIndicator {
+  position: absolute;
+  top: 0;
+  right: -30px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background-color: var(--bgSoft);
-  border: 1px solid var(--textSoftDark);
-  border-radius: 7px;
-  height: 40px;
-  padding: 0 16px;
-  color: var(--text);
-  transition: all 0.2s ease;
-  position: relative;
+  justify-content: center;
 }
 
-.balanceContainer:hover {
-  border-color: var(--border);
-}
-
-.balanceAmount {
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--text);
-}
-
-.balanceLoading {
-  font-size: 14px;
-  color: var(--textSoft);
-  font-style: italic;
-}
-
-.balanceSpinner {
+.processingSpinner {
   width: 16px;
   height: 16px;
   border: 2px solid var(--textSoftDark);
   border-radius: 50%;
   border-top-color: var(--text);
   animation: spin 1s linear infinite;
-  margin: 0 auto;
 }
 
-/* Add animation for balance updates */
-@keyframes balancePulse {
-  0% {
-    background-color: var(--bgSoft);
-  }
-  50% {
-    background-color: rgba(153, 69, 252, 0.2);
-  }
-  100% {
-    background-color: var(--bgSoft);
-  }
+.loadingContainer,
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background-color: var(--bgSoftDark);
+  border-radius: 10px;
+  margin-top: 2rem;
+  width: 100%;
 }
 
-.balanceUpdated {
-  animation: balancePulse 1s ease;
+.loadingText,
+.errorText {
+  color: var(--textSoft);
+  font-size: 1rem;
 }
 
-/* Dialog styles for delete confirmation */
+.errorText {
+  color: var(--error-color);
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  background-color: var(--button);
+  cursor: pointer;
+  border: 2px solid var(--border);
+  font-size: 14px;
+  border-radius: 7px;
+  height: 36px;
+  padding: 0 16px;
+}
+
+.retryButton:hover {
+  background-color: var(--border);
+}
+
 .dialogOverlay {
   background-color: rgba(0, 0, 0, 0.5);
   position: fixed;
@@ -553,6 +462,234 @@
   background-color: rgba(239, 68, 68, 0.3);
 }
 
+.balanceContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 7px;
+  height: 40px;
+  padding: 0 16px;
+  color: var(--text);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.balanceContainer:hover {
+  border-color: var(--border);
+}
+
+.balanceAmount {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.balanceLoading {
+  font-size: 14px;
+  color: var(--textSoft);
+  font-style: italic;
+}
+
+.balanceSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--textSoftDark);
+  border-radius: 50%;
+  border-top-color: var(--text);
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+/* Add animation for balance updates */
+@keyframes balancePulse {
+  0% {
+    background-color: var(--bgSoft);
+  }
+  50% {
+    background-color: rgba(153, 69, 252, 0.2);
+  }
+  100% {
+    background-color: var(--bgSoft);
+  }
+}
+
+.balanceUpdated {
+  animation: balancePulse 1s ease;
+}
+
+.instanceButton {
+  background-color: var(--button);
+  cursor: pointer;
+  border: 2px solid var(--border);
+  font-size: 16px;
+  text-align: center;
+  max-width: 100%;
+  min-width: 100px;
+  font-size: 14px;
+  border-radius: 7px;
+  height: 40px;
+}
+
+.instanceButton:hover {
+  background-color: var(--border);
+}
+
+.actionButton {
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  background-color: var(--button);
+  border-color: var(--border);
+}
+
+.actionButtonDelete {
+  background-color: var(--bgSoft);
+  border: 1px solid var(--error-color);
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionButtonDelete:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-color: var(--error-color);
+}
+
+.actionDropdownContainer {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+  width: 140px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.actionButtonGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.actionDivider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 4px 0;
+}
+
+.emptyRow {
+  background-color: var(--bgSoftDark);
+}
+
+.emptyCell {
+  height: 50px; /* Match the height of regular cells */
+  border-bottom: 1px solid var(--bgSoft);
+}
+
+/* Updated pagination styles */
+.paginationContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-top: 1px solid var(--bgSoft);
+  background-color: var(--bgSoftDark);
+}
+
+.paginationControls {
+  margin: 0 auto; /* Center the pagination controls */
+}
+
+.paginationInfo {
+  font-size: 14px;
+  color: var(--textSoft);
+}
+
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.paginationButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: var(--button);
+  border-color: var(--border);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paginationPages {
+  display: flex;
+  gap: 4px;
+}
+
+.paginationPageButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background-color: var(--bgSoft);
+  border: 1px solid var(--textSoftDark);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.paginationPageButton:hover {
+  background-color: var(--button);
+  border-color: var(--border);
+}
+
+.paginationPageButtonActive {
+  background-color: var(--button);
+  border-color: var(--border);
+  color: var(--soft);
+}
+
+/* Make sure we have the spin animation defined */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes overlayShow {
   from {
     opacity: 0;
@@ -570,43 +707,5 @@
   to {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-/* Processing indicator for actions in progress */
-.processingIndicator {
-  position: absolute;
-  top: 0;
-  right: -30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.processingSpinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--textSoftDark);
-  border-radius: 50%;
-  border-top-color: var(--text);
-  animation: spin 1s linear infinite;
-}
-
-/* Add a CSS class for the status spinner */
-.statusSpinner {
-  width: 12px;
-  height: 12px;
-  border: 2px solid rgba(245, 158, 11, 0.3);
-  border-top-color: #f59e0b;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  display: inline-block;
-  margin-right: 4px;
-}
-
-/* Make sure we have the spin animation defined */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
   }
 }

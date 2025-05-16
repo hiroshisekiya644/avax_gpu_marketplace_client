@@ -1,22 +1,36 @@
 'use client'
 
 import type React from 'react'
-import { Flex } from '@radix-ui/themes'
 import styles from './LoadingSpinner.module.css'
 
-interface LoadingSpinnerProps {
-  message?: string
+export interface LoadingSpinnerProps {
   size?: 'small' | 'medium' | 'large'
+  color?: string
+  className?: string
 }
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message = 'Loading...'}) => {
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+  size = 'medium',
+  color = 'var(--button)',
+  className = ''
+}) => {
+  const sizeMap = {
+    small: '16px',
+    medium: '24px',
+    large: '40px'
+  }
+
+  const spinnerSize = sizeMap[size]
+
   return (
-    <Flex className={styles.container}>
-      <div className={styles.spinnerBox}>
-        <div className={styles.spinner}></div>
-        <div className={styles.message}>{message}</div>
-      </div>
-    </Flex>
+    <div
+      className={`${styles.spinner} ${className}`}
+      style={{
+        width: spinnerSize,
+        height: spinnerSize,
+        borderTopColor: color
+      }}
+    />
   )
 }
 

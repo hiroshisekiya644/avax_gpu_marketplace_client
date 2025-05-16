@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import type React from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
@@ -57,6 +57,8 @@ const Search = () => <DynamicSvgIcon height={22} className="rounded-none" iconNa
 const WalletIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="wallet-icon" />
 const InfoIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="info-icon" />
 const NetworkIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="network-icon" />
+const ChevronLeft = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="chevron-left" />
+const ChevronRight = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="chevron-right" />
 
 type TabValue = 'instances' | 'history'
 const tabValues: TabValue[] = ['instances', 'history']
@@ -71,6 +73,9 @@ const instancesTableHeaderItems = ['NAME', 'GPU', 'REGION', 'STATUS', 'CREATED',
 // Headers for the history tab (with DELETED DATE instead of CONSOLE, and no ACTIONS)
 const historyTableHeaderItems = ['NAME', 'GPU', 'REGION', 'STATUS', 'CREATED', 'DELETED DATE', 'IP ADDRESS']
 
+// Fixed number of rows to display in the table
+const FIXED_TABLE_ROWS = 10
+
 const Instances = () => {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabValue>(tabValues[0])
@@ -81,6 +86,12 @@ const Instances = () => {
   const [instances, setInstances] = useState<GpuInstance[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  // Remove the unused isSocketConnected state
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  // Fixed number of items per page
+  const itemsPerPage = 10
 
   // Use the user context instead of balance context
   const { user, isLoading: userLoading } = useUser()
@@ -117,6 +128,8 @@ const Instances = () => {
         )
 
         setInstances(sortedInstances)
+        // Reset to first page when data changes
+        setCurrentPage(1)
       } else {
         setError('Failed to fetch GPU instances')
       }
@@ -142,6 +155,7 @@ const Instances = () => {
           // Initialize socket and join user room
           const socket = initializeSocket()
           joinUserRoom(userId)
+          // Remove the unused state update
 
           // Listen for GPU status updates
           socket.on('gpuStatusUpdate', (data: GpuStatusUpdate) => {
@@ -183,6 +197,7 @@ const Instances = () => {
           // Return cleanup function
           return () => {
             socket.off('gpuStatusUpdate')
+            // Remove the unused state update
           }
         }
       } catch (error) {
@@ -205,12 +220,19 @@ const Instances = () => {
     fetchInstances()
   }, [])
 
+  // Reset pagination when tab changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [activeTab])
+
   const handleTabChange = (value: TabValue) => {
     setActiveTab(value)
   }
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
+    // Reset to first page when search term changes
+    setCurrentPage(1)
   }
 
   // Format date to yyyy/mm/dd format
@@ -537,9 +559,22 @@ const Instances = () => {
   }
 
   // Filter active instances for the Instances tab
-  const activeInstances = instances
-    .filter((instance) => !instance.is_deleted)
-    .filter(
+  const filteredActiveInstances = useMemo(() => {
+    return instances
+      .filter((instance) => !instance.is_deleted)
+      .filter(
+        (instance) =>
+          searchTerm === '' ||
+          instance.gpu_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          instance.flavor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          instance.region.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          instance.status.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+  }, [instances, searchTerm])
+
+  // Show all instances in the History tab (not just deleted ones)
+  const filteredHistoryInstances = useMemo(() => {
+    return instances.filter(
       (instance) =>
         searchTerm === '' ||
         instance.gpu_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -547,16 +582,129 @@ const Instances = () => {
         instance.region.toLowerCase().includes(searchTerm.toLowerCase()) ||
         instance.status.toLowerCase().includes(searchTerm.toLowerCase())
     )
+  }, [instances, searchTerm])
 
-  // Show all instances in the History tab (not just deleted ones)
-  const historyInstances = instances.filter(
-    (instance) =>
-      searchTerm === '' ||
-      instance.gpu_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      instance.flavor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      instance.region.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      instance.status.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // Calculate pagination for active instances
+  const activeInstancesPagination = useMemo(() => {
+    const totalItems = filteredActiveInstances.length
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
+    const currentPageSafe = Math.min(currentPage, totalPages)
+
+    const startIndex = (currentPageSafe - 1) * itemsPerPage
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems)
+
+    const paginatedItems = filteredActiveInstances.slice(startIndex, endIndex)
+
+    // Create empty rows to fill the table if needed
+    const emptyRowsCount = Math.max(0, FIXED_TABLE_ROWS - paginatedItems.length)
+    const emptyRows = Array(emptyRowsCount).fill(null)
+
+    return {
+      items: paginatedItems,
+      emptyRows,
+      totalItems,
+      totalPages,
+      currentPage: currentPageSafe,
+      startIndex,
+      endIndex
+    }
+  }, [filteredActiveInstances, currentPage, itemsPerPage])
+
+  // Calculate pagination for history instances
+  const historyInstancesPagination = useMemo(() => {
+    const totalItems = filteredHistoryInstances.length
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
+    const currentPageSafe = Math.min(currentPage, totalPages)
+
+    const startIndex = (currentPageSafe - 1) * itemsPerPage
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems)
+
+    const paginatedItems = filteredHistoryInstances.slice(startIndex, endIndex)
+
+    // Create empty rows to fill the table if needed
+    const emptyRowsCount = Math.max(0, FIXED_TABLE_ROWS - paginatedItems.length)
+    const emptyRows = Array(emptyRowsCount).fill(null)
+
+    return {
+      items: paginatedItems,
+      emptyRows,
+      totalItems,
+      totalPages,
+      currentPage: currentPageSafe,
+      startIndex,
+      endIndex
+    }
+  }, [filteredHistoryInstances, currentPage, itemsPerPage])
+
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    const pagination = activeTab === 'instances' ? activeInstancesPagination : historyInstancesPagination
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      setCurrentPage(newPage)
+    }
+  }
+
+  // Render pagination controls
+  const renderPaginationControls = (pagination: typeof activeInstancesPagination) => {
+    const { totalItems, totalPages, currentPage, startIndex, endIndex } = pagination
+
+    if (totalItems === 0) return null
+
+    return (
+      <div className={styles.paginationContainer}>
+        <div className={styles.paginationInfo}>
+          Showing {startIndex + 1}-{endIndex} of {totalItems} items
+        </div>
+        <div className={styles.paginationControls}>
+          <button
+            className={styles.paginationButton}
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft />
+          </button>
+          <div className={styles.paginationPages}>
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              // Show pages around current page
+              let pageNum = currentPage
+              if (totalPages <= 5) {
+                // If 5 or fewer pages, show all pages
+                pageNum = i + 1
+              } else if (currentPage <= 3) {
+                // If near start, show first 5 pages
+                pageNum = i + 1
+              } else if (currentPage >= totalPages - 2) {
+                // If near end, show last 5 pages
+                pageNum = totalPages - 4 + i
+              } else {
+                // Otherwise show current page and 2 pages on each side
+                pageNum = currentPage - 2 + i
+              }
+
+              return (
+                <button
+                  key={pageNum}
+                  className={`${styles.paginationPageButton} ${
+                    currentPage === pageNum ? styles.paginationPageButtonActive : ''
+                  }`}
+                  onClick={() => handlePageChange(pageNum)}
+                >
+                  {pageNum}
+                </button>
+              )
+            })}
+          </div>
+          <button
+            className={styles.paginationButton}
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight />
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <Flex className={styles.bg} direction="column">
@@ -632,7 +780,7 @@ const Instances = () => {
                     </Flex>
                   </Flex>
 
-                  {activeInstances.length === 0 ? (
+                  {filteredActiveInstances.length === 0 ? (
                     <Flex
                       p="8"
                       direction="column"
@@ -664,7 +812,7 @@ const Instances = () => {
                           </Table.Row>
                         </Table.Header>
                         <Table.Body>
-                          {activeInstances.map((instance) => (
+                          {activeInstancesPagination.items.map((instance) => (
                             <Table.Row key={instance.id}>
                               <Table.Cell className={styles.historyTableCell}>
                                 <Link
@@ -763,8 +911,19 @@ const Instances = () => {
                               </Table.Cell>
                             </Table.Row>
                           ))}
+                          {/* Add empty rows to maintain fixed table height */}
+                          {activeInstancesPagination.emptyRows.map((_, index) => (
+                            <Table.Row key={`empty-${index}`} className={styles.emptyRow}>
+                              {instancesTableHeaderItems.map((_, colIndex) => (
+                                <Table.Cell key={`empty-cell-${colIndex}`} className={styles.emptyCell}>
+                                  &nbsp;
+                                </Table.Cell>
+                              ))}
+                            </Table.Row>
+                          ))}
                         </Table.Body>
                       </Table.Root>
+                      {renderPaginationControls(activeInstancesPagination)}
                     </div>
                   )}
                 </Flex>
@@ -813,7 +972,7 @@ const Instances = () => {
                     </Flex>
                   </Flex>
 
-                  {historyInstances.length === 0 ? (
+                  {filteredHistoryInstances.length === 0 ? (
                     <Flex
                       p="8"
                       direction="column"
@@ -846,22 +1005,10 @@ const Instances = () => {
                           </Table.Row>
                         </Table.Header>
                         <Table.Body>
-                          {historyInstances.map((instance) => (
+                          {historyInstancesPagination.items.map((instance) => (
                             <Table.Row key={instance.id}>
                               <Table.Cell className={styles.historyTableCell}>
-                                <Link
-                                  href="#"
-                                  className={styles.instanceNameLink}
-                                  onClick={(e) => {
-                                    e.preventDefault()
-                                    navigateToDetails(instance)
-                                  }}
-                                >
-                                  <Flex align="center" gap="1">
-                                    {instance.gpu_name}
-                                    <InfoIcon />
-                                  </Flex>
-                                </Link>
+                                <span className={styles.historyInstanceName}>{instance.gpu_name}</span>
                               </Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>{instance.flavor_name}</Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>{instance.region}</Table.Cell>
@@ -879,8 +1026,19 @@ const Instances = () => {
                               <Table.Cell className={styles.historyTableCell}>{instance.public_ip || '-'}</Table.Cell>
                             </Table.Row>
                           ))}
+                          {/* Add empty rows to maintain fixed table height */}
+                          {historyInstancesPagination.emptyRows.map((_, index) => (
+                            <Table.Row key={`empty-${index}`} className={styles.emptyRow}>
+                              {historyTableHeaderItems.map((_, colIndex) => (
+                                <Table.Cell key={`empty-cell-${colIndex}`} className={styles.emptyCell}>
+                                  &nbsp;
+                                </Table.Cell>
+                              ))}
+                            </Table.Row>
+                          ))}
                         </Table.Body>
                       </Table.Root>
+                      {renderPaginationControls(historyInstancesPagination)}
                     </div>
                   )}
                 </Flex>

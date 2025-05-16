@@ -6,6 +6,7 @@ import { Flex, Button, Theme } from '@radix-ui/themes'
 import { useRouter, useParams } from 'next/navigation'
 import { manageVM, deleteVM, getGpuAction } from '@/api/GpuProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+import LoadingSpinner from '@/components/loading/LoadingSpinner'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
 
@@ -165,7 +166,7 @@ const InstanceDetailsPage = () => {
       case 'PENDING':
       case 'BUILD':
       case 'CREATING':
-        return <DynamicSvgIcon height={14} className="rounded-none" iconName="loading-icon" />
+        return <LoadingSpinner size="small" color="var(--button)" className={styles.statusSpinner} />
       case 'ERROR':
         return <DynamicSvgIcon height={14} className="rounded-none" iconName="alert-circle" />
       case 'HIBERNATED':
