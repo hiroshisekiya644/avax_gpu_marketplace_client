@@ -569,12 +569,6 @@ const Instances = () => {
             <div className={styles.headerTitle}>Instances</div>
             <div className={styles.subTitle}>Manage your active instance and review your instances history.</div>
           </Flex>
-          {isSocketConnected && (
-            <div className={styles.socketStatus}>
-              <span className={styles.socketIndicator}></span>
-              Real-time updates active
-            </div>
-          )}
         </Flex>
       </Flex>
       <Flex p="4">
