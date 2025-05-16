@@ -10,10 +10,11 @@ import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
 
 // Add these styles to the existing styles
-const customStyles = {
-  disabledButton: 'opacity-50 cursor-not-allowed',
-  disabledFeatureIndicator: 'text-xs ml-1 text-red-400 font-normal'
-}
+// Remove this unused object
+// const customStyles = {
+//   disabledButton: "opacity-50 cursor-not-allowed",
+//   disabledFeatureIndicator: "text-xs ml-1 text-red-400 font-normal",
+// }
 
 // Icons
 const BackIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="left-arrow" />
@@ -29,7 +30,9 @@ const CopyIcon = () => <DynamicSvgIcon height={14} className="rounded-none" icon
 const ServerIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="server-icon" />
 const ClockIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="clock-icon" />
 const FeaturesIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="features-icon" />
-const StatusIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="status-icon" />
+// Remove this unused icon component
+// const StatusIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="status-icon" />
+const NetworkIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="network-icon" />
 
 // Define the flavor features interface
 interface FlavorFeatures {
@@ -75,7 +78,8 @@ const InstanceDetailsPage = () => {
   const [error, setError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false)
-  const [copiedText, setCopiedText] = useState<string | null>(null)
+  // Remove this line
+  // const [copiedText, setCopiedText] = useState<string | null>(null)
 
   // Fetch instance data
   const fetchInstanceData = useCallback(async () => {
@@ -332,13 +336,21 @@ const InstanceDetailsPage = () => {
     router.push(`/dashboard/instances/${instance.instance_id}/console`)
   }
 
+  // Navigate to networking page
+  const navigateToNetworking = () => {
+    if (!instance) return
+    router.push(`/dashboard/instances/${instance.instance_id}/networking`)
+  }
+
   // Copy text to clipboard
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text).then(
       () => {
-        setCopiedText(label)
+        // Remove this line
+        // setCopiedText(label)
         Snackbar({ message: `${label} copied to clipboard`, type: 'success' })
-        setTimeout(() => setCopiedText(null), 2000)
+        // Remove this line
+        // setTimeout(() => setCopiedText(null), 2000)
       },
       (err) => {
         console.error('Could not copy text: ', err)
@@ -464,16 +476,7 @@ const InstanceDetailsPage = () => {
                 </div>
                 <div className={styles.detailsRow}>
                   <div className={styles.detailsLabel}>Instance ID</div>
-                  <div className={styles.detailsValue}>
-                    {instance.instance_id}
-                    <button
-                      className={styles.copyButton}
-                      onClick={() => copyToClipboard(instance.instance_id.toString(), 'Instance ID')}
-                      aria-label="Copy Instance ID"
-                    >
-                      <CopyIcon />
-                    </button>
-                  </div>
+                  <div className={styles.detailsValue}>{instance.instance_id}</div>
                 </div>
                 <div className={styles.detailsRow}>
                   <div className={styles.detailsLabel}>IP Address</div>
@@ -488,6 +491,14 @@ const InstanceDetailsPage = () => {
                         <CopyIcon />
                       </button>
                     )}
+                    <Button
+                      className={styles.secondaryButton}
+                      style={{ marginLeft: '10px', height: '30px', fontSize: '12px' }}
+                      onClick={navigateToNetworking}
+                    >
+                      <NetworkIcon />
+                      Manage Network
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -575,13 +586,16 @@ const InstanceDetailsPage = () => {
                     </Button>
                     <Button
                       className={`${styles.actionButton} ${styles.secondaryButton} ${
-                        instance.flavor_features?.no_hibernation ? customStyles.disabledButton : ''
+                        instance.flavor_features?.no_hibernation ? styles.disabledButton : ''
                       }`}
                       onClick={() => handleInstanceAction('hibernate')}
                       disabled={isProcessing || instance.flavor_features?.no_hibernation === true}
                       title={
                         instance.flavor_features?.no_hibernation ? 'Hibernation not supported for this instance' : ''
                       }
+                      style={{
+                        cursor: instance.flavor_features?.no_hibernation ? 'default' : 'pointer'
+                      }}
                     >
                       <HibernateIcon />
                       Hibernate
