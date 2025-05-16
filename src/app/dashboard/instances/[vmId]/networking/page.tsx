@@ -5,8 +5,10 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { Flex, Button, Theme } from '@radix-ui/themes'
 import { useRouter, useParams } from 'next/navigation'
 import { getGpuAction, attachFloatingIP, detachFloatingIP } from '@/api/GpuProvider'
+import { getUserData } from '@/api/User'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { Snackbar } from '@/components/snackbar/SnackBar'
+import { initializeSocket, joinUserRoom } from '@/utils/socket'
 import styles from './page.module.css'
 
 // Icons
@@ -47,6 +49,13 @@ interface GpuInstance {
   public_ip?: string | null
 }
 
+// Define the structure of the data received from the socket
+interface GpuStatusUpdate {
+  instance_id: number | string
+  status: string
+  public_ip?: string | null
+}
+
 const NetworkingPage = () => {
   const router = useRouter()
   const params = useParams()
@@ -60,6 +69,7 @@ const NetworkingPage = () => {
   const [isDetachModalOpen, setIsDetachModalOpen] = useState<boolean>(false)
   const [operationMessage, setOperationMessage] = useState<string | null>(null)
   const [isCopied, setIsCopied] = useState<boolean>(false)
+  const [isSocketConnected, setIsSocketConnected] = useState<boolean>(false)
 
   // Fetch instance data
   const fetchInstanceData = useCallback(async () => {
@@ -101,6 +111,78 @@ const NetworkingPage = () => {
     }
   }, [vmId])
 
+  // Set up socket connection for real-time updates
+  useEffect(() => {
+    // Import socket utilities dynamically to avoid issues
+    const setupSocket = async () => {
+      try {
+        // Get user ID
+        const userResponse = await getUserData()
+        if (userResponse && userResponse.user && userResponse.user.id) {
+          const userId = userResponse.user.id
+
+          // Initialize socket and join user room
+          const socket = initializeSocket()
+          joinUserRoom(userId)
+          setIsSocketConnected(true)
+
+          // Listen for GPU status updates
+          socket.on('gpuStatusUpdate', (data: GpuStatusUpdate) => {
+            if (data && data.instance_id && instance) {
+              // Check if this update is for our current instance
+              if (instance.instance_id.toString() === data.instance_id.toString()) {
+                // Update the instance with new data
+                setInstance((prevInstance) => {
+                  if (!prevInstance) return prevInstance
+
+                  return {
+                    ...prevInstance,
+                    status: data.status === 'BUILD' ? 'CREATING' : data.status,
+                    ...(data.public_ip !== undefined && { public_ip: data.public_ip })
+                  }
+                })
+
+                // Show notification for IP changes
+                if (data.public_ip !== undefined && data.public_ip !== instance.public_ip) {
+                  if (data.public_ip) {
+                    Snackbar({
+                      message: `Public IP ${data.public_ip} has been attached to this instance`,
+                      type: 'success'
+                    })
+                    setOperationMessage(null)
+                  } else {
+                    Snackbar({
+                      message: 'Public IP has been detached from this instance',
+                      type: 'info'
+                    })
+                    setOperationMessage(null)
+                  }
+                }
+              }
+            }
+          })
+
+          // Return cleanup function
+          return () => {
+            socket.off('gpuStatusUpdate')
+            setIsSocketConnected(false)
+          }
+        }
+      } catch (error) {
+        console.error('Error setting up socket:', error)
+      }
+    }
+
+    // Set up socket
+    const cleanupPromise = setupSocket()
+
+    return () => {
+      cleanupPromise.then((cleanup) => {
+        if (cleanup) cleanup()
+      })
+    }
+  }, [instance])
+
   // Handle attach public IP
   const handleAttachIp = async () => {
     if (!instance) return
@@ -122,17 +204,14 @@ const NetworkingPage = () => {
       if (response.status === 'success') {
         // Show success message
         Snackbar({
-          message: response.result?.message || response.message || 'Public IP attached successfully',
+          message: response.result?.message || response.message || 'Public IP attachment initiated',
           type: 'success'
         })
 
-        setOperationMessage('Public IP attached successfully. Refreshing instance data...')
+        setOperationMessage('Public IP attachment in progress. This may take a few moments...')
 
-        // Refresh the instance data after a short delay
-        setTimeout(() => {
-          fetchInstanceData()
-          setOperationMessage(null)
-        }, 2000)
+        // Don't immediately refresh - wait for socket update
+        // The socket will update the UI when the IP is actually attached
       } else {
         // Show error message
         Snackbar({
@@ -174,17 +253,14 @@ const NetworkingPage = () => {
       if (response.status === 'success') {
         // Show success message
         Snackbar({
-          message: response.result?.message || response.message || 'Public IP detached successfully',
+          message: response.result?.message || response.message || 'Public IP detachment initiated',
           type: 'success'
         })
 
-        setOperationMessage('Public IP detached successfully. Refreshing instance data...')
+        setOperationMessage('Public IP detachment in progress. This may take a few moments...')
 
-        // Refresh the instance data after a short delay
-        setTimeout(() => {
-          fetchInstanceData()
-          setOperationMessage(null)
-        }, 2000)
+        // Don't immediately refresh - wait for socket update
+        // The socket will update the UI when the IP is actually detached
       } else {
         // Show error message
         Snackbar({
@@ -316,6 +392,12 @@ const NetworkingPage = () => {
               <NetworkIcon />
               Network Settings for {instance.gpu_name}
             </div>
+            {isSocketConnected && (
+              <div className={styles.socketStatus}>
+                <span className={styles.socketIndicator}></span>
+                Real-time updates active
+              </div>
+            )}
           </div>
 
           {operationMessage && (
@@ -404,24 +486,26 @@ const NetworkingPage = () => {
         <Dialog.Portal>
           <Dialog.Overlay className={styles.dialogOverlay} />
           <Dialog.Content className={styles.dialogContent}>
-            <Dialog.Title className={styles.modalTitle}>Attach Public IP</Dialog.Title>
-            <Dialog.Description className={styles.modalDescription}>
-              Are you sure you want to attach a public IP address to {instance?.gpu_name}? This will make your instance
-              accessible from the internet.
-            </Dialog.Description>
+            <Theme>
+              <Dialog.Title className={styles.modalTitle}>Attach Public IP</Dialog.Title>
+              <Dialog.Description className={styles.modalDescription}>
+                Are you sure you want to attach a public IP address to {instance?.gpu_name}? This will make your
+                instance accessible from the internet.
+              </Dialog.Description>
 
-            <Flex justify="end" gap="3" mt="4">
-              <Button
-                className={styles.cancelButton}
-                onClick={() => setIsAttachModalOpen(false)}
-                disabled={isProcessing}
-              >
-                Cancel
-              </Button>
-              <Button className={styles.confirmButton} onClick={handleAttachIp} disabled={isProcessing}>
-                {isProcessing ? 'Attaching...' : 'Attach IP'}
-              </Button>
-            </Flex>
+              <Flex justify="end" gap="3" mt="4">
+                <Button
+                  className={styles.cancelButton}
+                  onClick={() => setIsAttachModalOpen(false)}
+                  disabled={isProcessing}
+                >
+                  Cancel
+                </Button>
+                <Button className={styles.confirmButton} onClick={handleAttachIp} disabled={isProcessing}>
+                  {isProcessing ? 'Attaching...' : 'Attach IP'}
+                </Button>
+              </Flex>
+            </Theme>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
