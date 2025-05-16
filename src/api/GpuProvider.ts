@@ -470,16 +470,6 @@ export const createReservation = async (params: ReservationRequest): Promise<Res
   }
 }
 
-// Define interfaces for network operations
-interface NetworkOperationResponse {
-  status: string
-  message: string
-  result?: {
-    status: boolean
-    message: string
-  }
-}
-
 // Define the response interface for attach floating IP
 interface AttachFloatingIPResponse {
   status: string
