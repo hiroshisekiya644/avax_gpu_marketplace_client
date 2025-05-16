@@ -11,6 +11,7 @@ import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import { FormSelect, type SelectItem } from '@/components/select/FormSelect'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import { useUser } from '@/context/UserContext'
+import { initializeSocket, joinUserRoom } from '@/utils/socket'
 import styles from './page.module.css'
 
 // Define the flavor features interface
@@ -55,6 +56,7 @@ const ExternalLink = () => <DynamicSvgIcon height={22} className="rounded-none" 
 const Search = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="search" />
 const WalletIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="wallet-icon" />
 const InfoIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="info-icon" />
+const NetworkIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="network-icon" />
 
 type TabValue = 'instances' | 'history'
 const tabValues: TabValue[] = ['instances', 'history']
@@ -79,6 +81,7 @@ const Instances = () => {
   const [instances, setInstances] = useState<GpuInstance[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  const [isSocketConnected, setIsSocketConnected] = useState<boolean>(false)
 
   // Use the user context instead of balance context
   const { user, isLoading: userLoading } = useUser()
@@ -132,8 +135,6 @@ const Instances = () => {
     // Import socket utilities dynamically to avoid issues
     const setupSocket = async () => {
       try {
-        const { initializeSocket, joinUserRoom } = await import('@/utils/socket')
-
         // Get user ID
         const userResponse = await getUserData()
         if (userResponse && userResponse.user && userResponse.user.id) {
@@ -142,6 +143,7 @@ const Instances = () => {
           // Initialize socket and join user room
           const socket = initializeSocket()
           joinUserRoom(userId)
+          setIsSocketConnected(true)
 
           // Listen for GPU status updates
           socket.on('gpuStatusUpdate', (data: GpuStatusUpdate) => {
@@ -150,12 +152,29 @@ const Instances = () => {
               setInstances((prevInstances) => {
                 return prevInstances.map((instance) => {
                   if (instance.instance_id.toString() === data.instance_id.toString()) {
-                    // Create updated instance with new status
-                    return {
+                    // Create updated instance with new status and IP
+                    const updatedInstance = {
                       ...instance,
                       status: data.status === 'BUILD' ? 'CREATING' : data.status,
                       ...(data.public_ip !== undefined && { public_ip: data.public_ip })
                     }
+
+                    // Show notification for IP changes if this is an active instance
+                    if (data.public_ip !== undefined && data.public_ip !== instance.public_ip && !instance.is_deleted) {
+                      if (data.public_ip) {
+                        Snackbar({
+                          message: `Public IP ${data.public_ip} has been attached to ${instance.gpu_name}`,
+                          type: 'success'
+                        })
+                      } else if (instance.public_ip) {
+                        Snackbar({
+                          message: `Public IP has been detached from ${instance.gpu_name}`,
+                          type: 'info'
+                        })
+                      }
+                    }
+
+                    return updatedInstance
                   }
                   return instance
                 })
@@ -166,6 +185,7 @@ const Instances = () => {
           // Return cleanup function
           return () => {
             socket.off('gpuStatusUpdate')
+            setIsSocketConnected(false)
           }
         }
       } catch (error) {
@@ -248,6 +268,12 @@ const Instances = () => {
     router.push(`/dashboard/instances/${instance.id}`)
   }
 
+  // Navigate to networking page for an instance
+  const navigateToNetworking = (instance: GpuInstance) => {
+    // Navigate to the networking page with the instance ID
+    router.push(`/dashboard/instances/${instance.id}/networking`)
+  }
+
   // Update the getActionItems function to include the restore action for hibernated instances
   const getActionItems = (instance: GpuInstance): SelectItem[] => {
     // Check if the instance is being processed
@@ -264,6 +290,15 @@ const Instances = () => {
       name: 'details',
       disabled: isProcessing
     })
+
+    // Add networking option for active instances
+    if (isActive) {
+      items.push({
+        label: 'Manage Network',
+        name: 'networking',
+        disabled: isProcessing
+      })
+    }
 
     // Only add start button if instance is not active and not hibernated
     if (!isActive && !isHibernated) {
@@ -366,6 +401,12 @@ const Instances = () => {
     // Handle navigation to details page
     if (action === 'details') {
       navigateToDetails(instance)
+      return
+    }
+
+    // Handle navigation to networking page
+    if (action === 'networking') {
+      navigateToNetworking(instance)
       return
     }
 
@@ -528,6 +569,12 @@ const Instances = () => {
             <div className={styles.headerTitle}>Instances</div>
             <div className={styles.subTitle}>Manage your active instance and review your instances history.</div>
           </Flex>
+          {isSocketConnected && (
+            <div className={styles.socketStatus}>
+              <span className={styles.socketIndicator}></span>
+              Real-time updates active
+            </div>
+          )}
         </Flex>
       </Flex>
       <Flex p="4">
@@ -655,7 +702,41 @@ const Instances = () => {
                               <Table.Cell className={styles.historyTableCell}>
                                 {formatDate(instance.createdAt)}
                               </Table.Cell>
-                              <Table.Cell className={styles.historyTableCell}>{instance.public_ip || '-'}</Table.Cell>
+                              <Table.Cell className={styles.historyTableCell}>
+                                {instance.public_ip ? (
+                                  <Flex align="center" gap="1">
+                                    {instance.public_ip}
+                                    {instance.status.toUpperCase() === 'ACTIVE' && (
+                                      <Link
+                                        href="#"
+                                        className={styles.networkLink}
+                                        onClick={(e) => {
+                                          e.preventDefault()
+                                          navigateToNetworking(instance)
+                                        }}
+                                      >
+                                        <NetworkIcon />
+                                      </Link>
+                                    )}
+                                  </Flex>
+                                ) : (
+                                  <Flex align="center" gap="1">
+                                    -
+                                    {instance.status.toUpperCase() === 'ACTIVE' && (
+                                      <Link
+                                        href="#"
+                                        className={styles.networkLink}
+                                        onClick={(e) => {
+                                          e.preventDefault()
+                                          navigateToNetworking(instance)
+                                        }}
+                                      >
+                                        <NetworkIcon />
+                                      </Link>
+                                    )}
+                                  </Flex>
+                                )}
+                              </Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>
                                 <Link
                                   href="#"
