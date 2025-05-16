@@ -225,6 +225,7 @@
   background-color: var(--bgSoft);
   color: var(--text);
   border: 1px solid var(--textSoftDark);
+  cursor: pointer;
 }
 
 .secondaryButton:hover {
@@ -438,6 +439,7 @@
   border-color: var(--textSoftDark) !important;
   color: var(--text) !important;
   transform: none !important;
+  cursor: not-allowed !important;
 }
 
 .actionButton[disabled] {

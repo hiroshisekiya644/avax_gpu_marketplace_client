@@ -392,12 +392,6 @@ const NetworkingPage = () => {
               <NetworkIcon />
               Network Settings for {instance.gpu_name}
             </div>
-            {isSocketConnected && (
-              <div className={styles.socketStatus}>
-                <span className={styles.socketIndicator}></span>
-                Real-time updates active
-              </div>
-            )}
           </div>
 
           {operationMessage && (
