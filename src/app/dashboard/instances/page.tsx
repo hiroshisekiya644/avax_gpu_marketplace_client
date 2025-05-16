@@ -81,7 +81,6 @@ const Instances = () => {
   const [instances, setInstances] = useState<GpuInstance[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  const [isSocketConnected, setIsSocketConnected] = useState<boolean>(false)
 
   // Use the user context instead of balance context
   const { user, isLoading: userLoading } = useUser()
@@ -143,7 +142,6 @@ const Instances = () => {
           // Initialize socket and join user room
           const socket = initializeSocket()
           joinUserRoom(userId)
-          setIsSocketConnected(true)
 
           // Listen for GPU status updates
           socket.on('gpuStatusUpdate', (data: GpuStatusUpdate) => {
@@ -185,7 +183,6 @@ const Instances = () => {
           // Return cleanup function
           return () => {
             socket.off('gpuStatusUpdate')
-            setIsSocketConnected(false)
           }
         }
       } catch (error) {

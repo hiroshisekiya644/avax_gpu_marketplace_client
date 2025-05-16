@@ -69,7 +69,6 @@ const NetworkingPage = () => {
   const [isDetachModalOpen, setIsDetachModalOpen] = useState<boolean>(false)
   const [operationMessage, setOperationMessage] = useState<string | null>(null)
   const [isCopied, setIsCopied] = useState<boolean>(false)
-  const [isSocketConnected, setIsSocketConnected] = useState<boolean>(false)
 
   // Fetch instance data
   const fetchInstanceData = useCallback(async () => {
@@ -124,7 +123,6 @@ const NetworkingPage = () => {
           // Initialize socket and join user room
           const socket = initializeSocket()
           joinUserRoom(userId)
-          setIsSocketConnected(true)
 
           // Listen for GPU status updates
           socket.on('gpuStatusUpdate', (data: GpuStatusUpdate) => {
@@ -165,7 +163,6 @@ const NetworkingPage = () => {
           // Return cleanup function
           return () => {
             socket.off('gpuStatusUpdate')
-            setIsSocketConnected(false)
           }
         }
       } catch (error) {
