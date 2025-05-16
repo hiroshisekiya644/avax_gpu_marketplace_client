@@ -81,7 +81,6 @@ const Instances = () => {
   const [instances, setInstances] = useState<GpuInstance[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  const [isSocketConnected, setIsSocketConnected] = useState<boolean>(false)
 
   // Use the user context instead of balance context
   const { user, isLoading: userLoading } = useUser()
@@ -143,7 +142,6 @@ const Instances = () => {
           // Initialize socket and join user room
           const socket = initializeSocket()
           joinUserRoom(userId)
-          setIsSocketConnected(true)
 
           // Listen for GPU status updates
           socket.on('gpuStatusUpdate', (data: GpuStatusUpdate) => {
@@ -185,7 +183,6 @@ const Instances = () => {
           // Return cleanup function
           return () => {
             socket.off('gpuStatusUpdate')
-            setIsSocketConnected(false)
           }
         }
       } catch (error) {
@@ -687,11 +684,16 @@ const Instances = () => {
                               <Table.Cell className={styles.historyTableCell}>{instance.flavor_name}</Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>{instance.region}</Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>
-                                <span className={`${styles.statusBadge} ${getStatusColor(instance.status)}`}>
-                                  {instance.status === 'BUILD' || instance.status === 'CREATING'
-                                    ? 'CREATING'
-                                    : instance.status}
-                                </span>
+                                <Flex align="center" gap="1">
+                                  <span className={`${styles.statusBadge} ${getStatusColor(instance.status)}`}>
+                                    {instance.status === 'BUILD' || instance.status === 'CREATING' ? (
+                                      <span className={styles.statusSpinner}></span>
+                                    ) : null}
+                                    {instance.status === 'BUILD' || instance.status === 'CREATING'
+                                      ? 'CREATING'
+                                      : instance.status}
+                                  </span>
+                                </Flex>
                               </Table.Cell>
                               <Table.Cell className={styles.historyTableCell}>
                                 {formatDate(instance.createdAt)}
