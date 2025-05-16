@@ -61,6 +61,42 @@
   color: var(--soft);
 }
 
+/* Tab navigation */
+.tabsContainer {
+  background-color: var(--cardDarkPurple);
+  border-bottom: 1px solid var(--bgSoft);
+  padding: 0 24px;
+}
+
+.tabsList {
+  display: flex;
+  gap: 8px;
+}
+
+.tabItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--textSoft);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.tabItem:hover {
+  color: var(--text);
+  background-color: rgba(31, 239, 238, 0.05);
+}
+
+.activeTab {
+  color: var(--button);
+  border-bottom: 2px solid var(--button);
+}
+
 /* Container styles */
 .networkContainer {
   background-color: var(--cardDarkPurple);
@@ -145,10 +181,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 20px;
   background-color: var(--cardDarkPurple);
   border-radius: 8px;
   border: 1px solid var(--bgSoft);
+  transition: all 0.2s ease;
+}
+
+.ipStatusRow:hover {
+  border-color: var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .ipInfo {
@@ -158,8 +200,8 @@
 }
 
 .ipAddress {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
   color: var(--text);
   display: flex;
   align-items: center;
@@ -169,6 +211,7 @@
 .ipStatus {
   font-size: 14px;
   color: var(--textSoft);
+  margin-top: 4px;
 }
 
 .ipActions {
@@ -186,6 +229,11 @@
   border-radius: 8px;
   border: 1px dashed var(--bgSoft);
   text-align: center;
+  transition: all 0.2s ease;
+}
+
+.noIpContainer:hover {
+  border-color: var(--border);
 }
 
 .noIpIcon {
@@ -440,21 +488,44 @@
 .infoText {
   display: flex;
   align-items: flex-start;
-  font-size: 14px;
-  color: var(--textSoft);
-  margin-top: 16px;
-  padding: 12px;
+  gap: 12px;
   background-color: rgba(31, 239, 238, 0.05);
-  border-radius: 6px;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
   border-left: 3px solid var(--button);
-  line-height: 1.5;
 }
 
 .infoIconWrapper {
-  display: inline-block;
-  margin-right: 8px;
-  flex-shrink: 0;
   color: var(--button);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.infoTitle {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.infoDetail {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--textSoft);
+}
+
+.modalAlert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 6px;
+  margin-top: 16px;
+  color: #f59e0b;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 @keyframes overlayShow {

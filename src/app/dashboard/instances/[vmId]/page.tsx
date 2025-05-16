@@ -3,19 +3,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Flex, Button, Theme } from '@radix-ui/themes'
-import { useRouter, useParams } from 'next/navigation'
+import Link from 'next/link'
+import { useRouter, useParams, usePathname } from 'next/navigation'
 import { manageVM, deleteVM, getGpuAction } from '@/api/GpuProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
 import LoadingSpinner from '@/components/loading/LoadingSpinner'
 import { Snackbar } from '@/components/snackbar/SnackBar'
 import styles from './page.module.css'
-
-// Add these styles to the existing styles
-// Remove this unused object
-// const customStyles = {
-//   disabledButton: "opacity-50 cursor-not-allowed",
-//   disabledFeatureIndicator: "text-xs ml-1 text-red-400 font-normal",
-// }
 
 // Icons
 const BackIcon = () => <DynamicSvgIcon height={18} className="rounded-none" iconName="left-arrow" />
@@ -31,9 +25,9 @@ const CopyIcon = () => <DynamicSvgIcon height={14} className="rounded-none" icon
 const ServerIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="server-icon" />
 const ClockIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="clock-icon" />
 const FeaturesIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="features-icon" />
-// Remove this unused icon component
-// const StatusIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="status-icon" />
 const NetworkIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="network-icon" />
+const FirewallIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="firewall-icon" />
+const OverviewIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="overview-icon" />
 
 // Define the flavor features interface
 interface FlavorFeatures {
@@ -72,6 +66,7 @@ interface GpuStatusUpdate {
 const InstanceDetailsPage = () => {
   const router = useRouter()
   const params = useParams()
+  const pathname = usePathname()
   const vmId = params?.vmId as string
 
   const [instance, setInstance] = useState<GpuInstance | null>(null)
@@ -79,8 +74,17 @@ const InstanceDetailsPage = () => {
   const [error, setError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false)
-  // Remove this line
-  // const [copiedText, setCopiedText] = useState<string | null>(null)
+
+  // Determine active tab based on the current path
+  const getActiveTab = () => {
+    if (pathname.includes('/networking')) {
+      return 'networking'
+    } else if (pathname.includes('/firewall')) {
+      return 'firewall'
+    } else {
+      return 'overview'
+    }
+  }
 
   // Fetch instance data
   const fetchInstanceData = useCallback(async () => {
@@ -337,21 +341,11 @@ const InstanceDetailsPage = () => {
     router.push(`/dashboard/instances/${instance.instance_id}/console`)
   }
 
-  // Navigate to networking page
-  const navigateToNetworking = () => {
-    if (!instance) return
-    router.push(`/dashboard/instances/${instance.instance_id}/networking`)
-  }
-
   // Copy text to clipboard
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text).then(
       () => {
-        // Remove this line
-        // setCopiedText(label)
         Snackbar({ message: `${label} copied to clipboard`, type: 'success' })
-        // Remove this line
-        // setTimeout(() => setCopiedText(null), 2000)
       },
       (err) => {
         console.error('Could not copy text: ', err)
@@ -461,186 +455,210 @@ const InstanceDetailsPage = () => {
               </span>
             </div>
           </div>
-          <div className={styles.detailsContent}>
-            <div className={styles.detailsGrid}>
-              <div className={styles.detailsSection}>
-                <div className={styles.sectionTitle}>
-                  <InfoIcon /> Instance Information
-                </div>
-                <div className={styles.detailsRow}>
-                  <div className={styles.detailsLabel}>GPU Type</div>
-                  <div className={styles.detailsValue}>{instance.flavor_name}</div>
-                </div>
-                <div className={styles.detailsRow}>
-                  <div className={styles.detailsLabel}>Region</div>
-                  <div className={styles.detailsValue}>{instance.region}</div>
-                </div>
-                <div className={styles.detailsRow}>
-                  <div className={styles.detailsLabel}>Instance ID</div>
-                  <div className={styles.detailsValue}>{instance.instance_id}</div>
-                </div>
-                <div className={styles.detailsRow}>
-                  <div className={styles.detailsLabel}>IP Address</div>
-                  <div className={styles.detailsValue}>
-                    {instance.public_ip || '-'}
-                    {instance.public_ip && (
-                      <button
-                        className={styles.copyButton}
-                        onClick={() => copyToClipboard(instance.public_ip || '', 'IP Address')}
-                        aria-label="Copy IP Address"
-                      >
-                        <CopyIcon />
-                      </button>
-                    )}
-                    <Button
-                      className={styles.secondaryButton}
-                      style={{ marginLeft: '10px', height: '30px', fontSize: '12px' }}
-                      onClick={navigateToNetworking}
-                    >
-                      <NetworkIcon />
-                      Manage Network
-                    </Button>
-                  </div>
+
+          {/* Navigation Tabs */}
+          <div className={styles.tabsContainer}>
+            <div className={styles.tabsList}>
+              <Link
+                href={`/dashboard/instances/${vmId}`}
+                className={`${styles.tabItem} ${getActiveTab() === 'overview' ? styles.activeTab : ''}`}
+              >
+                <OverviewIcon /> Overview
+              </Link>
+              <Link
+                href={`/dashboard/instances/${vmId}/networking`}
+                className={`${styles.tabItem} ${getActiveTab() === 'networking' ? styles.activeTab : ''}`}
+              >
+                <NetworkIcon /> Networking
+              </Link>
+              <Link
+                href={`/dashboard/instances/${vmId}/firewall`}
+                className={`${styles.tabItem} ${getActiveTab() === 'firewall' ? styles.activeTab : ''}`}
+              >
+                <FirewallIcon /> Firewall
+              </Link>
+            </div>
+          </div>
+
+          <div className={styles.detailsGrid}>
+            <div className={styles.detailsSection}>
+              <div className={styles.sectionTitle}>
+                <InfoIcon /> Instance Information
+              </div>
+              <div className={styles.detailsRow}>
+                <div className={styles.detailsLabel}>GPU Type</div>
+                <div className={styles.detailsValue}>{instance.flavor_name}</div>
+              </div>
+              <div className={styles.detailsRow}>
+                <div className={styles.detailsLabel}>Region</div>
+                <div className={styles.detailsValue}>{instance.region}</div>
+              </div>
+              <div className={styles.detailsRow}>
+                <div className={styles.detailsLabel}>Instance ID</div>
+                <div className={styles.detailsValue}>
+                  {instance.instance_id}
+                  <button
+                    className={styles.copyButton}
+                    onClick={() => copyToClipboard(instance.instance_id.toString(), 'Instance ID')}
+                    aria-label="Copy Instance ID"
+                  >
+                    <CopyIcon />
+                  </button>
                 </div>
               </div>
-
-              <div className={styles.detailsSection}>
-                <div className={styles.sectionTitle}>
-                  <ClockIcon /> Timestamps
+              <div className={styles.detailsRow}>
+                <div className={styles.detailsLabel}>IP Address</div>
+                <div className={styles.detailsValue}>
+                  {instance.public_ip || '-'}
+                  {instance.public_ip && (
+                    <button
+                      className={styles.copyButton}
+                      onClick={() => copyToClipboard(instance.public_ip || '', 'IP Address')}
+                      aria-label="Copy IP Address"
+                    >
+                      <CopyIcon />
+                    </button>
+                  )}
                 </div>
-                <div className={styles.detailsRow}>
-                  <div className={styles.detailsLabel}>Created</div>
-                  <div className={styles.detailsValue}>{formatDate(instance.createdAt)}</div>
-                </div>
-                <div className={styles.detailsRow}>
-                  <div className={styles.detailsLabel}>Started</div>
-                  <div className={styles.detailsValue}>{formatDate(instance.startedAt)}</div>
-                </div>
-                <div className={styles.detailsRow}>
-                  <div className={styles.detailsLabel}>Last Updated</div>
-                  <div className={styles.detailsValue}>{formatDate(instance.updatedAt)}</div>
-                </div>
-                {instance.is_deleted && (
-                  <div className={styles.detailsRow}>
-                    <div className={styles.detailsLabel}>Deleted</div>
-                    <div className={styles.detailsValue}>{formatDate(instance.deleted_at)}</div>
-                  </div>
-                )}
               </div>
             </div>
 
             <div className={styles.detailsSection}>
               <div className={styles.sectionTitle}>
-                <FeaturesIcon /> Features
+                <ClockIcon /> Timestamps
               </div>
-              <Flex wrap="wrap" gap="2" style={{ marginBottom: '16px' }}>
-                <span
-                  className={`${styles.featureBadge} ${instance.flavor_features?.network_optimised ? styles.featureEnabled : styles.featureDisabled}`}
-                >
-                  {instance.flavor_features?.network_optimised ? 'Network Optimized' : 'Standard Network'}
-                </span>
-                <span
-                  className={`${styles.featureBadge} ${!instance.flavor_features?.no_hibernation ? styles.featureEnabled : styles.featureDisabled}`}
-                >
-                  {instance.flavor_features?.no_hibernation ? 'No Hibernation' : 'Hibernation Support'}
-                </span>
-                <span
-                  className={`${styles.featureBadge} ${!instance.flavor_features?.no_snapshot ? styles.featureEnabled : styles.featureDisabled}`}
-                >
-                  {instance.flavor_features?.no_snapshot ? 'No Snapshot' : 'Snapshot Support'}
-                </span>
-                <span
-                  className={`${styles.featureBadge} ${!instance.flavor_features?.local_storage_only ? styles.featureEnabled : styles.featureDisabled}`}
-                >
-                  {instance.flavor_features?.local_storage_only ? 'Local Storage Only' : 'Network Storage'}
-                </span>
-              </Flex>
+              <div className={styles.detailsRow}>
+                <div className={styles.detailsLabel}>Created</div>
+                <div className={styles.detailsValue}>{formatDate(instance.createdAt)}</div>
+              </div>
+              <div className={styles.detailsRow}>
+                <div className={styles.detailsLabel}>Started</div>
+                <div className={styles.detailsValue}>{formatDate(instance.startedAt)}</div>
+              </div>
+              <div className={styles.detailsRow}>
+                <div className={styles.detailsLabel}>Last Updated</div>
+                <div className={styles.detailsValue}>{formatDate(instance.updatedAt)}</div>
+              </div>
+              {instance.is_deleted && (
+                <div className={styles.detailsRow}>
+                  <div className={styles.detailsLabel}>Deleted</div>
+                  <div className={styles.detailsValue}>{formatDate(instance.deleted_at)}</div>
+                </div>
+              )}
             </div>
+          </div>
 
-            {!instance.is_deleted && (
-              <div className={styles.actionsContainer}>
-                {instance.status.toUpperCase() === 'ACTIVE' ? (
-                  <>
-                    <Button
-                      className={`${styles.actionButton} ${styles.primaryButton}`}
-                      onClick={navigateToConsole}
-                      disabled={isProcessing}
-                    >
-                      <ConsoleIcon />
-                      Open Console
-                    </Button>
-                    <Button
-                      className={`${styles.actionButton} ${styles.secondaryButton}`}
-                      onClick={() => handleInstanceAction('stop')}
-                      disabled={isProcessing}
-                    >
-                      <StopIcon />
-                      Stop
-                    </Button>
-                    <Button
-                      className={`${styles.actionButton} ${styles.secondaryButton}`}
-                      onClick={() => handleInstanceAction('restart')}
-                      disabled={isProcessing}
-                    >
-                      <RestartIcon />
-                      Restart
-                    </Button>
-                    <Button
-                      className={`${styles.actionButton} ${styles.secondaryButton} ${
-                        instance.flavor_features?.no_hibernation ? styles.disabledButton : ''
-                      }`}
-                      onClick={() => handleInstanceAction('hibernate')}
-                      disabled={isProcessing || instance.flavor_features?.no_hibernation === true}
-                      title={
-                        instance.flavor_features?.no_hibernation ? 'Hibernation not supported for this instance' : ''
-                      }
-                      style={{
-                        cursor: instance.flavor_features?.no_hibernation ? 'default' : 'pointer'
-                      }}
-                    >
-                      <HibernateIcon />
-                      Hibernate
-                    </Button>
-                  </>
-                ) : instance.status.toUpperCase() === 'HIBERNATED' ? (
-                  <>
-                    <Button
-                      className={`${styles.actionButton} ${styles.primaryButton}`}
-                      onClick={() => handleInstanceAction('restore')}
-                      disabled={isProcessing}
-                    >
-                      <RestoreIcon />
-                      Restore
-                    </Button>
-                  </>
-                ) : instance.status.toUpperCase() !== 'DELETED' &&
-                  instance.status.toUpperCase() !== 'ERROR' &&
-                  instance.status.toUpperCase() !== 'CREATING' ? (
-                  <>
-                    <Button
-                      className={`${styles.actionButton} ${styles.primaryButton}`}
-                      onClick={() => handleInstanceAction('start')}
-                      disabled={isProcessing}
-                    >
-                      <StartIcon />
-                      Start
-                    </Button>
-                  </>
-                ) : null}
+          <div className={styles.detailsSection}>
+            <div className={styles.sectionTitle}>
+              <FeaturesIcon /> Features
+            </div>
+            <Flex wrap="wrap" gap="2" style={{ marginBottom: '16px' }}>
+              <span
+                className={`${styles.featureBadge} ${instance.flavor_features?.network_optimised ? styles.featureEnabled : styles.featureDisabled}`}
+              >
+                {instance.flavor_features?.network_optimised ? 'Network Optimized' : 'Standard Network'}
+              </span>
+              <span
+                className={`${styles.featureBadge} ${!instance.flavor_features?.no_hibernation ? styles.featureEnabled : styles.featureDisabled}`}
+              >
+                {instance.flavor_features?.no_hibernation ? 'No Hibernation' : 'Hibernation Support'}
+              </span>
+              <span
+                className={`${styles.featureBadge} ${!instance.flavor_features?.no_snapshot ? styles.featureEnabled : styles.featureDisabled}`}
+              >
+                {instance.flavor_features?.no_snapshot ? 'No Snapshot' : 'Snapshot Support'}
+              </span>
+              <span
+                className={`${styles.featureBadge} ${!instance.flavor_features?.local_storage_only ? styles.featureEnabled : styles.featureDisabled}`}
+              >
+                {instance.flavor_features?.local_storage_only ? 'Local Storage Only' : 'Network Storage'}
+              </span>
+            </Flex>
+          </div>
 
-                {!instance.is_deleted && (
+          {!instance.is_deleted && (
+            <div className={styles.actionsContainer}>
+              {instance.status.toUpperCase() === 'ACTIVE' ? (
+                <>
                   <Button
-                    className={`${styles.actionButton} ${styles.dangerButton}`}
-                    onClick={() => setIsDeleteModalOpen(true)}
+                    className={`${styles.actionButton} ${styles.primaryButton}`}
+                    onClick={navigateToConsole}
                     disabled={isProcessing}
                   >
-                    <DeleteIcon />
-                    Delete
+                    <ConsoleIcon />
+                    Open Console
                   </Button>
-                )}
-              </div>
-            )}
-          </div>
+                  <Button
+                    className={`${styles.actionButton} ${styles.secondaryButton}`}
+                    onClick={() => handleInstanceAction('stop')}
+                    disabled={isProcessing}
+                  >
+                    <StopIcon />
+                    Stop
+                  </Button>
+                  <Button
+                    className={`${styles.actionButton} ${styles.secondaryButton}`}
+                    onClick={() => handleInstanceAction('restart')}
+                    disabled={isProcessing}
+                  >
+                    <RestartIcon />
+                    Restart
+                  </Button>
+                  <Button
+                    className={`${styles.actionButton} ${styles.secondaryButton} ${
+                      instance.flavor_features?.no_hibernation ? styles.disabledButton : ''
+                    }`}
+                    onClick={() => handleInstanceAction('hibernate')}
+                    disabled={isProcessing || instance.flavor_features?.no_hibernation === true}
+                    title={
+                      instance.flavor_features?.no_hibernation ? 'Hibernation not supported for this instance' : ''
+                    }
+                    style={{
+                      cursor: instance.flavor_features?.no_hibernation ? 'default' : 'pointer'
+                    }}
+                  >
+                    <HibernateIcon />
+                    Hibernate
+                  </Button>
+                </>
+              ) : instance.status.toUpperCase() === 'HIBERNATED' ? (
+                <>
+                  <Button
+                    className={`${styles.actionButton} ${styles.primaryButton}`}
+                    onClick={() => handleInstanceAction('restore')}
+                    disabled={isProcessing}
+                  >
+                    <RestoreIcon />
+                    Restore
+                  </Button>
+                </>
+              ) : instance.status.toUpperCase() !== 'DELETED' &&
+                instance.status.toUpperCase() !== 'ERROR' &&
+                instance.status.toUpperCase() !== 'CREATING' ? (
+                <>
+                  <Button
+                    className={`${styles.actionButton} ${styles.primaryButton}`}
+                    onClick={() => handleInstanceAction('start')}
+                    disabled={isProcessing}
+                  >
+                    <StartIcon />
+                    Start
+                  </Button>
+                </>
+              ) : null}
+
+              {!instance.is_deleted && (
+                <Button
+                  className={`${styles.actionButton} ${styles.dangerButton}`}
+                  onClick={() => setIsDeleteModalOpen(true)}
+                  disabled={isProcessing}
+                >
+                  <DeleteIcon />
+                  Delete
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       ) : (
         <Flex className={styles.errorContainer}>
