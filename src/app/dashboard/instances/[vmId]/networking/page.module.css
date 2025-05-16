@@ -10,12 +10,18 @@
   border-bottom: 1px solid var(--bgSoft);
   width: 100%;
   background-color: var(--cardDarkPurple);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
 }
 
 @media screen and (max-width: 768px) {
   .header {
     height: auto;
-    padding: 1rem 0;
+    padding: 1rem 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 }
 
@@ -55,8 +61,8 @@
   color: var(--soft);
 }
 
-/* Updated container styles */
-.detailsContainer {
+/* Container styles */
+.networkContainer {
   background-color: var(--cardDarkPurple);
   border-radius: 10px;
   margin: 16px;
@@ -65,7 +71,7 @@
   overflow: hidden;
 }
 
-.detailsHeader {
+.networkHeader {
   padding: 20px 24px;
   border-bottom: 1px solid var(--bgSoft);
   display: flex;
@@ -73,7 +79,7 @@
   align-items: center;
 }
 
-.detailsTitle {
+.networkTitle {
   font-size: 20px;
   font-weight: 600;
   color: var(--text);
@@ -82,25 +88,33 @@
   gap: 10px;
 }
 
-.detailsContent {
+.operationMessage {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: rgba(31, 239, 238, 0.1);
+  border: 1px solid rgba(31, 239, 238, 0.2);
+  padding: 12px 16px;
+  margin: 16px 24px 0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--button);
+}
+
+.operationSpinner {
+  border: 2px solid rgba(31, 239, 238, 0.1);
+  border-top: 2px solid var(--button);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+
+.networkContent {
   padding: 24px;
 }
 
-/* Updated grid layout */
-.detailsGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 32px;
-}
-
-@media (max-width: 768px) {
-  .detailsGrid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-}
-
-.detailsSection {
+.networkSection {
   margin-bottom: 32px;
   background-color: var(--bg);
   border-radius: 8px;
@@ -120,33 +134,135 @@
   gap: 8px;
 }
 
-.detailsRow {
+.ipStatusContainer {
   display: flex;
-  margin-bottom: 16px;
-  align-items: center;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-.detailsLabel {
-  width: 140px;
+.ipStatusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: var(--cardDarkPurple);
+  border-radius: 8px;
+  border: 1px solid var(--bgSoft);
+}
+
+.ipInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ipAddress {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ipStatus {
   font-size: 14px;
   color: var(--textSoft);
 }
 
-.detailsValue {
+.ipActions {
+  display: flex;
+  gap: 8px;
+}
+
+.noIpContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: var(--cardDarkPurple);
+  border-radius: 8px;
+  border: 1px dashed var(--bgSoft);
+  text-align: center;
+}
+
+.noIpIcon {
+  font-size: 48px;
+  color: var(--textSoft);
+  margin-bottom: 16px;
+}
+
+.noIpText {
+  font-size: 16px;
+  color: var(--textSoft);
+  margin-bottom: 24px;
+}
+
+/* Button styles */
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  height: 40px;
+  padding: 0 16px;
   font-size: 14px;
-  color: var(--text);
   font-weight: 500;
 }
 
-/* Enhanced status badges */
+.actionButton:disabled {
+  opacity: 0.6;
+  cursor: default !important;
+}
+
+.primaryButton {
+  background-color: var(--button);
+  color: var(--soft);
+  border: 2px solid var(--border);
+}
+
+.primaryButton:hover:not(:disabled) {
+  background-color: var(--border);
+  transform: translateY(-2px);
+}
+
+.secondaryButton {
+  background-color: var(--bgSoft);
+  color: var(--text);
+  border: 1px solid var(--textSoftDark);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background-color: var(--button);
+  border-color: var(--border);
+  color: var(--soft);
+  transform: translateY(-2px);
+}
+
+.dangerButton {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
+
+.dangerButton:hover:not(:disabled) {
+  background-color: rgba(239, 68, 68, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Status badge styles */
 .statusBadge {
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 8px;
 }
 
 .statusActive {
@@ -161,91 +277,13 @@
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
-.statusError {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.statusDeleted {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.statusHibernated {
-  background-color: rgba(79, 70, 229, 0.15);
-  color: #6366f1;
-  border: 1px solid rgba(79, 70, 229, 0.3);
-}
-
-.statusDefault {
+.statusDetached {
   background-color: rgba(107, 114, 128, 0.15);
   color: #6b7280;
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
 
-/* Improved action buttons */
-.actionsContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 24px;
-  background-color: var(--bg);
-  border-radius: 8px;
-  padding: 20px;
-  border: 1px solid var(--bgSoft);
-}
-
-.actionButton {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 8px;
-  height: 44px;
-  padding: 0 18px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.primaryButton {
-  background-color: var(--button);
-  color: var(--soft);
-  border: 2px solid var(--border);
-}
-
-.primaryButton:hover {
-  background-color: var(--border);
-  transform: translateY(-2px);
-}
-
-.secondaryButton {
-  background-color: var(--bgSoft);
-  color: var(--text);
-  border: 1px solid var(--textSoftDark);
-}
-
-.secondaryButton:hover {
-  background-color: var(--button);
-  border-color: var(--border);
-  color: var(--soft);
-  transform: translateY(-2px);
-}
-
-.dangerButton {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-  border: 1px solid #ef4444;
-}
-
-.dangerButton:hover {
-  background-color: rgba(239, 68, 68, 0.2);
-  transform: translateY(-2px);
-}
-
-/* Improved loading and error states */
+/* Loading and error states */
 .loadingContainer,
 .errorContainer {
   display: flex;
@@ -263,7 +301,7 @@
 .loadingSpinner {
   width: 40px;
   height: 40px;
-  border: 3px solid rgba(79, 70, 229, 0.2);
+  border: 3px solid rgba(31, 239, 238, 0.2);
   border-radius: 50%;
   border-top-color: var(--button);
   animation: spin 1s linear infinite;
@@ -298,7 +336,7 @@
   transform: translateY(-2px);
 }
 
-/* Enhanced dialog styles */
+/* Dialog styles */
 .dialogOverlay {
   background-color: rgba(0, 0, 0, 0.7);
   position: fixed;
@@ -340,6 +378,13 @@
   line-height: 1.6;
 }
 
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
 .cancelButton {
   background-color: var(--bgSoft);
   border: 1px solid var(--textSoftDark);
@@ -351,15 +396,15 @@
   transition: all 0.2s ease;
 }
 
-.cancelButton:hover {
+.cancelButton:hover:not(:disabled) {
   background-color: var(--bgSoft);
   border-color: var(--textSoft);
 }
 
-.deleteButton {
-  background-color: rgba(239, 68, 68, 0.2);
-  border: 1px solid #ef4444;
-  color: #ef4444;
+.confirmButton {
+  background-color: var(--button);
+  border: 1px solid var(--border);
+  color: var(--soft);
   padding: 10px 18px;
   border-radius: 8px;
   font-size: 14px;
@@ -368,37 +413,10 @@
   transition: all 0.2s ease;
 }
 
-.deleteButton:hover {
-  background-color: rgba(239, 68, 68, 0.3);
+.confirmButton:hover:not(:disabled) {
+  background-color: var(--border);
 }
 
-/* Feature badge styles */
-.featureBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  margin-right: 6px;
-  background-color: var(--bgSoft);
-  color: var(--textSoft);
-  border: 1px solid var(--textSoftDark);
-}
-
-.featureEnabled {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.featureDisabled {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-/* Copy button for IP and ID */
 .copyButton {
   background-color: transparent;
   border: none;
@@ -419,45 +437,24 @@
   transform: scale(0.95);
 }
 
-.disabledButton {
-  opacity: 0.5 !important;
-  cursor: default !important;
-  position: relative;
+.infoText {
+  display: flex;
+  align-items: flex-start;
+  font-size: 14px;
+  color: var(--textSoft);
+  margin-top: 16px;
+  padding: 12px;
+  background-color: rgba(31, 239, 238, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid var(--button);
+  line-height: 1.5;
 }
 
-.disabledButton:hover {
-  background-color: var(--bgSoft) !important;
-  border-color: var(--textSoftDark) !important;
-  color: var(--text) !important;
-  transform: none !important;
-}
-
-/* Override any hover effects for disabled buttons */
-.secondaryButton.disabledButton:hover {
-  background-color: var(--bgSoft) !important;
-  border-color: var(--textSoftDark) !important;
-  color: var(--text) !important;
-  transform: none !important;
-}
-
-.actionButton[disabled] {
-  cursor: default !important;
-  opacity: 0.5;
-}
-
-.disabledButton:hover::after {
-  content: 'Not supported for this instance';
-  position: absolute;
-  bottom: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  z-index: 10;
+.infoIconWrapper {
+  display: inline-block;
+  margin-right: 8px;
+  flex-shrink: 0;
+  color: var(--button);
 }
 
 @keyframes overlayShow {
@@ -483,5 +480,33 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .ipStatusRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .ipActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .actionButton {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .networkContainer {
+    margin: 16px 8px;
+    width: calc(100% - 16px);
+  }
+
+  .networkContent {
+    padding: 16px;
   }
 }

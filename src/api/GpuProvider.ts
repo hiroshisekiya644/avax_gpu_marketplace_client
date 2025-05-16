@@ -469,3 +469,89 @@ export const createReservation = async (params: ReservationRequest): Promise<Res
     }
   }
 }
+
+// Define the response interface for attach floating IP
+interface AttachFloatingIPResponse {
+  status: string
+  message: string
+  result?: {
+    status: boolean
+    message: string
+  }
+}
+
+// Define the response interface for detach floating IP
+interface DetachFloatingIPResponse {
+  status: string
+  message: string
+  result?: {
+    status: boolean
+    message: string
+  }
+}
+
+// Function to attach a floating IP to an instance
+export const attachFloatingIP = async (vmId: string | number): Promise<AttachFloatingIPResponse> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/vm/attach-floating-ip`
+    const token = localStorage.getItem('authToken')
+
+    const response = await axios.post(
+      url,
+      { vmId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    return response.data as AttachFloatingIPResponse
+  } catch (error) {
+    console.error('Error attaching floating IP:', error)
+
+    if (axios.isAxiosError(error) && error.response?.data) {
+      // Return the error message from the API if available
+      return error.response.data as AttachFloatingIPResponse
+    }
+
+    // Default error response
+    return {
+      status: 'error',
+      message: error instanceof Error ? error.message : 'Failed to attach public IP'
+    }
+  }
+}
+
+// Function to detach a floating IP from an instance
+export const detachFloatingIP = async (vmId: string | number): Promise<DetachFloatingIPResponse> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/vm/detach-floating-ip`
+    const token = localStorage.getItem('authToken')
+
+    const response = await axios.post(
+      url,
+      { vmId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    return response.data as DetachFloatingIPResponse
+  } catch (error) {
+    console.error('Error detaching floating IP:', error)
+
+    if (axios.isAxiosError(error) && error.response?.data) {
+      // Return the error message from the API if available
+      return error.response.data as DetachFloatingIPResponse
+    }
+
+    // Default error response
+    return {
+      status: 'error',
+      message: error instanceof Error ? error.message : 'Failed to detach public IP'
+    }
+  }
+}
