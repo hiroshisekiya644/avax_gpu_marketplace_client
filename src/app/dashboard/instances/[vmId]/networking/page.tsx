@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Flex, Button, Theme } from '@radix-ui/themes'
+import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 import { getGpuAction, attachFloatingIP, detachFloatingIP } from '@/api/GpuProvider'
 import { getUserData } from '@/api/User'
@@ -21,6 +22,9 @@ const CopyIcon = () => <DynamicSvgIcon height={14} className="rounded-none" icon
 const CheckIcon = () => <DynamicSvgIcon height={14} className="rounded-none" iconName="check-icon" />
 const InfoIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="info-icon" />
 const NoIpIcon = () => <DynamicSvgIcon height={48} className="rounded-none" iconName="no-ip-icon" />
+const AlertIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="alert-triangle" />
+const ShieldIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="firewall-icon" />
+const OverviewIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="overview-icon" />
 
 // Define the flavor features interface
 interface FlavorFeatures {
@@ -370,6 +374,21 @@ const NetworkingPage = () => {
         </Flex>
       </Flex>
 
+      {/* Navigation Tabs */}
+      <div className={styles.tabsContainer}>
+        <div className={styles.tabsList}>
+          <Link href={`/dashboard/instances/${vmId}`} className={styles.tabItem}>
+            <OverviewIcon /> Overview
+          </Link>
+          <Link href={`/dashboard/instances/${vmId}/networking`} className={`${styles.tabItem} ${styles.activeTab}`}>
+            <NetworkIcon /> Networking
+          </Link>
+          <Link href={`/dashboard/instances/${vmId}/firewall`} className={styles.tabItem}>
+            <ShieldIcon /> Firewall
+          </Link>
+        </div>
+      </div>
+
       {isLoading ? (
         <Flex className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
@@ -401,7 +420,7 @@ const NetworkingPage = () => {
           <div className={styles.networkContent}>
             <div className={styles.networkSection}>
               <div className={styles.sectionTitle}>
-                <IpIcon /> Public IP Addresses
+                <IpIcon /> Public IP Address
               </div>
 
               <div className={styles.ipStatusContainer}>
@@ -457,8 +476,17 @@ const NetworkingPage = () => {
                 <span className={styles.infoIconWrapper}>
                   <InfoIcon />
                 </span>
-                Public IP addresses allow your instance to be accessible from the internet. You can attach one public IP
-                per instance.
+                <div>
+                  <p className={styles.infoTitle}>About Public IP Addresses</p>
+                  <p>
+                    Public IP addresses allow your instance to be accessible from the internet. You can attach one
+                    public IP per instance.
+                  </p>
+                  <p className={styles.infoDetail}>
+                    When you attach a public IP, your instance will be reachable from the internet. Make sure to
+                    configure your firewall settings appropriately.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -483,6 +511,11 @@ const NetworkingPage = () => {
                 Are you sure you want to attach a public IP address to {instance?.gpu_name}? This will make your
                 instance accessible from the internet.
               </Dialog.Description>
+
+              <div className={styles.modalAlert}>
+                <AlertIcon />
+                <span>Make sure to configure your firewall rules after attaching a public IP.</span>
+              </div>
 
               <Flex justify="end" gap="3" mt="4">
                 <Button
@@ -512,6 +545,11 @@ const NetworkingPage = () => {
                 Are you sure you want to detach the public IP address from {instance?.gpu_name}? This will make your
                 instance inaccessible from the internet.
               </Dialog.Description>
+
+              <div className={styles.modalAlert}>
+                <AlertIcon />
+                <span>Your instance will no longer be accessible via the internet after this action.</span>
+              </div>
 
               <Flex justify="end" gap="3" mt="4">
                 <Button

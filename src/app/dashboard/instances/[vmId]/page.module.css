@@ -462,6 +462,281 @@
   z-index: 10;
 }
 
+/* Tab styles */
+.tabsContainer {
+  margin-top: 16px;
+  border-bottom: 1px solid var(--bgSoft);
+  padding: 0 24px;
+}
+
+.tabsList {
+  display: flex;
+  gap: 24px;
+  margin-bottom: -1px;
+}
+
+.tabTrigger {
+  padding: 12px 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--textSoft);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tabTrigger:hover {
+  color: var(--text);
+}
+
+.tabTrigger[data-state='active'] {
+  color: var(--button);
+  border-bottom: 2px solid var(--button);
+}
+
+.tabContent {
+  padding: 24px;
+  outline: none;
+}
+
+/* Networking tab styles */
+.networkSection {
+  margin-bottom: 32px;
+  background-color: var(--bg);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--bgSoft);
+}
+
+.networkTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.networkTable th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--textSoft);
+  border-bottom: 1px solid var(--bgSoft);
+}
+
+.networkTable td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--text);
+  border-bottom: 1px solid var(--bgSoft);
+}
+
+/* Firewall tab styles */
+.firewallSection {
+  margin-bottom: 32px;
+  background-color: var(--bg);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--bgSoft);
+}
+
+.toggleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--bgSoft);
+}
+
+.toggleLabel {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggleDescription {
+  font-size: 12px;
+  color: var(--textSoft);
+  margin-top: 4px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bgSoft);
+  transition: 0.4s;
+  border-radius: 24px;
+  border: 1px solid var(--textSoftDark);
+}
+
+.slider:before {
+  position: absolute;
+  content: '';
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 2px;
+  background-color: var(--text);
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--button);
+}
+
+input:checked + .slider:before {
+  transform: translateX(19px);
+  background-color: white;
+}
+
+.ruleTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.ruleTable th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--textSoft);
+  border-bottom: 1px solid var(--bgSoft);
+}
+
+.ruleTable td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--text);
+  border-bottom: 1px solid var(--bgSoft);
+}
+
+.protocolBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: var(--bgSoft);
+  color: var(--textSoft);
+  border: 1px solid var(--textSoftDark);
+}
+
+.tcpBadge {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.udpBadge {
+  background-color: rgba(79, 70, 229, 0.1);
+  color: #6366f1;
+  border: 1px solid rgba(79, 70, 229, 0.3);
+}
+
+.icmpBadge {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.addRuleForm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--bgSoft);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formLabel {
+  font-size: 14px;
+  color: var(--textSoft);
+}
+
+.formInput,
+.formSelect {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid var(--textSoftDark);
+  background-color: var(--bgSoft);
+  color: var(--text);
+  font-size: 14px;
+  width: 100%;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  outline: none;
+  border-color: var(--button);
+}
+
+.addRuleButton {
+  background-color: var(--button);
+  color: var(--soft);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 24px;
+}
+
+.addRuleButton:hover {
+  background-color: var(--border);
+}
+
+.deleteRuleButton {
+  background-color: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.deleteRuleButton:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
 @keyframes overlayShow {
   from {
     opacity: 0;
@@ -486,4 +761,254 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Tab Navigation Styles */
+.tabsContainer {
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tabsList {
+  display: flex;
+  gap: 4px;
+  padding: 0 20px;
+}
+
+.tabItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.tabItem:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.activeTab {
+  color: var(--button);
+  border-bottom: 2px solid var(--button);
+}
+
+/* Protocol Badge Styles for Firewall Page */
+.protocolBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.tcpBadge {
+  background-color: rgba(var(--primary-rgb), 0.1);
+  color: var(--button);
+}
+
+.udpBadge {
+  background-color: rgba(var(--warning-rgb), 0.1);
+  color: var(--warning);
+}
+
+.icmpBadge {
+  background-color: rgba(var(--success-rgb), 0.1);
+  color: var(--success);
+}
+
+/* Form Styles for Firewall Page */
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formLabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.formInput,
+.formSelect {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  border-color: var(--button);
+  outline: none;
+}
+
+.formInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Toggle Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-secondary);
+  transition: 0.4s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: '';
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--button);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--button);
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* Rule Table Styles */
+.ruleTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.ruleTable th {
+  text-align: left;
+  padding: 12px 16px;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+}
+
+.ruleTable td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.deleteRuleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--danger);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.deleteRuleButton:hover {
+  background-color: rgba(var(--danger-rgb), 0.1);
+}
+
+.addRuleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: var(--button);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.addRuleButton:hover {
+  background-color: var(--button-hover);
+}
+
+.addRuleForm {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* Firewall Section Styles */
+.firewallSection {
+  background-color: var(--bg-card);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.toggleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.toggleRow:last-child {
+  border-bottom: none;
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.toggleDescription {
+  font-size: 13px;
+  color: var(--text-secondary);
 }
