@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { Flex, Button } from '@radix-ui/themes'
+import { Flex, Button, Theme } from '@radix-ui/themes'
 import { useRouter, useParams } from 'next/navigation'
 import { manageVM, deleteVM, getGpuAction } from '@/api/GpuProvider'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
@@ -655,23 +655,25 @@ const InstanceDetailsPage = () => {
         <Dialog.Portal>
           <Dialog.Overlay className={styles.dialogOverlay} />
           <Dialog.Content className={styles.dialogContent}>
-            <Dialog.Title className={styles.modalTitle}>Confirm Delete</Dialog.Title>
-            <Dialog.Description className={styles.modalDescription}>
-              Are you sure you want to delete {instance?.gpu_name}? This action cannot be undone.
-            </Dialog.Description>
+            <Theme>
+              <Dialog.Title className={styles.modalTitle}>Confirm Delete</Dialog.Title>
+              <Dialog.Description className={styles.modalDescription}>
+                Are you sure you want to delete {instance?.gpu_name}? This action cannot be undone.
+              </Dialog.Description>
 
-            <Flex justify="end" gap="3" mt="4">
-              <Button
-                className={styles.cancelButton}
-                onClick={() => setIsDeleteModalOpen(false)}
-                disabled={isProcessing}
-              >
-                Cancel
-              </Button>
-              <Button className={styles.deleteButton} onClick={handleDeleteInstance} disabled={isProcessing}>
-                {isProcessing ? 'Deleting...' : 'Delete'}
-              </Button>
-            </Flex>
+              <Flex justify="end" gap="3" mt="4">
+                <Button
+                  className={styles.cancelButton}
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  disabled={isProcessing}
+                >
+                  Cancel
+                </Button>
+                <Button className={styles.deleteButton} onClick={handleDeleteInstance} disabled={isProcessing}>
+                  {isProcessing ? 'Deleting...' : 'Delete'}
+                </Button>
+              </Flex>
+            </Theme>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
