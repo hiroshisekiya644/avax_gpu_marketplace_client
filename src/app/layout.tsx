@@ -23,8 +23,8 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: 'AVAX GPU Marketplace',
-  description: 'AVAX GPU Marketplace'
+  title: 'rLoop GPU Marketplace',
+  description: 'rLoop GPU Marketplace'
 }
 
 export default function RootLayout({
