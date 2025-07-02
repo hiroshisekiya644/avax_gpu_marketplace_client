@@ -1,6 +1,6 @@
-# AVAX GPU Marketplace Frontend
+# rLoop GPU Marketplace Frontend
 
-This is the frontend for the AVAX GPU Marketplace built with **Next.js**, **Tailwind CSS**, and **TypeScript**. It interfaces with the backend for GPU listings, user authentication, payments, and real-time VM status. 
+This is the frontend for the rLoop GPU Marketplace built with **Next.js**, **Tailwind CSS**, and **TypeScript**. It interfaces with the backend for GPU listings, user authentication, payments, and real-time VM status. 
 
 ## ✨ Features 
 
@@ -8,7 +8,7 @@ This is the frontend for the AVAX GPU Marketplace built with **Next.js**, **Tail
 - Login/Signup with Google
 - Real-time GPU and balance updates using WebSocket
 - Display of available GPUs with pricing (fetched from Hyperstack)
-- Crypto deposit using AVAX and USDT
+- Crypto deposit using AVAX USDT
 - SSH key management UI
 
 ## 🛠 Tech Stack
