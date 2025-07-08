@@ -22,7 +22,7 @@ const CopyIcon = () => <DynamicSvgIcon height={14} className="rounded-none" icon
 const CheckIcon = () => <DynamicSvgIcon height={14} className="rounded-none" iconName="check-icon" />
 const InfoIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="info-icon" />
 const NoIpIcon = () => <DynamicSvgIcon height={48} className="rounded-none" iconName="no-ip-icon" />
-const AlertIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="alert-triangle" />
+const AlertIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="alert-circle" />
 const ShieldIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="firewall-icon" />
 const OverviewIcon = () => <DynamicSvgIcon height={16} className="rounded-none" iconName="overview-icon" />
 
