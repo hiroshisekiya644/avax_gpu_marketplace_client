@@ -44,7 +44,7 @@ const Custom404 = () => {
           color: '#d9d9d9'
         }}
       >
-        Coming Soon...
+        🚨 LIVE NOW
       </p>
       <p
         style={{
