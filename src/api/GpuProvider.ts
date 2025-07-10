@@ -555,3 +555,125 @@ export const detachFloatingIP = async (vmId: string | number): Promise<DetachFlo
     }
   }
 }
+
+// Define interfaces for firewall operations
+interface FirewallRule {
+  id: number
+  gpu_rental_id: number
+  direction: string
+  protocol: string
+  port_range_min: number
+  port_range_max: number
+  ethertype: string
+  remote_ip_prefix: string
+  action: string
+  description?: string
+  createdAt: string
+  updatedAt: string
+  gpu_id?: number
+}
+
+interface AddFirewallRuleRequest {
+  vmId: number | string
+  direction: 'ingress' | 'egress'
+  protocol: 'tcp' | 'udp' | 'icmp'
+  ethertype: 'IPv4' | 'IPv6'
+  remote_ip_prefix: string
+  port_range_min: number
+  port_range_max: number
+}
+
+interface AddFirewallRuleResponse {
+  message: string
+  firewallRule: FirewallRule
+}
+
+interface GetFirewallRulesResponse {
+  status: string
+  rules: FirewallRule[]
+}
+
+interface DeleteFirewallRuleResponse {
+  message: string
+  status: string
+}
+
+// Function to add a firewall rule
+export const addFirewallRule = async (params: AddFirewallRuleRequest): Promise<AddFirewallRuleResponse> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/firewall/add-rule`
+    const token = localStorage.getItem('authToken')
+
+    const response = await axios.post(url, params, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    return response.data as AddFirewallRuleResponse
+  } catch (error) {
+    console.error('Error adding firewall rule:', error)
+
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const errorData = error.response.data as { message?: string }
+      throw new Error(errorData.message || 'Failed to add firewall rule')
+    }
+
+    throw new Error(error instanceof Error ? error.message : 'Failed to add firewall rule')
+  }
+}
+
+// Function to get firewall rules for a VM
+export const getFirewallRules = async (vmId: number | string): Promise<GetFirewallRulesResponse> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/firewall/get-rule`
+    const token = localStorage.getItem('authToken')
+
+    const response = await axios.post(
+      url,
+      { vmId }, // 🔁 vmId in request body
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    return response.data as GetFirewallRulesResponse
+  } catch (error) {
+    console.error('Error fetching firewall rules:', error)
+
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const errorData = error.response.data as { message?: string }
+      throw new Error(errorData.message || 'Failed to fetch firewall rules')
+    }
+
+    throw new Error(error instanceof Error ? error.message : 'Failed to fetch firewall rules')
+  }
+}
+
+// Function to delete a firewall rule
+export const deleteFirewallRule = async (ruleId: number): Promise<DeleteFirewallRuleResponse> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/gpus/firewall/delete-rule/${ruleId}`
+    const token = localStorage.getItem('authToken')
+
+    const response = await axios.delete(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    return response.data as DeleteFirewallRuleResponse
+  } catch (error) {
+    console.error('Error deleting firewall rule:', error)
+
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const errorData = error.response.data as { message?: string }
+      throw new Error(errorData.message || 'Failed to delete firewall rule')
+    }
+
+    throw new Error(error instanceof Error ? error.message : 'Failed to delete firewall rule')
+  }
+}

@@ -1,5 +1,3 @@
-/* Add these new styles to enhance the firewall page UI */
-
 .bg {
   background-color: var(--bg);
   min-height: 100vh;
@@ -164,100 +162,53 @@
 
 .firewallContainer {
   padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .firewallHeader {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .firewallTitle {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.firewallContent {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.statusCard {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background-color: var(--cardDarkPurple);
-  border-radius: 8px;
-  padding: 20px;
-  border: 1px solid var(--bgSoft);
-  margin-bottom: 24px;
-}
-
-.statusCardIcon {
-  color: #10b981;
-  background-color: rgba(16, 185, 129, 0.1);
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.statusCardContent h3 {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  color: var(--text);
-}
-
-.statusCardContent p {
-  margin: 0;
-  color: var(--textSoft);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.statusActive {
-  color: #10b981;
-}
-
-.section {
-  background-color: var(--cardDarkPurple);
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 24px;
-}
-
-.sectionHeader {
-  margin-bottom: 24px;
-}
-
-.sectionTitle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
+  gap: 12px;
+  font-size: 24px;
   font-weight: 600;
   color: var(--text);
   margin-bottom: 8px;
 }
 
-.sectionDescription {
-  font-size: 14px;
+.firewallDescription {
   color: var(--textSoft);
+  font-size: 16px;
   line-height: 1.5;
+}
+
+.section {
+  background-color: var(--cardDarkPurple);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid var(--bgSoft);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 16px;
 }
 
 .quickAccessGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
+  margin-bottom: 24px;
 }
 
 .quickAccessCard {
@@ -270,7 +221,6 @@
 
 .quickAccessCard:hover {
   border-color: var(--border);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .quickAccessHeader {
@@ -292,7 +242,7 @@
 .quickAccessDescription {
   font-size: 14px;
   color: var(--textSoft);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .quickAccessStatus {
@@ -308,31 +258,6 @@
 .statusDisabled {
   color: #ef4444;
   font-weight: 500;
-}
-
-.toggleRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.toggleRow:last-child {
-  border-bottom: none;
-}
-
-.toggleLabel {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-
-.toggleDescription {
-  font-size: 13px;
-  color: var(--text-secondary);
 }
 
 .toggleSwitch {
@@ -375,6 +300,7 @@
 
 input:checked + .toggleSlider {
   background-color: var(--button);
+  border-color: var(--button);
 }
 
 input:checked + .toggleSlider:before {
@@ -382,79 +308,20 @@ input:checked + .toggleSlider:before {
   background-color: white;
 }
 
-.tableContainer {
-  overflow-x: auto;
-  margin-bottom: 24px;
+.addRuleForm {
+  background-color: var(--bg);
+  border-radius: 8px;
+  padding: 24px;
   border: 1px solid var(--bgSoft);
-  border-radius: 8px;
-}
-
-.rulesTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.rulesTable th {
-  text-align: left;
-  padding: 14px 16px;
-  background-color: var(--bg);
-  color: var(--textSoft);
-  font-weight: 500;
-  border-bottom: 1px solid var(--bgSoft);
-}
-
-.rulesTable td {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--bgSoft);
-}
-
-.rulesTable tr:last-child td {
-  border-bottom: none;
-}
-
-.rulesTable tr:hover td {
-  background-color: rgba(31, 239, 238, 0.05);
-}
-
-.emptyRules {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  background-color: var(--bg);
-  border-radius: 8px;
-  border: 1px dashed var(--bgSoft);
-  text-align: center;
   margin-bottom: 24px;
-}
-
-.emptyRules p {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text);
-  margin: 16px 0 8px 0;
-}
-
-.emptyRules span {
-  font-size: 14px;
-  color: var(--textSoft);
-}
-
-.addRuleSection {
-  background-color: var(--bg);
-  border-radius: 8px;
-  padding: 20px;
-  border: 1px solid var(--bgSoft);
 }
 
 .addRuleHeader {
   margin-bottom: 20px;
 }
 
-.addRuleHeader h4 {
-  font-size: 16px;
+.addRuleHeader h3 {
+  font-size: 18px;
   font-weight: 600;
   margin: 0 0 8px 0;
   color: var(--text);
@@ -468,26 +335,30 @@ input:checked + .toggleSlider:before {
 
 .formGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   margin-bottom: 20px;
 }
 
 .formField {
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 .formLabel {
-  display: block;
-  margin-bottom: 6px;
   font-size: 14px;
   font-weight: 500;
   color: var(--text);
+  margin-bottom: 6px;
 }
 
-.formInput,
-.formSelect {
-  width: 100%;
+.optional {
+  color: var(--textSoft);
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.formInput {
   padding: 10px 12px;
   border: 1px solid var(--textSoftDark);
   border-radius: 6px;
@@ -497,8 +368,7 @@ input:checked + .toggleSlider:before {
   transition: border-color 0.2s ease;
 }
 
-.formInput:focus,
-.formSelect:focus {
+.formInput:focus {
   border-color: var(--button);
   outline: none;
 }
@@ -507,12 +377,62 @@ input:checked + .toggleSlider:before {
   color: var(--textSoft);
 }
 
+.formInput:disabled {
+  background-color: var(--bgSoft);
+  color: var(--textSoft);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.portRangeContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.portRangeInput {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--textSoftDark);
+  border-radius: 6px;
+  background-color: var(--bgSoft);
+  color: var(--text);
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.portRangeInput:focus {
+  border-color: var(--button);
+  outline: none;
+}
+
+.portRangeInput:disabled {
+  background-color: var(--bgSoft);
+  color: var(--textSoft);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.portRangeSeparator {
+  color: var(--textSoft);
+  font-weight: 500;
+}
+
+.fieldHint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--textSoft);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .addButton {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 12px 24px;
   background-color: var(--button);
   color: var(--soft);
   border: none;
@@ -521,30 +441,54 @@ input:checked + .toggleSlider:before {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-bottom: 20px;
 }
 
-.addButton:hover {
+.addButton:hover:not(:disabled) {
   background-color: var(--border);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
-.deleteButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  background-color: transparent;
-  color: #ef4444;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+.addButton:disabled {
+  background-color: var(--bgSoft);
+  color: var(--textSoft);
+  cursor: not-allowed;
+  transform: none;
 }
 
-.deleteButton:hover {
-  background-color: rgba(239, 68, 68, 0.1);
+.tableContainer {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--bgSoft);
+}
+
+.rulesTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background-color: var(--bg);
+}
+
+.rulesTable th {
+  text-align: left;
+  padding: 16px;
+  background-color: var(--bgSoft);
+  color: var(--text);
+  font-weight: 600;
+  border-bottom: 1px solid var(--textSoftDark);
+}
+
+.rulesTable td {
+  padding: 16px;
+  border-bottom: 1px solid var(--bgSoft);
+  color: var(--text);
+}
+
+.rulesTable tr:last-child td {
+  border-bottom: none;
+}
+
+.rulesTable tr:hover td {
+  background-color: rgba(31, 239, 238, 0.05);
 }
 
 .protocolBadge {
@@ -555,8 +499,7 @@ input:checked + .toggleSlider:before {
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  background-color: var(--bgSoft);
-  color: var(--textSoft);
+  text-transform: uppercase;
 }
 
 .tcpBadge {
@@ -577,92 +520,78 @@ input:checked + .toggleSlider:before {
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.templateSection {
-  background-color: rgba(31, 239, 238, 0.05);
-  border-radius: 6px;
-  padding: 16px;
-}
-
-.templateHeader h5 {
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0 0 12px 0;
-  color: var(--text);
-}
-
-.templateButtons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.templateButton {
-  display: flex;
+.directionBadge {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background-color: var(--bgSoft);
-  color: var(--text);
-  border: 1px solid var(--textSoftDark);
+  justify-content: center;
+  padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.ingressBadge {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.egressBadge {
+  background-color: rgba(168, 85, 247, 0.1);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.deleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #ef4444;
+  border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.templateButton:hover {
-  background-color: var(--button);
-  border-color: var(--border);
-  color: var(--soft);
+.deleteButton:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
-.advancedSettingsCard {
+.emptyState {
   display: flex;
-  gap: 16px;
-  background-color: var(--bg);
-  border-radius: 8px;
-  padding: 20px;
-  border: 1px solid var(--bgSoft);
-}
-
-.advancedSettingsIcon {
-  color: var(--button);
-  background-color: rgba(31, 239, 238, 0.1);
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  padding: 48px 20px;
+  background-color: var(--bg);
+  border-radius: 8px;
+  border: 1px dashed var(--bgSoft);
+  text-align: center;
 }
 
-.advancedSettingsContent h4 {
-  font-size: 16px;
+.emptyState h3 {
+  font-size: 18px;
   font-weight: 600;
-  margin: 0 0 12px 0;
   color: var(--text);
+  margin: 16px 0 8px 0;
 }
 
-.advancedSettingsContent p {
-  margin: 0 0 12px 0;
+.emptyState p {
+  font-size: 14px;
   color: var(--textSoft);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.advancedList {
   margin: 0;
-  padding-left: 20px;
-}
-
-.advancedList li {
-  margin-bottom: 8px;
-  color: var(--text);
-  font-size: 14px;
 }
 
 @media (max-width: 768px) {
+  .firewallContainer {
+    padding: 16px;
+  }
+
   .quickAccessGrid {
     grid-template-columns: 1fr;
   }
@@ -671,17 +600,12 @@ input:checked + .toggleSlider:before {
     grid-template-columns: 1fr;
   }
 
-  .advancedSettingsCard {
-    flex-direction: column;
-    align-items: flex-start;
+  .rulesTable {
+    font-size: 12px;
   }
 
-  .templateButtons {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .templateButton {
-    width: 100%;
+  .rulesTable th,
+  .rulesTable td {
+    padding: 12px 8px;
   }
 }
