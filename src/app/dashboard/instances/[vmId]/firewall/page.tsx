@@ -182,7 +182,7 @@ const FirewallPage = () => {
       if (!sshEnabled) {
         // Add SSH rule
         await addFirewallRule({
-          vmId: instance.id,
+          vmId: instance.instance_id,
           direction: 'ingress',
           protocol: 'tcp',
           ethertype: 'IPv4',
@@ -223,7 +223,7 @@ const FirewallPage = () => {
       if (!icmpEnabled) {
         // Add ICMP rule
         await addFirewallRule({
-          vmId: instance.id,
+          vmId: instance.instance_id,
           direction: 'ingress',
           protocol: 'icmp',
           ethertype: 'IPv4',
