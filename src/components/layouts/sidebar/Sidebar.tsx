@@ -28,10 +28,12 @@ const QuoteIcon = () => <DynamicSvgIcon height={26} className="rounded-none" ico
 const BillingIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="billing-icon" />
 const ProfileIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="profile-icon" />
 const LogoutIcon = () => <DynamicSvgIcon height={22} className="rounded-none" iconName="logout-icon" />
+const VolumeIcon = () => <DynamicSvgIcon height={26} className="rounded-none" iconName="disk" />
 
 export const sidebarClusterMenu: SidebarMenu[] = [
   { name: 'Deploy GPU Instance', href: '/dashboard/create-cluster', icon: <CreateClusterIcon /> },
   { name: 'Instances', href: '/dashboard/instances', icon: <InstanceIcon /> },
+  { name: 'Volumes', href: '/dashboard/volumes', icon: <VolumeIcon /> },
   { name: 'Reserved Instances', href: '/dashboard/quotes', icon: <QuoteIcon /> },
   { name: 'Billing', href: '/dashboard/billing', icon: <BillingIcon /> },
   { name: 'Profile', href: '/dashboard/profile', icon: <ProfileIcon /> }
