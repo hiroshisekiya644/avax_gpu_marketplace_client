@@ -5,86 +5,54 @@ import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
 import { Card } from '@/components/card/Card'
 import DynamicSvgIcon from '@/components/icons/DynamicSvgIcon'
+import { getVolumes, type Volume } from '@/api/VolumeProvider'
 import styles from './page.module.css'
-
-interface Volume {
-  id: string
-  name: string
-  size: number
-  type: 'SSD' | 'HDD'
-  status: 'available' | 'attached' | 'creating' | 'error'
-  region: string
-  createdAt: string
-  attachedTo?: string
-  attachedInstanceName?: string
-}
-
-const mockVolumes: Volume[] = [
-  {
-    id: 'vol-1a2b3c4d',
-    name: 'ml-dataset-storage',
-    size: 500,
-    type: 'SSD',
-    status: 'attached',
-    region: 'us-west-2',
-    createdAt: '2024-01-15T10:30:00Z',
-    attachedTo: 'i-1234567890abcdef0',
-    attachedInstanceName: 'gpu-training-01'
-  },
-  {
-    id: 'vol-2e3f4g5h',
-    name: 'backup-volume',
-    size: 1000,
-    type: 'HDD',
-    status: 'available',
-    region: 'us-east-1',
-    createdAt: '2024-01-10T14:20:00Z'
-  },
-  {
-    id: 'vol-3i4j5k6l',
-    name: 'model-checkpoints',
-    size: 250,
-    type: 'SSD',
-    status: 'creating',
-    region: 'eu-west-1',
-    createdAt: '2024-01-20T09:15:00Z'
-  },
-  {
-    id: 'vol-4m5n6o7p',
-    name: 'data-processing',
-    size: 750,
-    type: 'SSD',
-    status: 'error',
-    region: 'us-west-2',
-    createdAt: '2024-01-18T16:45:00Z'
-  }
-]
 
 export default function VolumesPage() {
   const [volumes, setVolumes] = useState<Volume[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedTab, setSelectedTab] = useState('all')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [volumeToDelete, setVolumeToDelete] = useState<Volume | null>(null)
 
-  useEffect(() => {
-    // Simulate API call
-    const timer = setTimeout(() => {
-      setVolumes(mockVolumes)
-      setLoading(false)
-    }, 1000)
+  // Fetch volumes from backend
+  const fetchVolumes = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await getVolumes()
 
-    return () => clearTimeout(timer)
+      if (response.status === 'success' && response.volumes) {
+        setVolumes(response.volumes)
+      } else {
+        setVolumes([])
+        if (response.message) {
+          setError(response.message)
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching volumes:', err)
+      setError(err instanceof Error ? err.message : 'Failed to fetch volumes')
+      setVolumes([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchVolumes()
   }, [])
 
   const filteredVolumes = volumes.filter((volume) => {
     const matchesSearch =
       volume.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      volume.id.toLowerCase().includes(searchTerm.toLowerCase())
+      volume.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      volume.hyperstack_volume_id.toString().toLowerCase().includes(searchTerm.toLowerCase())
 
     if (selectedTab === 'all') return matchesSearch
-    if (selectedTab === 'attached') return matchesSearch && volume.status === 'attached'
+    if (selectedTab === 'attached') return matchesSearch && (volume.status === 'attached' || volume.status === 'in-use')
     if (selectedTab === 'available') return matchesSearch && volume.status === 'available'
 
     return matchesSearch
@@ -94,15 +62,17 @@ export default function VolumesPage() {
     const statusConfig = {
       available: { className: styles.statusAvailable, text: 'Available' },
       attached: { className: styles.statusAttached, text: 'Attached' },
+      'in-use': { className: styles.statusAttached, text: 'In Use' },
       creating: { className: styles.statusCreating, text: 'Creating' },
+      deleting: { className: styles.statusCreating, text: 'Deleting' },
       error: { className: styles.statusError, text: 'Error' }
     }
 
-    const config = statusConfig[status]
+    const config = statusConfig[status] || { className: styles.statusError, text: status }
 
     return (
       <span className={`${styles.statusBadge} ${config.className}`}>
-        {status === 'creating' && <span className={styles.statusSpinner}></span>}
+        {(status === 'creating' || status === 'deleting') && <span className={styles.statusSpinner}></span>}
         {config.text}
       </span>
     )
@@ -115,10 +85,16 @@ export default function VolumesPage() {
 
   const confirmDelete = () => {
     if (volumeToDelete) {
+      // For now, just remove from local state
+      // TODO: Implement actual delete API call
       setVolumes(volumes.filter((v) => v.id !== volumeToDelete.id))
       setDeleteDialogOpen(false)
       setVolumeToDelete(null)
     }
+  }
+
+  const handleRefresh = () => {
+    fetchVolumes()
   }
 
   const formatDate = (dateString: string) => {
@@ -138,9 +114,16 @@ export default function VolumesPage() {
     return `${sizeGB} GB`
   }
 
+  // Helper function to get display type
+  const getDisplayType = (type: string) => {
+    if (type.includes('SSD')) return 'SSD'
+    if (type.includes('HDD')) return 'HDD'
+    return type
+  }
+
   const totalVolumes = volumes.length
   const totalStorage = volumes.reduce((sum, vol) => sum + vol.size, 0)
-  const attachedCount = volumes.filter((v) => v.status === 'attached').length
+  const attachedCount = volumes.filter((v) => v.status === 'attached' || v.status === 'in-use').length
   const availableCount = volumes.filter((v) => v.status === 'available').length
 
   if (loading) {
@@ -168,7 +151,7 @@ export default function VolumesPage() {
               <DynamicSvgIcon iconName="wallet-icon" width={16} height={16} />
               <span className={styles.balanceAmount}>$125.50</span>
             </div>
-            <button className={styles.refreshButton}>
+            <button className={styles.refreshButton} onClick={handleRefresh} disabled={loading}>
               <DynamicSvgIcon iconName="refresh-icon" width={16} height={16} />
               <span>Refresh</span>
             </button>
@@ -181,6 +164,16 @@ export default function VolumesPage() {
       </div>
 
       <div className="px-6 py-6">
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
+            <div className="flex items-center gap-2">
+              <DynamicSvgIcon iconName="alert-circle" width={16} height={16} className="text-red-400" />
+              <span className="text-red-400">{error}</span>
+            </div>
+          </div>
+        )}
+
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card className={styles.volumeCardWrapper}>
@@ -287,8 +280,8 @@ export default function VolumesPage() {
                         <th className={styles.volumeTableCell}>Type</th>
                         <th className={styles.volumeTableCell}>Status</th>
                         <th className={styles.volumeTableCell}>Region</th>
+                        <th className={styles.volumeTableCell}>Bootable</th>
                         <th className={styles.volumeTableCell}>Created</th>
-                        <th className={styles.volumeTableCell}>Attached To</th>
                         <th className={styles.volumeTableCell}>Actions</th>
                       </tr>
                     </thead>
@@ -298,24 +291,28 @@ export default function VolumesPage() {
                           <td className={styles.volumeTableCell}>
                             <div>
                               <div className="font-medium text-white">{volume.name}</div>
-                              <div className="text-sm text-gray-400">{volume.id}</div>
+                              <div className="text-sm text-gray-400">ID: {volume.id}</div>
+                              <div className="text-xs text-gray-500">Hyperstack: {volume.hyperstack_volume_id}</div>
                             </div>
                           </td>
                           <td className={styles.volumeTableCell}>{formatSize(volume.size)}</td>
-                          <td className={styles.volumeTableCell}>{volume.type}</td>
+                          <td className={styles.volumeTableCell}>
+                            <span className="text-sm">{getDisplayType(volume.type)}</span>
+                            <div className="text-xs text-gray-400">{volume.type}</div>
+                          </td>
                           <td className={styles.volumeTableCell}>{getStatusBadge(volume.status)}</td>
                           <td className={styles.volumeTableCell}>{volume.region}</td>
-                          <td className={styles.volumeTableCell}>{formatDate(volume.createdAt)}</td>
                           <td className={styles.volumeTableCell}>
-                            {volume.attachedTo ? (
-                              <a href={`/dashboard/instances/${volume.attachedTo}`} className={styles.volumeNameLink}>
-                                {volume.attachedInstanceName || volume.attachedTo}
-                                <DynamicSvgIcon iconName="external-link" width={12} height={12} />
-                              </a>
+                            {volume.bootable ? (
+                              <span className="inline-flex items-center gap-1 text-green-400">
+                                <DynamicSvgIcon iconName="check-circle" width={12} height={12} />
+                                Yes
+                              </span>
                             ) : (
-                              <span className="text-gray-500">-</span>
+                              <span className="text-gray-500">No</span>
                             )}
                           </td>
+                          <td className={styles.volumeTableCell}>{formatDate(volume.createdAt)}</td>
                           <td className={styles.volumeTableCell}>
                             <div className="flex items-center gap-2">
                               <button className={styles.actionButton} title="Edit">
@@ -323,10 +320,14 @@ export default function VolumesPage() {
                               </button>
                               <button
                                 className={styles.actionButton}
-                                title={volume.status === 'attached' ? 'Detach' : 'Attach'}
+                                title={volume.status === 'attached' || volume.status === 'in-use' ? 'Detach' : 'Attach'}
                               >
                                 <DynamicSvgIcon
-                                  iconName={volume.status === 'attached' ? 'detach-icon' : 'attach-icon'}
+                                  iconName={
+                                    volume.status === 'attached' || volume.status === 'in-use'
+                                      ? 'detach-icon'
+                                      : 'attach-icon'
+                                  }
                                   width={14}
                                   height={14}
                                 />
@@ -335,6 +336,7 @@ export default function VolumesPage() {
                                 className={styles.actionButtonDelete}
                                 title="Delete"
                                 onClick={() => handleDeleteVolume(volume)}
+                                disabled={volume.status === 'deleting'}
                               >
                                 <DynamicSvgIcon iconName="delete-icon" width={14} height={14} />
                               </button>
